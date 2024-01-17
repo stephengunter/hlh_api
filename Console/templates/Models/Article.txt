@@ -1,0 +1,13 @@
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using ApplicationCore.Helpers;
+using Infrastructure.Entities;
+
+namespace ApplicationCore.Models;
+
+public class Article : BaseRecord
+{
+   public string Title { get; set; } = String.Empty;
+
+}
+
