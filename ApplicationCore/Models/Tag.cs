@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 
 namespace ApplicationCore.Models;
-public class Tag : BaseCategory
+public class Tag : BaseCategory<Tag>
 {
    public string Key { get; set; } = String.Empty;
    public virtual ICollection<TagArticle>? TagArticles { get; set; }

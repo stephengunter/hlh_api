@@ -1,6 +1,6 @@
 ﻿using Ardalis.Specification;
 using ApplicationCore.Models;
-using ApplicationCore.Helpers;
+using Infrastructure.Helpers;
 
 namespace ApplicationCore.Specifications;
 public class TagSpecification : Specification<Tag>

@@ -1,4 +1,4 @@
-﻿using ApplicationCore.Helpers;
+﻿using Infrastructure.Helpers;
 using ApplicationCore.Models;
 using ApplicationCore.Views;
 using AutoMapper;

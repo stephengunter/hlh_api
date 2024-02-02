@@ -7,5 +7,6 @@ public enum Permissions
 public enum AppRoles
 {
 	Boss,
-	Dev
+	Dev,
+   Clerk //®Ñ°O©x
 }

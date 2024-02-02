@@ -13,7 +13,9 @@ public class User : IdentityUser, IAggregateRoot
 	public DateTime CreatedAt { get; set; } = DateTime.Now;
 	public virtual RefreshToken? RefreshToken { get; set; }
    public virtual Profile? Profile { get; set; }
+   public bool Active { get; set; }
 
    public virtual ICollection<OAuth>? OAuthList { get; set; }
+   public virtual ICollection<Job>? Jobs { get; set; }
 
 }

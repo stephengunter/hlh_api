@@ -1,9 +1,9 @@
-namespace ApplicationCore.Helpers;
+namespace Infrastructure.Helpers;
 
 public static class StringHelpers
 {
    public static string GetString(this string? text) => String.IsNullOrEmpty(text) ? "" : text.ToString();
-	public static bool HasValue(this string text) => !String.IsNullOrEmpty(text);
+	public static bool HasValue(this string? text) => !String.IsNullOrEmpty(text);
    public static bool EqualTo(this string val, string other) => String.Compare(val, other, true) == 0;
 	public static bool CaseInsensitiveContains(this string text, string value)
 	{

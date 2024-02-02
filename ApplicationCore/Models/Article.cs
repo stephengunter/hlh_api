@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using ApplicationCore.Helpers;
+using Infrastructure.Helpers;
 using Infrastructure.Entities;
 
 namespace ApplicationCore.Models;

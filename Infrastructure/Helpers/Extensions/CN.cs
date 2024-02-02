@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ApplicationCore.Helpers;
+namespace Infrastructure.Helpers;
 public static class CNHelpers
 {
     static string[] cnNumbers = new string[] { "零", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十" };

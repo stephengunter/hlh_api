@@ -1,4 +1,4 @@
-﻿namespace ApplicationCore.Helpers;
+﻿namespace Infrastructure.Helpers;
 public static class CommonHelpers
 {
 	public static int ToInt(this string str)

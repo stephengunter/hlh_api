@@ -1,4 +1,4 @@
-﻿using ApplicationCore.Helpers;
+﻿using Infrastructure.Helpers;
 
 namespace ApplicationCore.Views;
 public class PagedList<T>

@@ -16,6 +16,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Builder;
 using ApplicationCore.Authorization;
 using Microsoft.AspNetCore.Authorization;
+using Infrastructure.Helpers;
 
 Log.Logger = new LoggerConfiguration()
 	.MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Information)

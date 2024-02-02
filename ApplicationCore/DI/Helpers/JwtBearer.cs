@@ -5,7 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using ApplicationCore.Auth;
-using ApplicationCore.Helpers;
+using Infrastructure.Helpers;
 using ApplicationCore.Consts;
 
 namespace ApplicationCore.DI;

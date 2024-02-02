@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using ApplicationCore.Authorization;
-using ApplicationCore.Helpers;
+using Infrastructure.Helpers;
 using ApplicationCore.Consts;
 using System.Security.Principal;
 

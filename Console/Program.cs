@@ -56,9 +56,6 @@ namespace IKVue
          AddHelpers(templates, name, applicationCore);
 
          AddControllers(templates, name, web);
-         //AddMutations(Path.Combine(src, "store"), name);
-         //AddService(Path.Combine(src, "services"), name);
-         //AddModule(Path.Combine(src, "store"), name);
       }
 
       static void AddModel(string templatesPath, string name, string targetPath)

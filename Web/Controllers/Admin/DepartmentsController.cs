@@ -14,6 +14,9 @@ using ApplicationCore.Models;
 using Azure.Core;
 using ApplicationCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Reflection;
+using Infrastructure.Helpers;
 
 namespace Web.Controllers;
 
@@ -29,28 +32,33 @@ public class DepartmentsController : BaseAdminController
       _mapper = mapper;
    }
    [HttpGet]
-   public async Task<ActionResult<PagedList<Department, DepartmentViewModel>>> Index(bool active, int page = 1, int pageSize = 10)
+   public async Task<ActionResult<DepartmentsAdminView>> Index()
    {
-      var departments =  await _departmentsService.FetchAsync();
-
-      if (departments.HasItems())
-      {
-         departments = departments.Where(x => x.Active == active);
-
-         departments = departments.GetOrdered().ToList();
-      }
-      return departments.GetPagedList(_mapper, page, pageSize);
+      var allDepartments = await _departmentsService.FetchAllAsync();
+      var keys = typeof(DepartmentKeys).GetDictionaries<string>();
+      var model = new DepartmentsAdminView(allDepartments.MapViewModelList(_mapper), keys);
+      return model;
    }
 
 
-   [HttpGet("create")]
-   public ActionResult<DepartmentViewModel> Create() => new DepartmentViewModel();
+   [HttpGet("create/{parentId}")]
+   public async Task<ActionResult<DepartmentViewModel>> Create(int parentId)
+   {
+      var parent = await _departmentsService.GetByIdAsync(parentId);
+      if (parent is null)
+      {
+         ModelState.AddModelError("parentId", "指定的父部門不存在");
+         return BadRequest(ModelState);
+      } 
+
+      return new DepartmentViewModel() { ParentId = parentId, Active = true, Parent = parent.MapViewModel(_mapper) };
+   }
 
 
    [HttpPost]
    public async Task<ActionResult<DepartmentViewModel>> Store([FromBody] DepartmentViewModel model)
    {
-      ValidateRequest(model);
+      await ValidateRequestAsync(model);
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
       var department = model.MapEntity(_mapper, User.Id());
@@ -69,6 +77,12 @@ public class DepartmentsController : BaseAdminController
 
       var model = department.MapViewModel(_mapper);
 
+      if (department.ParentId.HasValue)
+      {
+         var parent = await _departmentsService.GetByIdAsync(department.ParentId.Value);
+         model.Parent = parent!.MapViewModel(_mapper);
+      }
+
       return Ok(model);
    }
 
@@ -78,11 +92,10 @@ public class DepartmentsController : BaseAdminController
       var department = await _departmentsService.GetByIdAsync(id);
       if (department == null) return NotFound();
 
-      ValidateRequest(model);
+      await ValidateRequestAsync(model);
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
       department = model.MapEntity(_mapper, User.Id(), department);
-
       await _departmentsService.UpdateAsync(department);
 
       return NoContent();
@@ -101,11 +114,50 @@ public class DepartmentsController : BaseAdminController
       return NoContent();
    }
 
-   void ValidateRequest(DepartmentViewModel model)
+   [HttpPut]
+   public async Task<IActionResult> Orders([FromBody] OrdersRequest model)
    {
-      if (String.IsNullOrEmpty(model.Title)) ModelState.AddModelError("title", "������g���D");      
+      var departments = await _departmentsService.FetchAsync(model.Ids);
+      for (int i = 0; i < model.Ids.Count; i++)
+      {
+         var department = departments.First(x => x.Id == model.Ids[i]);
+         department.Order = model.Ids.Count - i;
+      }
+      await _departmentsService.UpdateRangeAsync(departments);
 
+      return NoContent();
    }
+
+   async Task ValidateRequestAsync(DepartmentViewModel model)
+   {
+      if (String.IsNullOrEmpty(model.Title)) ModelState.AddModelError("title", "必須填寫名稱");
+      Department? parent = null;
+      if (model.ParentId.HasValue)
+      {
+         parent = await _departmentsService.GetByIdAsync(model.ParentId.Value);
+         if (parent is null) ModelState.AddModelError("parentId", "指定的父部門不存在");
+      }
+
+      var depatments = await _departmentsService.FetchAsync(parent);
+      CheckName(depatments, model);
+      CheckKey(depatments, model);
+   }
+
+   void CheckName(IEnumerable<Department> departments, DepartmentViewModel model)
+   {
+      var exist = departments.FindByName(model.Title);
+      if (exist != null && exist.Id != model.Id) ModelState.AddModelError("title", "名稱重複了");
+   }
+   void CheckKey(IEnumerable<Department> departments, DepartmentViewModel model)
+   {
+      if (model.Key.HasValue())
+      {
+         var exist = departments.FindByKey(model.Title);
+         if (exist != null && exist.Id != model.Id) ModelState.AddModelError("key", "key重複了");
+      }
+      
+   }
+   
 
 
 }

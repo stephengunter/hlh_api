@@ -26,18 +26,22 @@ public class DefaultContext : IdentityDbContext<User>
    //		property.SetColumnType("timestamp without time zone");
    //	}
    //}
+  
    public DbSet<Profile> Profiles => Set<Profile>();
+   public DbSet<Department> Departments => Set<Department>();
+   public DbSet<Job> Jobs => Set<Job>();
+
 
    #region Auth
    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 	public DbSet<OAuth> OAuth => Set<OAuth>();
-	#endregion
+   #endregion
 
-	#region Articles	
-	public DbSet<Article> Articles => Set<Article>();
-   public DbSet<Department> Departments => Set<Department>();
+
+   #region Articles	
+   public DbSet<Category> Categories => Set<Category>();
+   public DbSet<Article> Articles => Set<Article>();
    public DbSet<UploadFile> UploadFiles => Set<UploadFile>();
-	public DbSet<Category> Categories => Set<Category>();
 	#endregion
 
 	public override int SaveChanges() => SaveChangesAsync().GetAwaiter().GetResult();

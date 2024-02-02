@@ -10,6 +10,7 @@ public class DepartmentMappingProfile : AutoMapper.Profile
 	{
 		CreateMap<Department, DepartmentViewModel>();
 
-		CreateMap<DepartmentViewModel, Department>();
-	}
+		CreateMap<DepartmentViewModel, Department>()
+         .ForMember(x => x.Parent, opt => opt.Ignore());
+   }
 }

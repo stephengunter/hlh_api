@@ -1,4 +1,4 @@
-﻿namespace ApplicationCore.Helpers;
+﻿namespace Infrastructure.Helpers;
 public static class EnumHelpers
 {
 	public static List<T> ToList<T>() => Enum.GetValues(typeof(T)).Cast<T>().ToList();

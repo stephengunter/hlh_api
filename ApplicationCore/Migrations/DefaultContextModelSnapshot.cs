@@ -93,7 +93,7 @@ namespace ApplicationCore.Migrations
                     b.Property<int>("Order")
                         .HasColumnType("int");
 
-                    b.Property<int>("ParentId")
+                    b.Property<int?>("ParentId")
                         .HasColumnType("int");
 
                     b.Property<bool>("Removed")
@@ -107,6 +107,8 @@ namespace ApplicationCore.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
 
                     b.ToTable("Categories");
                 });
@@ -131,7 +133,7 @@ namespace ApplicationCore.Migrations
                     b.Property<int>("Order")
                         .HasColumnType("int");
 
-                    b.Property<int>("ParentId")
+                    b.Property<int?>("ParentId")
                         .HasColumnType("int");
 
                     b.Property<bool>("Removed")
@@ -146,7 +148,63 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ParentId");
+
                     b.ToTable("Departments");
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Job", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Ps")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Removed")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SubTel")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Tel")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Jobs");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.OAuth", b =>
@@ -276,7 +334,7 @@ namespace ApplicationCore.Migrations
                     b.Property<int>("Order")
                         .HasColumnType("int");
 
-                    b.Property<int>("ParentId")
+                    b.Property<int?>("ParentId")
                         .HasColumnType("int");
 
                     b.Property<bool>("Removed")
@@ -290,6 +348,8 @@ namespace ApplicationCore.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
 
                     b.ToTable("Tag");
                 });
@@ -374,6 +434,9 @@ namespace ApplicationCore.Migrations
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -581,6 +644,41 @@ namespace ApplicationCore.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("ApplicationCore.Models.Category", b =>
+                {
+                    b.HasOne("ApplicationCore.Models.Category", "Parent")
+                        .WithMany("SubItems")
+                        .HasForeignKey("ParentId");
+
+                    b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Department", b =>
+                {
+                    b.HasOne("ApplicationCore.Models.Department", "Parent")
+                        .WithMany("SubItems")
+                        .HasForeignKey("ParentId");
+
+                    b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Job", b =>
+                {
+                    b.HasOne("ApplicationCore.Models.Department", "Department")
+                        .WithMany("Jobs")
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ApplicationCore.Models.User", "User")
+                        .WithMany("Jobs")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Department");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("ApplicationCore.Models.OAuth", b =>
                 {
                     b.HasOne("ApplicationCore.Models.User", "User")
@@ -612,6 +710,15 @@ namespace ApplicationCore.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Tag", b =>
+                {
+                    b.HasOne("ApplicationCore.Models.Tag", "Parent")
+                        .WithMany("SubItems")
+                        .HasForeignKey("ParentId");
+
+                    b.Navigation("Parent");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.TagArticle", b =>
@@ -689,13 +796,29 @@ namespace ApplicationCore.Migrations
                     b.Navigation("TagArticles");
                 });
 
+            modelBuilder.Entity("ApplicationCore.Models.Category", b =>
+                {
+                    b.Navigation("SubItems");
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Department", b =>
+                {
+                    b.Navigation("Jobs");
+
+                    b.Navigation("SubItems");
+                });
+
             modelBuilder.Entity("ApplicationCore.Models.Tag", b =>
                 {
+                    b.Navigation("SubItems");
+
                     b.Navigation("TagArticles");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.User", b =>
                 {
+                    b.Navigation("Jobs");
+
                     b.Navigation("OAuthList");
 
                     b.Navigation("Profile");

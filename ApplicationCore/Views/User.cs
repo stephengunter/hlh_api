@@ -13,7 +13,9 @@ public class UserViewModel
 
 	public string? PhoneNumber { get; set; }
 
-	public DateTime CreatedAt { get; set; }	
+   public bool Active { get; set; }
+
+   public DateTime CreatedAt { get; set; }	
 
 	public string CreatedAtText => CreatedAt.ToString(DateTimeFormats.Default);
 

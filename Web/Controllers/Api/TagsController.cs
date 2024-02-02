@@ -5,6 +5,7 @@ using ApplicationCore.Helpers;
 using AutoMapper;
 using ApplicationCore.Models;
 using ApplicationCore.Views;
+using Infrastructure.Helpers;
 
 namespace Web.Controllers.Api
 {

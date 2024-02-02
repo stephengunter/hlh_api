@@ -1,4 +1,4 @@
-﻿namespace ApplicationCore.Helpers;
+﻿namespace Infrastructure.Helpers;
 public static class IEnumerableHelpers
 {
 	public static bool IsNullOrEmpty<T>(this IEnumerable<T>? enumerable)

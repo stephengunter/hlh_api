@@ -1,16 +1,19 @@
 ﻿using ApplicationCore.DataAccess;
 using ApplicationCore.Models;
 using Microsoft.AspNetCore.Identity;
-using ApplicationCore.Helpers;
+using Infrastructure.Helpers;
 using ApplicationCore.Exceptions;
 using ApplicationCore.Consts;
+using System.Data;
+using Microsoft.EntityFrameworkCore;
+using ApplicationCore.Specifications;
 
 namespace ApplicationCore.Services;
 
 public interface IUsersService
 {
-	#region Fetch
-	Task<IEnumerable<User>> FetchAsync(string role = "");
+   #region Fetch
+   Task<IEnumerable<User>> FetchAsync(IdentityRole? role);
 	IEnumerable<IdentityRole> FetchRoles();
 	#endregion
 
@@ -18,11 +21,11 @@ public interface IUsersService
 	Task<User?> FindByIdAsync(string id);
 	Task<User?> FindByEmailAsync(string email);
 	User? FindByPhone(string phone);
+   Task <IdentityRole?> FindRoleAsync(string name);
+   #endregion
 
-	#endregion
-
-	#region Store
-	Task<User> CreateAsync(User user);
+   #region Store
+   Task<User> CreateAsync(User user);
 	Task UpdateAsync(User user);
 
 	#endregion
@@ -45,45 +48,39 @@ public class UsersService : IUsersService
 	DefaultContext _context;
 	private readonly UserManager<User> _userManager;
 	private readonly RoleManager<IdentityRole> _roleManager;
+   private readonly IDefaultRepository<User> _usersRepository;
 
-	public UsersService(DefaultContext context, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
-	{
+   public UsersService(DefaultContext context, UserManager<User> userManager, RoleManager<IdentityRole> roleManager,
+      IDefaultRepository<User> usersRepository)
+   {
 		_context = context;
 		_userManager = userManager;
 		_roleManager = roleManager;
-	}
+      _usersRepository = usersRepository;
+   }
 	string DevRoleName = AppRoles.Dev.ToString();
 	string BossRoleName = AppRoles.Boss.ToString();
 
-	#region Fetch
-	public async Task<IEnumerable<User>> FetchAsync(string role = "")
+   #region Fetch
+   public async Task<IEnumerable<User>> FetchAsync(IdentityRole? role)
 	{
-		var users = _userManager.Users;
+		//if (role is null) return _userManager.Users;
+		//return _userManager.GetUsersInRoleAsync
+		return await _usersRepository.ListAsync(new UsersSpecification());
+   }
 
-		if (!String.IsNullOrEmpty(role))
-		{
-			var selectedRole = await _roleManager.FindByNameAsync(role);
-			if (selectedRole != null)
-			{
-				var userIdsInRole = _context.UserRoles.Where(x => x.RoleId == selectedRole.Id).Select(b => b.UserId).Distinct().ToList();
-				users = users.Where(user => userIdsInRole.Contains(user.Id));
-			}
-		}
-
-		return users;
-	}
-	public IEnumerable<IdentityRole> FetchRoles() => _roleManager.Roles.ToList();
+   public IEnumerable<IdentityRole> FetchRoles() => _roleManager.Roles.ToList();
 	#endregion
 
 	#region Find
 	public async Task<User?> FindByIdAsync(string id) => await _userManager.FindByIdAsync(id);
 	public async Task<User?> FindByEmailAsync(string email) => await _userManager.FindByEmailAsync(email);
  	public User? FindByPhone(string phone) => _userManager.Users.FirstOrDefault(x => x.PhoneNumber == phone);
+   public async Task<IdentityRole?> FindRoleAsync(string name) => await _roleManager.FindByNameAsync(name);
+   #endregion
 
-	#endregion
-
-	#region Store
-	public async Task<User> CreateAsync(User user)
+   #region Store
+   public async Task<User> CreateAsync(User user)
 	{
 		var result = await _userManager.CreateAsync(user);
 		if (result.Succeeded) return user;

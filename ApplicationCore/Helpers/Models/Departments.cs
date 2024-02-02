@@ -1,6 +1,8 @@
 using ApplicationCore.Models;
 using ApplicationCore.Views;
 using AutoMapper;
+using Infrastructure.Helpers;
+using Microsoft.Extensions.Primitives;
 using System;
 
 namespace ApplicationCore.Helpers;
@@ -41,5 +43,11 @@ public static class DepartmentHelpers
    }
 
    public static IEnumerable<Department> GetOrdered(this IEnumerable<Department> departments)
-     => departments.OrderByDescending(item => item.CreatedAt);
+     => departments.OrderByDescending(item => item.Order).OrderByDescending(item => item.CreatedAt);
+
+   public static Department? FindByName(this IEnumerable<Department> departments, string name)
+     => departments.FirstOrDefault(item => item.Title == name);
+
+   public static Department? FindByKey(this IEnumerable<Department> departments, string key)
+     => departments.FirstOrDefault(item => item.Key == key);
 }

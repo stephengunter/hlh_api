@@ -12,32 +12,33 @@ using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using ApplicationCore.Authorization;
 using System.IdentityModel.Tokens.Jwt;
+using ApplicationCore.Views;
 
 namespace Web.Controllers.Tests;
 
 public class ATestsController : BaseTestController
 {
-   private readonly IUsersService _usersService;
-   private readonly UserManager<User> _userManager;
+  
    private readonly AppSettings _appSettings;
+   private readonly IUsersService _usersService;
+   private readonly IMapper _mapper;
 
-   public ATestsController(IUsersService usersService, UserManager<User> userManager, IOptions<AppSettings> appSettings)
+
+   public ATestsController(IUsersService usersService, IOptions<AppSettings> appSettings, IMapper mapper)
    {
       _usersService = usersService;
-      _userManager = userManager;
+      _mapper = mapper;
       _appSettings = appSettings.Value;
    }
 
    [HttpGet]
    public async Task<ActionResult> Index()
    {
-      var x = User.Claims.IsNullOrEmpty();
-      var Roles = User.Roles();
-      var IsDev = User.IsDev();
 
-      return Ok(Roles.JoinToString() + "," + IsDev);
+      var users = await _usersService.FetchAsync(null);
 
-      
+      return Ok(users);
+
    }
 
    [HttpGet("version")]

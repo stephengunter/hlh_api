@@ -1,4 +1,4 @@
-﻿namespace ApplicationCore.Helpers;
+﻿namespace Infrastructure.Helpers;
 public static class Paging
 {
 	public static IList<T> GetPaged<T>(this IEnumerable<T> source, int pageNumber, int pageSize)

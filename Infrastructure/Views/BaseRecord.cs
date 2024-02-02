@@ -1,7 +1,8 @@
-﻿namespace Infrastructure.Views;
-public abstract class BaseRecordView
+﻿using Infrastructure.Entities;
+
+namespace Infrastructure.Views;
+public abstract class BaseRecordView : EntityBaseView
 {
-	public int Id { get; set; }
 	public DateTime CreatedAt { get; set; } = DateTime.Now;
 	public DateTime? LastUpdated { get; set; }
 	public string? UpdatedBy { get; set; }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ApplicationCore.Helpers;
+namespace Infrastructure.Helpers;
 public static class DateTimeHelpers
 {
 	public static DateTime? ToStartDate(this string input)

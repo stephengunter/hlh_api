@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using ApplicationCore.Models;
 using ApplicationCore.Consts;
-using ApplicationCore.Helpers;
+using Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace ApplicationCore.DataAccess;
@@ -13,8 +13,9 @@ public static class SeedData
 	
 	static string DevRoleName = AppRoles.Dev.ToString();
 	static string BossRoleName = AppRoles.Boss.ToString();
+   static string ClerRoleName = AppRoles.Clerk.ToString();
 
-	public static async Task EnsureSeedData(IServiceProvider serviceProvider, ConfigurationManager Configuration)
+   public static async Task EnsureSeedData(IServiceProvider serviceProvider, ConfigurationManager Configuration)
 	{
 		string adminEmail = Configuration[$"{SettingsKeys.Admin}:Email"] ?? "";
 		string adminPhone = Configuration[$"{SettingsKeys.Admin}:Phone"] ?? "";
@@ -55,13 +56,12 @@ public static class SeedData
 		}
 
       await SeedDepartments(context);
-		
-		Console.WriteLine("Done seeding database.");
+      Console.WriteLine("Done seeding database.");
 	}
 
 	static async Task SeedRoles(RoleManager<IdentityRole> roleManager)
 	{
-		var roles = new List<string> { DevRoleName, BossRoleName };
+		var roles = new List<string> { DevRoleName, BossRoleName, ClerRoleName };
 		foreach (var item in roles) await AddRoleIfNotExist(roleManager, item);
 	}
 	static async Task AddRoleIfNotExist(RoleManager<IdentityRole> roleManager, string roleName)

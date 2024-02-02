@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace ApplicationCore.Helpers;
+namespace Infrastructure.Helpers;
 
 public static class HtmlHelpers
 {
