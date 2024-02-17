@@ -16,7 +16,7 @@ using ApplicationCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Infrastructure.Helpers;
 
-namespace Web.Controllers;
+namespace Web.Controllers.Admin;
 
 public class TagsController : BaseAdminController
 {

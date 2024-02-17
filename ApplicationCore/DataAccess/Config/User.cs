@@ -1,4 +1,5 @@
 ﻿using ApplicationCore.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -11,8 +12,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 					.WithOne(rt => rt.User)
 					.HasForeignKey<RefreshToken>(rt => rt.UserId);
 
-      builder.HasOne(u => u.Profile)
+      builder.HasOne(u => u.Profiles)
                .WithOne(p => p.User)
-               .HasForeignKey<Profile>(rt => rt.UserId);
+               .HasForeignKey<Profiles>(rt => rt.UserId);
+		
    }
 }

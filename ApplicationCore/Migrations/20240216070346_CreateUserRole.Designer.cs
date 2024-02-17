@@ -4,6 +4,7 @@ using ApplicationCore.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApplicationCore.Migrations
 {
     [DbContext(typeof(DefaultContext))]
-    partial class DefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20240216070346_CreateUserRole")]
+    partial class CreateUserRole
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -244,10 +247,13 @@ namespace ApplicationCore.Migrations
                     b.ToTable("OAuth");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.Profiles", b =>
+            modelBuilder.Entity("ApplicationCore.Models.Profile", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -259,26 +265,36 @@ namespace ApplicationCore.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Ps")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Removed")
+                        .HasColumnType("bit");
 
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("UserId");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Profiles");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.RefreshToken", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("Expires")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("LastUpdated")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("RemoteIpAddress")
@@ -288,7 +304,14 @@ namespace ApplicationCore.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("UserId");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("RefreshTokens");
                 });
@@ -680,11 +703,11 @@ namespace ApplicationCore.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.Profiles", b =>
+            modelBuilder.Entity("ApplicationCore.Models.Profile", b =>
                 {
                     b.HasOne("ApplicationCore.Models.User", "User")
-                        .WithOne("Profiles")
-                        .HasForeignKey("ApplicationCore.Models.Profiles", "UserId")
+                        .WithOne("Profile")
+                        .HasForeignKey("ApplicationCore.Models.Profile", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -820,7 +843,7 @@ namespace ApplicationCore.Migrations
 
                     b.Navigation("OAuthList");
 
-                    b.Navigation("Profiles");
+                    b.Navigation("Profile");
 
                     b.Navigation("RefreshToken");
 

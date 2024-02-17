@@ -34,7 +34,7 @@ public static class SeedData
 
 		var context = serviceProvider.GetRequiredService<DefaultContext>();
 	   context.Database.EnsureCreated();
-		using (var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>())
+		using (var roleManager = serviceProvider.GetRequiredService<RoleManager<Role>>())
 		{
 			await SeedRoles(roleManager);
 		}
@@ -59,16 +59,27 @@ public static class SeedData
       Console.WriteLine("Done seeding database.");
 	}
 
-	static async Task SeedRoles(RoleManager<IdentityRole> roleManager)
+	static async Task SeedRoles(RoleManager<Role> roleManager)
 	{
-		var roles = new List<string> { DevRoleName, BossRoleName, ClerRoleName };
+		var roles = new List<Role> 
+		{ 
+			new Role { Name = DevRoleName, Title = "開發者" },
+         new Role { Name = BossRoleName, Title = "老闆" },
+         new Role { Name = ClerRoleName, Title = "書記官" }
+      };
 		foreach (var item in roles) await AddRoleIfNotExist(roleManager, item);
 	}
-	static async Task AddRoleIfNotExist(RoleManager<IdentityRole> roleManager, string roleName)
+	static async Task AddRoleIfNotExist(RoleManager<Role> roleManager, Role role)
 	{
-		var role = await roleManager.FindByNameAsync(roleName);
-		if (role == null) await roleManager.CreateAsync(new IdentityRole { Name = roleName });
-	}
+		var existingRole = await roleManager.FindByNameAsync(role.Name!);
+		if (existingRole == null) await roleManager.CreateAsync(role);
+		else
+		{
+         existingRole.Title = role.Title;
+			await roleManager.UpdateAsync(existingRole);
+      } 
+
+   }
 	static async Task CreateUserIfNotExist(UserManager<User> userManager, User newUser, IList<string>? roles = null)
 	{
 		var user = await userManager.FindByEmailAsync(newUser.Email!);

@@ -4,7 +4,7 @@ using AutoMapper;
 
 namespace ApplicationCore.DtoMapper;
 
-public class CategoryMappingProfile : AutoMapper.Profile
+public class CategoryMappingProfile : Profile
 {
 	public CategoryMappingProfile()
 	{

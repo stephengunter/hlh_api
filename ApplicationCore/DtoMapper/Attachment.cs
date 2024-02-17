@@ -4,7 +4,7 @@ using AutoMapper;
 
 namespace ApplicationCore.DtoMapper;
 
-public class AttachmentMappingProfile : AutoMapper.Profile
+public class AttachmentMappingProfile : Profile
 {
 	public AttachmentMappingProfile()
 	{

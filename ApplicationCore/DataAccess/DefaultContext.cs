@@ -2,11 +2,15 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System.Reflection;
+using Microsoft.AspNetCore.Identity;
 
 namespace ApplicationCore.DataAccess;
-public class DefaultContext : IdentityDbContext<User>
+public class DefaultContext : IdentityDbContext<User, Role, string,
+        IdentityUserClaim<string>, UserRole, IdentityUserLogin<string>,
+        IdentityRoleClaim<string>, IdentityUserToken<string>>
 {
-	public DefaultContext(DbContextOptions<DefaultContext> options) : base(options)
+  
+   public DefaultContext(DbContextOptions<DefaultContext> options) : base(options)
 	{
 	}
    protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -27,7 +31,7 @@ public class DefaultContext : IdentityDbContext<User>
    //	}
    //}
   
-   public DbSet<Profile> Profiles => Set<Profile>();
+   public DbSet<Profiles> Profiles => Set<Profiles>();
    public DbSet<Department> Departments => Set<Department>();
    public DbSet<Job> Jobs => Set<Job>();
 

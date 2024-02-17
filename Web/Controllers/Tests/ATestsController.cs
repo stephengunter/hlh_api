@@ -13,6 +13,7 @@ using System.Security.Claims;
 using ApplicationCore.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 using ApplicationCore.Views;
+using Infrastructure.Helpers;
 
 namespace Web.Controllers.Tests;
 
@@ -35,9 +36,11 @@ public class ATestsController : BaseTestController
    public async Task<ActionResult> Index()
    {
 
-      var users = await _usersService.FetchAsync(null);
+      var input = "485ccc¤¤";
+      var valid = input.IsAlphaNumeric();
+     
 
-      return Ok(users);
+      return Ok(valid);
 
    }
 

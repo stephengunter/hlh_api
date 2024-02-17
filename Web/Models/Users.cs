@@ -14,7 +14,7 @@ public class UsersAdminRequest
       Active = active;
       Role = role;
       Keyword = keyword;
-      Page = page;
+      Page = page < 1 ? 1 : page;
       PageSize = pageSize;
    }
    public bool Active { get; set; }
@@ -32,10 +32,13 @@ public class UsersAdminModel
 
    public UsersAdminRequest Request { get; set; }
 
-   public ICollection<BaseOption<string>> RolesOptions { get; set; } = new List<BaseOption<string>>();
+   public ICollection<RoleViewModel> Roles{ get; set; } = new List<RoleViewModel>();
 
    public PagedList<User, UserViewModel>? PagedList { get; set; }
    
-   public void LoadRolesOptions(IEnumerable<IdentityRole> roles)
-      => RolesOptions = roles.Select(x => x.ToOption()).ToList();
+}
+
+public class UsersImportRequest
+{
+   public List<IFormFile> Files { get; set; } = new List<IFormFile>();
 }

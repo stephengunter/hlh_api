@@ -42,7 +42,7 @@ public class AdminsController : BaseAdminController
 
       var user = await CheckAdminUserAsync();
       var roles = await _usersService.GetRolesAsync(user);
-      var model = user.MapViewModel(roles, _mapper);
+      var model = user.MapViewModel(_mapper);
       model.HasPassword = await _usersService.HasPasswordAsync(user);
       return model;
    }

@@ -2,7 +2,7 @@ using ApplicationCore.Services;
 using ApplicationCore.Views;
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
-using ApplicationCore.DtoMapper;
+using ApplicationCore.Helpers;
 using Web.Models;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Authorization;
@@ -31,7 +31,7 @@ public class ProfilesController : BaseController
       CheckCurrentUser(user);
 
       var roles = await _usersService.GetRolesAsync(user);
-      var model = user.MapViewModel(roles, _mapper);
+      var model = user.MapViewModel(_mapper);
       model.HasPassword = await _usersService.HasPasswordAsync(user);
       return model;
    }

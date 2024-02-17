@@ -4,7 +4,7 @@ using AutoMapper;
 
 namespace ApplicationCore.DtoMapper;
 
-public class DepartmentMappingProfile : AutoMapper.Profile
+public class DepartmentMappingProfile : Profile
 {
 	public DepartmentMappingProfile()
 	{

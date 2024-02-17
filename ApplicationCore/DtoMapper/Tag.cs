@@ -4,7 +4,7 @@ using AutoMapper;
 
 namespace ApplicationCore.DtoMapper;
 
-public class TagMappingProfile : AutoMapper.Profile
+public class TagMappingProfile : Profile
 {
 	public TagMappingProfile()
 	{

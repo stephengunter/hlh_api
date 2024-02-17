@@ -19,8 +19,8 @@ public interface IDepartmentsService
    Task<Department?> GetByIdAsync(int id);
    Task<Department?> FindByKeyAsync(string key);
 
-   Task<Department> CreateAsync(Department Department);
-	Task UpdateAsync(Department Department);
+   Task<Department> CreateAsync(Department department);
+	Task UpdateAsync(Department department);
    Task UpdateRangeAsync(IEnumerable<Department> departments);
 }
 

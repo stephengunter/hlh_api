@@ -17,6 +17,8 @@ using Microsoft.AspNetCore.Builder;
 using ApplicationCore.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Infrastructure.Helpers;
+using Autofac.Core;
+using Google;
 
 Log.Logger = new LoggerConfiguration()
 	.MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Information)
@@ -47,25 +49,26 @@ try
 	builder.Services.Configure<AdminSettings>(Configuration.GetSection(SettingsKeys.Admin));
 	builder.Services.Configure<AuthSettings>(Configuration.GetSection(SettingsKeys.Auth));
 	builder.Services.Configure<MailSettings>(Configuration.GetSection(SettingsKeys.Mail));
-	#endregion
-	
-	// Add services to the container.
-	string connectionString = Configuration.GetConnectionString("Default")!;
+   builder.Services.Configure<JudSettings>(Configuration.GetSection(SettingsKeys.Jud));
+   #endregion
+
+   // Add services to the container.
+   string connectionString = Configuration.GetConnectionString("Default")!;
 	builder.Services.AddDbContext<DefaultContext>(options =>
 						//options.UseNpgsql(connectionString));
 						options.UseSqlServer(connectionString));
 
    #region AddIdentity
-   builder.Services.AddIdentity<User, IdentityRole>(options =>
+   builder.Services.AddIdentity<User, Role>(options =>
 	{
 		options.User.RequireUniqueEmail = true;
 	})
 	.AddEntityFrameworkStores<DefaultContext>()
-	.AddDefaultTokenProviders();
-	#endregion
+   .AddDefaultTokenProviders();
+   #endregion
 
-	#region AddFilters
-	builder.Services.AddScoped<DevelopmentOnlyFilter>();
+   #region AddFilters
+   builder.Services.AddScoped<DevelopmentOnlyFilter>();
    #endregion
 
    builder.Services.AddCorsPolicy(Configuration);

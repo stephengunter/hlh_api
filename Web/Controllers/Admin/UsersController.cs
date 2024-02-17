@@ -1,30 +1,30 @@
 using ApplicationCore.Services;
 using ApplicationCore.Models;
-using ApplicationCore.Views;
 using ApplicationCore.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
-using ApplicationCore.DtoMapper;
-using ApplicationCore.Authorization;
 using Infrastructure.Helpers;
 using Web.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+using System.Text;
+using ApplicationCore.Settings;
+using Microsoft.Extensions.Options;
+using ApplicationCore.Views;
 using Microsoft.IdentityModel.Tokens;
+using ApplicationCore.Authorization;
 
-namespace Web.Controllers;
+namespace Web.Controllers.Admin;
 
 public class UsersController : BaseAdminController
 {
    private readonly IUsersService _usersService;
-   private readonly IDepartmentsService _departmentsService;
    private readonly IMapper _mapper;
+   private readonly JudSettings _judSettings;
 
-  
-   public UsersController(IUsersService usersService, IDepartmentsService departmentsService, IMapper mapper)
+   public UsersController(IUsersService usersService, IOptions<JudSettings> judSettings, IMapper mapper)
    {
       _usersService = usersService;
-      _departmentsService = departmentsService;
+      _judSettings = judSettings.Value;
       _mapper = mapper;
    }
    [HttpGet("")]
@@ -33,16 +33,12 @@ public class UsersController : BaseAdminController
       var request = new UsersAdminRequest(active, role, keyword, page, pageSize);
       var model = new UsersAdminModel(request);
 
-      var selectedRole = await GetRoleAsync(request);
+      var roles = _usersService.FetchRoles();
+
+      model.Roles = roles.MapViewModelList(_mapper);
+
+      var selectedRole = GetRole(request, roles);
       if (!ModelState.IsValid) return BadRequest(ModelState);
-
-      if (request.Page < 1) //åˆæ¬¡è¼‰å…¥é é¢
-      {
-         var roles = _usersService.FetchRoles();
-         model.LoadRolesOptions(roles);
-
-         request.Page = 1;
-      }
 
       var users = await _usersService.FetchAsync(selectedRole);
 
@@ -51,23 +47,184 @@ public class UsersController : BaseAdminController
       var keywords = request.Keyword.GetKeywords();
       if (keywords.HasItems()) users = users.FilterByKeyword(keywords);
 
-      var pagedList = users.GetPagedList(_mapper, page, pageSize);
-
+      
       model.PagedList = users.GetPagedList(_mapper, page, pageSize);
 
       return model;
    }
 
-   async Task<IdentityRole?> GetRoleAsync(UsersAdminRequest request)
+   [HttpGet("create")]
+   public ActionResult<UserViewModel> Create() => new UserViewModel();
+
+   [HttpPost]
+   public async Task<ActionResult<UserViewModel>> Store([FromBody] UserViewModel model)
+   {
+      await ValidateRequestAsync(model);
+      if (!ModelState.IsValid) return BadRequest(ModelState);
+
+      var user = new User()
+      {
+         UserName = model.UserName,
+         Email = model.Email,
+         Name = model.Name,
+         CreatedAt = DateTime.Now,
+         LastUpdated = DateTime.Now,
+         UpdatedBy = User.Id(),
+         Active = model.Active
+      };
+
+      user = await _usersService.CreateAsync(user);
+
+      return Ok(user.MapViewModel(_mapper));
+   }
+
+   [HttpGet("{id}")]
+   public async Task<ActionResult<UserViewModel>> Details(string id)
+   {
+      var user = await _usersService.GetByIdAsync(id);
+      if (user == null) return NotFound();
+
+      return user.MapViewModel(_mapper);
+   }
+
+   [HttpGet("edit/{id}")]
+   public async Task<ActionResult<UserViewModel>> Edit(string id)
+   {
+      var user = await _usersService.FindByIdAsync(id);
+      if (user == null) return NotFound();
+
+      return user.MapViewModel(_mapper);
+   }
+   [HttpPut("{id}")]
+   public async Task<ActionResult> Update(string id, [FromBody] UserViewModel model)
+   {
+      var user = await _usersService.FindByIdAsync(id);
+      if (user == null) return NotFound();
+
+      await ValidateRequestAsync(model);
+      if (!ModelState.IsValid) return BadRequest(ModelState);
+
+      user = model.MapEntity(_mapper, User.Id(), user);
+
+      await _usersService.UpdateAsync(user);
+
+      return NoContent();
+   }
+
+   [HttpGet("roles")]
+   public ActionResult<IEnumerable<RoleViewModel>> GetRoles()
+   {
+      var roles = _usersService.FetchRoles();
+      return roles.MapViewModelList(_mapper);
+   }
+
+   [HttpPost("import")]
+   public async Task<IActionResult> Import([FromForm] UsersImportRequest model)
+   {
+      if (model.Files.Count < 1)
+      {
+         ModelState.AddModelError("files", "¥²¶·¤W¶ÇÀÉ®×");
+         return BadRequest(ModelState);
+      }
+
+      var file = model.Files.FirstOrDefault();
+      if (Path.GetExtension(file!.FileName).ToLower() != ".txt")
+      {
+         ModelState.AddModelError("files", "ÀÉ®×®æ¦¡¿ù»~");
+         return BadRequest(ModelState);
+      }
+      var users = new List<User>();
+      var exLines = new List<string>();
+      using (var reader = new StreamReader(file.OpenReadStream(), Encoding.UTF8))
+      {
+         while (reader.Peek() >= 0)
+         {
+            var line = await reader.ReadLineAsync();
+            if (!String.IsNullOrEmpty(line))
+            {
+               string[] parts = line.Split(new char[] { '\t' }, StringSplitOptions.RemoveEmptyEntries);
+               if (parts.Length == 3)
+               {
+                  string name = parts[0].Trim();
+                  string type = parts[1].Trim();
+                  string title = parts[2].Trim();
+                  if (type == "¨Ï¥ÎªÌ")
+                  {
+                     users.Add(new User
+                     {
+                        UserName = name,
+                        Name = title,
+                        Email = $"{name}@{_judSettings.Domain}",
+                        LastUpdated = DateTime.Now
+                     });
+                  }
+                  else
+                  {
+                     exLines.Add(line);
+                  }
+
+               }
+               else
+               {
+                  exLines.Add(line);
+               }
+            }
+            
+         }
+           
+      }
+
+      foreach (var user in users) 
+      {
+         var existingUser = await _usersService.FindByUsernameAsync(user.UserName!);
+         if (existingUser is null)
+         {
+            await _usersService.CreateAsync(user);
+         }
+         else
+         {
+            existingUser.Email = user.Email;
+            existingUser.Name = user.Name;
+            await _usersService.UpdateAsync(existingUser);
+         }
+      }
+
+      return Ok(exLines);
+   }
+
+   Role? GetRole(UsersAdminRequest request, IEnumerable<Role> roles)
    {
       if (String.IsNullOrEmpty(request.Role)) return null;
-      var role = await _usersService.FindRoleAsync(request.Role);
+      var role = roles.FirstOrDefault(role => request.Role.EqualTo(role.Name!));
       if (role is null)
       {
          ModelState.AddModelError("role", $"Role '{ request.Role }' not found.");
          return null;
       }
       return role;
+   }
+
+   async Task ValidateRequestAsync(UserViewModel model)
+   {
+      await CheckUserNameAsync(model);
+      await CheckEmailAsync(model);
+   }
+
+   async Task CheckUserNameAsync(UserViewModel model)
+   {
+      if(String.IsNullOrEmpty(model.UserName)) ModelState.AddModelError("userName", "¥²¶·¶ñ¼guserName");
+      if(!model.UserName.IsValidUserName()) ModelState.AddModelError("userName", "userNameªº®æ¦¡¤£¥¿½T");
+
+      var existingUser = await _usersService.FindByUsernameAsync(model.UserName);
+      if(existingUser != null && existingUser.Id != model.Id) ModelState.AddModelError("userName", "userName­«½Æ¤F");
+   }
+   async Task CheckEmailAsync(UserViewModel model)
+   {
+      if (String.IsNullOrEmpty(model.Email)) ModelState.AddModelError("email", "¥²¶·¶ñ¼gemail");
+      if (!model.Email.IsValidEmail()) ModelState.AddModelError("email", "emailªº®æ¦¡¤£¥¿½T");
+
+      var existingUser = await _usersService.FindByEmailAsync(model.Email);
+      if (existingUser != null && existingUser.Id != model.Id) ModelState.AddModelError("email", "email­«½Æ¤F");
    }
 
 }

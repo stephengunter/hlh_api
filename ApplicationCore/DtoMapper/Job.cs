@@ -4,7 +4,7 @@ using AutoMapper;
 
 namespace ApplicationCore.DtoMapper;
 
-public class JobMappingProfile : AutoMapper.Profile
+public class JobMappingProfile : Profile
 {
 	public JobMappingProfile()
 	{

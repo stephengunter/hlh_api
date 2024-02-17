@@ -8,4 +8,6 @@ public class SettingsKeys
 	public static string Mail = "Mail";
 	public static string Subscribes = "Subscribes";
 	public static string CloudStorage = "CloudStorage";
+
+   public static string Jud = "Jud";
 }

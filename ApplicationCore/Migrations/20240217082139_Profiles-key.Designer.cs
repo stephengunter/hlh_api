@@ -4,6 +4,7 @@ using ApplicationCore.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApplicationCore.Migrations
 {
     [DbContext(typeof(DefaultContext))]
-    partial class DefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20240217082139_Profiles-key")]
+    partial class Profileskey
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -249,20 +252,11 @@ namespace ApplicationCore.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("LastUpdated")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Ps")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UpdatedBy")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("UserId");
@@ -276,9 +270,6 @@ namespace ApplicationCore.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("Expires")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("LastUpdated")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("RemoteIpAddress")

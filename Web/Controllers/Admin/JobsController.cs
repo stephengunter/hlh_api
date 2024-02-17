@@ -8,7 +8,7 @@ using ApplicationCore.DtoMapper;
 using ApplicationCore.Authorization;
 using Infrastructure.Helpers;
 
-namespace Web.Controllers;
+namespace Web.Controllers.Admin;
 
 public class JobsController : BaseAdminController
 {

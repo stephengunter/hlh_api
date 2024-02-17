@@ -15,13 +15,36 @@ public static class UsersHelpers
       => users.OrderByDescending(u => u.CreatedAt);
 
    public static IEnumerable<User> FilterByKeyword(this IEnumerable<User> users, ICollection<string> keywords)
-      => users.Where(item => keywords.Any(item.GetUserName().CaseInsensitiveContains)).ToList();
+   {
+      var byUsername = users.FilterByUsername(keywords);
+      var byName = users.FilterByName(keywords);
+      return byUsername.Union(byName, new UserEqualityComparer()).ToList();
+   }
+
+   public static IEnumerable<User> FilterByUsername(this IEnumerable<User> users, ICollection<string> keywords)
+      => users.Where(user => keywords.Any(user.GetUserName().CaseInsensitiveContains)).ToList();
+
+   public static IEnumerable<User> FilterByName(this IEnumerable<User> users, ICollection<string> keywords)
+      => users.Where(user => keywords.Any(user.Name.CaseInsensitiveContains)).ToList();
 
 
    #region Views
    public static UserViewModel MapViewModel(this User user, IMapper mapper)
-      => mapper.Map<UserViewModel>(user);
+   {
+      var model = mapper.Map<UserViewModel>(user);
+      if (user.UserRoles!.HasItems()) model.Roles = user.UserRoles!.Select(x => x.RoleId).JoinToString(); 
+      return model;
+   }
+   public static User MapEntity(this UserViewModel model, IMapper mapper, string currentUserId, User? entity = null)
+   {
+      if (entity == null) entity = mapper.Map<UserViewModel, User>(model);
+      else entity = mapper.Map<UserViewModel, User>(model, entity);
 
+      entity.UpdatedBy = currentUserId;
+      entity.LastUpdated = DateTime.Now;
+
+      return entity;
+   }
    public static User MapEntity(this UserViewModel model, IMapper mapper)
       => mapper.Map<UserViewModel, User>(model);
 
@@ -38,4 +61,20 @@ public static class UsersHelpers
    }
    #endregion
 
+}
+
+public class UserEqualityComparer : IEqualityComparer<User>
+{
+   public bool Equals(User? a, User? b) => a!.Id == b!.Id;
+
+   public int GetHashCode(User obj) => obj.Id.GetHashCode() ^ obj.UserName!.GetHashCode();
+}
+
+public static class RolesHelpers
+{
+   public static RoleViewModel MapViewModel(this Role role, IMapper mapper)
+      => mapper.Map<RoleViewModel>(role);
+
+   public static List<RoleViewModel> MapViewModelList(this IEnumerable<Role> roles, IMapper mapper)
+      => roles.Select(item => MapViewModel(item, mapper)).ToList();
 }

@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Infrastructure.Helpers;
 
-namespace Web.Controllers;
+namespace Web.Controllers.Admin;
 
 public class DepartmentsController : BaseAdminController
 {

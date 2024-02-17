@@ -93,8 +93,8 @@ public class JwtTokenService : IJwtTokenService
 			exist.Token = token;
 			exist.Expires = expires;
 			exist.RemoteIpAddress = ipAddress;
-
-			await _refreshTokenRepository.UpdateAsync(exist);
+			exist.LastUpdated = DateTime.Now;
+         await _refreshTokenRepository.UpdateAsync(exist);
 		}
 		else
 		{
@@ -103,8 +103,9 @@ public class JwtTokenService : IJwtTokenService
 				Token = token,
 				Expires = expires,
 				UserId = user.Id,
-				RemoteIpAddress = ipAddress
-			};
+				RemoteIpAddress = ipAddress,
+            LastUpdated = DateTime.Now
+         };
 
 			await _refreshTokenRepository.AddAsync(refreshToken);
 

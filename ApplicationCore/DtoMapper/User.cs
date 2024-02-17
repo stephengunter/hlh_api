@@ -5,7 +5,7 @@ using AutoMapper;
 
 namespace ApplicationCore.DtoMapper;
 
-public class UserMappingProfile : AutoMapper.Profile
+public class UserMappingProfile : Profile
 {
 	public UserMappingProfile()
 	{
@@ -14,15 +14,13 @@ public class UserMappingProfile : AutoMapper.Profile
 		CreateMap<UserViewModel, User>();
 	}
 }
-
-public static class UserDtoHelpers
+public class RoleMappingProfile : Profile
 {
-	public static UserViewModel MapViewModel(this User user, IMapper mapper)
-		=> mapper.Map<UserViewModel>(user);
-	public static UserViewModel MapViewModel(this User user, IList<string> roles, IMapper mapper)
-	{
-		var model = MapViewModel(user, mapper);
-		model.Roles = roles.JoinToString();
-		return model;
-	}
+   public RoleMappingProfile()
+   {
+      CreateMap<Role, RoleViewModel>();
+
+      CreateMap<RoleViewModel, Role>();
+   }
 }
+
