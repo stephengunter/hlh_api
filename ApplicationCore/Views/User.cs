@@ -1,7 +1,9 @@
 ﻿using ApplicationCore.Consts;
+using Infrastructure.Helpers;
+using Infrastructure.Views;
 
 namespace ApplicationCore.Views;
-public class UserViewModel
+public class UserViewModel : IBaseRecordView
 {
 	public string Id { get; set; } = String.Empty;
 
@@ -15,12 +17,15 @@ public class UserViewModel
 
    public bool Active { get; set; }
 
-   public DateTime CreatedAt { get; set; }	
+   public DateTime CreatedAt { get; set; }
+   public DateTime? LastUpdated { get; set; }
+   public string? UpdatedBy { get; set; }
 
-	public string CreatedAtText => CreatedAt.ToString(DateTimeFormats.Default);
+   public string CreatedAtText => CreatedAt.ToDateString();
+   public string LastUpdatedText => LastUpdated.ToDateString();
 
-	
-	public string? Roles { get; set; }
+
+   public string? Roles { get; set; }
 
 	public bool HasPassword { get; set; }
 

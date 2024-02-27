@@ -14,6 +14,13 @@ using ApplicationCore.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 using ApplicationCore.Views;
 using Infrastructure.Helpers;
+using Microsoft.EntityFrameworkCore;
+using System;
+using ApplicationCore.DataAccess;
+using Newtonsoft.Json;
+using Microsoft.AspNetCore.Hosting.Server;
+using System.IO;
+using Microsoft.Extensions.Hosting;
 
 namespace Web.Controllers.Tests;
 
@@ -21,27 +28,32 @@ public class ATestsController : BaseTestController
 {
   
    private readonly AppSettings _appSettings;
-   private readonly IUsersService _usersService;
-   private readonly IMapper _mapper;
+   private readonly DefaultContext _context;
+   private readonly IWebHostEnvironment _environment;
 
-
-   public ATestsController(IUsersService usersService, IOptions<AppSettings> appSettings, IMapper mapper)
+   public ATestsController(IWebHostEnvironment environment, IOptions<AppSettings> appSettings, DefaultContext context)
    {
-      _usersService = usersService;
-      _mapper = mapper;
+      _environment = environment;
+      _context = context;
       _appSettings = appSettings.Value;
+      _environment = environment;
    }
-
    [HttpGet]
    public async Task<ActionResult> Index()
    {
+      var path = GetTempPath(_environment, DateTime.Today.ToDateNumber().ToString());
+      var filePath = Path.Combine(GetTempPath(_environment, DateTime.Today.ToDateNumber().ToString()), "departments.json");
 
-      var input = "485ccc¤¤";
-      var valid = input.IsAlphaNumeric();
-     
+      // Check if the file exists
+      if (!System.IO.File.Exists(filePath))
+      {
+         return NotFound(); // Return 404 if the file does not exist
+      }
+      // Example stream (replace with your own)
+      Stream stream = new FileStream(filePath, FileMode.Open);
 
-      return Ok(valid);
-
+      // Return the stream as a file
+      return File(stream, "application/octet-stream", "departments.json");
    }
 
    [HttpGet("version")]

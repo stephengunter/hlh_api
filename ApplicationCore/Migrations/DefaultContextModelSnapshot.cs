@@ -72,7 +72,7 @@ namespace ApplicationCore.Migrations
                     b.ToTable("Articles");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.Category", b =>
+            modelBuilder.Entity("ApplicationCore.Models.Attachment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -83,12 +83,64 @@ namespace ApplicationCore.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Key")
-                        .IsRequired()
+                    b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Height")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("LastUpdated")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Path")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PostType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PreviewPath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Removed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Width")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Attachments");
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Order")
                         .HasColumnType("int");
@@ -98,13 +150,6 @@ namespace ApplicationCore.Migrations
 
                     b.Property<bool>("Removed")
                         .HasColumnType("bit");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -125,6 +170,7 @@ namespace ApplicationCore.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Key")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("LastUpdated")
@@ -195,16 +241,55 @@ namespace ApplicationCore.Migrations
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.HasKey("Id");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.ToTable("Jobs");
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.JobUserProfiles", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("JobId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PS")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Removed")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DepartmentId");
+                    b.HasIndex("JobId");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Jobs");
+                    b.ToTable("JobUserProfiles");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.OAuth", b =>
@@ -351,6 +436,9 @@ namespace ApplicationCore.Migrations
                     b.Property<bool>("Removed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("SubIds")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -378,64 +466,6 @@ namespace ApplicationCore.Migrations
                     b.HasIndex("ArticleId");
 
                     b.ToTable("TagArticle");
-                });
-
-            modelBuilder.Entity("ApplicationCore.Models.UploadFile", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Height")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("LastUpdated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Order")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Path")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("PostId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PostType")
-                        .HasColumnType("int");
-
-                    b.Property<string>("PreviewPath")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Removed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Type")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Width")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("UploadFiles");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.User", b =>
@@ -660,13 +690,24 @@ namespace ApplicationCore.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ApplicationCore.Models.User", "User")
-                        .WithMany("Jobs")
+                    b.Navigation("Department");
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.JobUserProfiles", b =>
+                {
+                    b.HasOne("ApplicationCore.Models.Job", "Job")
+                        .WithMany("JobUserProfiles")
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ApplicationCore.Models.Profiles", "UserProfiles")
+                        .WithMany("JobUserProfiles")
                         .HasForeignKey("UserId");
 
-                    b.Navigation("Department");
+                    b.Navigation("Job");
 
-                    b.Navigation("User");
+                    b.Navigation("UserProfiles");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.OAuth", b =>
@@ -802,6 +843,16 @@ namespace ApplicationCore.Migrations
                     b.Navigation("SubItems");
                 });
 
+            modelBuilder.Entity("ApplicationCore.Models.Job", b =>
+                {
+                    b.Navigation("JobUserProfiles");
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Profiles", b =>
+                {
+                    b.Navigation("JobUserProfiles");
+                });
+
             modelBuilder.Entity("ApplicationCore.Models.Role", b =>
                 {
                     b.Navigation("UserRoles");
@@ -816,8 +867,6 @@ namespace ApplicationCore.Migrations
 
             modelBuilder.Entity("ApplicationCore.Models.User", b =>
                 {
-                    b.Navigation("Jobs");
-
                     b.Navigation("OAuthList");
 
                     b.Navigation("Profiles");

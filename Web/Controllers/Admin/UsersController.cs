@@ -119,7 +119,7 @@ public class UsersController : BaseAdminController
    }
 
    [HttpPost("import")]
-   public async Task<IActionResult> Import([FromForm] UsersImportRequest model)
+   public async Task<IActionResult> Import([FromForm] AdminFileRequest model)
    {
       if (model.Files.Count < 1)
       {

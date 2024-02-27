@@ -1,4 +1,6 @@
-﻿using Infrastructure.Entities;
+﻿using ApplicationCore.Consts;
+using Infrastructure.Entities;
+using Infrastructure.Helpers;
 using Infrastructure.Views;
 using System.ComponentModel.DataAnnotations;
 
@@ -15,5 +17,9 @@ public class ProfilesViewModel
    public DateTime CreatedAt { get; set; } = DateTime.Now;
    public DateTime? LastUpdated { get; set; }
    public string? UpdatedBy { get; set; }
+
+
+   public string CreatedAtText => CreatedAt.ToDateString();
+   public string LastUpdatedText => LastUpdated.ToDateString();
 
 }

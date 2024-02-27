@@ -54,15 +54,22 @@ public class JobsController : BaseAdminController
       return Ok(job.MapViewModel(_mapper));
    }
 
+   [HttpGet("{id}")]
+   public async Task<ActionResult<JobViewModel>> Details(int id)
+   {
+      var job = await _jobsService.DetailsAsync(id);
+      if (job == null) return NotFound();
+
+      return job.MapViewModel(_mapper);
+   }
+
    [HttpGet("edit/{id}")]
-   public async Task<ActionResult> Edit(int id)
+   public async Task<ActionResult<JobViewModel>> Edit(int id)
    {
       var job = await _jobsService.GetByIdAsync(id);
       if (job == null) return NotFound();
 
-      var model = job.MapViewModel(_mapper);
-
-      return Ok(model);
+      return job.MapViewModel(_mapper);
    }
 
    [HttpPut("{id}")]

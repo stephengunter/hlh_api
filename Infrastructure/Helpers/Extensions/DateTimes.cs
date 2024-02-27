@@ -25,10 +25,7 @@ public static class DateTimeHelpers
 		else return null;
 	}
 
-	public static DateTime ToEndDate(this DateTime date)
-	{
-		return new DateTime(date.Year, date.Month, date.Day, 23, 59, 59);
-	}
+	public static DateTime ToEndDate(this DateTime date) => new DateTime(date.Year, date.Month, date.Day, 23, 59, 59);
 	
 	public static DateTime? ToDatetimeOrNull(this string str)
 	{

@@ -1,6 +1,7 @@
 using ApplicationCore.Helpers;
 using ApplicationCore.Models;
 using ApplicationCore.Views;
+using Infrastructure.Paging;
 using Infrastructure.Views;
 using Microsoft.AspNetCore.Identity;
 using System;

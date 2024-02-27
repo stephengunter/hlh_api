@@ -1,9 +1,11 @@
+using Infrastructure.Helpers;
 using ApplicationCore.Models;
 using ApplicationCore.Views;
 using AutoMapper;
 using Infrastructure.Helpers;
 using Microsoft.Extensions.Primitives;
 using System;
+using Infrastructure.Paging;
 
 namespace ApplicationCore.Helpers;
 public static class DepartmentHelpers
@@ -12,7 +14,6 @@ public static class DepartmentHelpers
    public static DepartmentViewModel MapViewModel(this Department department, IMapper mapper)
    {
       var model = mapper.Map<DepartmentViewModel>(department);
-      model.SetBaseRecordViewValues();
       
       return model;
    }
@@ -34,7 +35,7 @@ public static class DepartmentHelpers
       if (entity == null) entity = mapper.Map<DepartmentViewModel, Department>(model);
       else entity = mapper.Map<DepartmentViewModel, Department>(model, entity);
 
-      entity.SetBaseRecordValues(model);
+      entity.SetActive(model.Active);
 
       if (model.Id == 0) entity.SetCreated(currentUserId);
       else entity.SetUpdated(currentUserId);

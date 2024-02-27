@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ApplicationCore.Models;
 
-public class Profiles : IAggregateRoot
+public class Profiles : IAggregateRoot, IBaseRecord
 {
    [Key]
 	public string UserId { get; set; } = String.Empty;
@@ -19,4 +19,6 @@ public class Profiles : IAggregateRoot
 
    [Required]
 	public virtual User? User { get; set; }
+
+   public virtual ICollection<JobUserProfiles>? JobUserProfiles { get; set; }
 }

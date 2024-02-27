@@ -17,6 +17,9 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Reflection;
 using Infrastructure.Helpers;
+using ApplicationCore.DataAccess;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace Web.Controllers.Admin;
 
@@ -24,13 +27,18 @@ public class DepartmentsController : BaseAdminController
 {
    private readonly IDepartmentsService _departmentsService;
    private readonly IMapper _mapper;
+   private readonly IWebHostEnvironment _environment;
+   private readonly AdminSettings _adminSettings;
 
-  
-   public DepartmentsController(IDepartmentsService departmentsService, IMapper mapper)
+   public DepartmentsController(IDepartmentsService departmentsService, IWebHostEnvironment environment,
+      IOptions<AdminSettings> adminSettings, IMapper mapper)
    {
       _departmentsService = departmentsService;
+      _environment = environment;
       _mapper = mapper;
+      _adminSettings = adminSettings.Value;
    }
+
    [HttpGet]
    public async Task<ActionResult<DepartmentsAdminView>> Index()
    {
@@ -127,6 +135,52 @@ public class DepartmentsController : BaseAdminController
 
       return NoContent();
    }
+   [HttpPost("export")]
+   public async Task<ActionResult> Export([FromBody] AdminRequest request)
+   {
+      ValidateRequest(request, _adminSettings);
+      if (!ModelState.IsValid) return BadRequest(ModelState);
+      var path = GetTempPath(_environment, DateTime.Today.ToDateNumber().ToString());
+      if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+
+      var allDepartments = await _departmentsService.FetchAllAsync();
+      foreach (var department in allDepartments) department.Parent = null;
+      var viewList = allDepartments.MapViewModelList(_mapper);
+
+      // Serialize users data to JSON format
+      string jsonData = JsonConvert.SerializeObject(viewList);
+
+      // Convert JSON data to bytes
+      byte[] fileBytes = Encoding.UTF8.GetBytes(jsonData);
+
+      // Return the JSON data as a downloadable file
+      return File(fileBytes, "application/json", "departments.json");
+
+      //var filePath = Path.Combine(path, "departments.json");
+      //System.IO.File.WriteAllText(filePath, JsonConvert.SerializeObject(viewList));
+
+      //return PhysicalFile(filePath, "application/json", "departments.json");
+   }
+   [HttpPost("import")]
+   public async Task<ActionResult> Import([FromBody] AdminFileRequest request)
+   {
+      ValidateRequest(request, _adminSettings);
+      if (!ModelState.IsValid) return BadRequest(ModelState);
+
+      if (!ModelState.IsValid) return BadRequest(ModelState);
+
+      var path = Path.Combine(_adminSettings.BackupPath, DateTime.Today.ToDateNumber().ToString());
+      if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+
+      var allDepartments = await _departmentsService.FetchAllAsync();
+      foreach (var department in allDepartments) department.Parent = null;
+      var viewList = allDepartments.MapViewModelList(_mapper);
+
+      var filePath = Path.Combine(path, $"{new Department().GetType().Name}.json");
+      System.IO.File.WriteAllText(filePath, JsonConvert.SerializeObject(viewList));
+
+      return Ok(filePath);
+   }
 
    async Task ValidateRequestAsync(DepartmentViewModel model)
    {
@@ -140,6 +194,8 @@ public class DepartmentsController : BaseAdminController
 
       var depatments = await _departmentsService.FetchAsync(parent);
       CheckName(depatments, model);
+
+      depatments = await _departmentsService.FetchAllAsync();
       CheckKey(depatments, model);
    }
 
@@ -152,7 +208,7 @@ public class DepartmentsController : BaseAdminController
    {
       if (model.Key.HasValue())
       {
-         var exist = departments.FindByKey(model.Title);
+         var exist = departments.FindByKey(model.Key);
          if (exist != null && exist.Id != model.Id) ModelState.AddModelError("key", "key重複了");
       }
       

@@ -14,3 +14,9 @@ public class DepartmentsAdminView
    public Dictionary<string, string> Keys { get; }
 
 }
+
+
+public class DepartmentsImportRequest
+{
+   public List<IFormFile> Files { get; set; } = new List<IFormFile>();
+}

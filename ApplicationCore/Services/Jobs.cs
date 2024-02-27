@@ -16,6 +16,7 @@ public interface IJobsService
    Task<IEnumerable<Job>> FetchAsync();
    Task<IEnumerable<Job>> FetchAsync(IEnumerable<Department> departments);
    Task<Job?> GetByIdAsync(int id);
+   Task<Job?> DetailsAsync(int id);
 
    Task<Job> CreateAsync(Job Job);
 	Task UpdateAsync(Job Job);
@@ -37,6 +38,9 @@ public class JobsService : IJobsService
 
    public async Task<Job?> GetByIdAsync(int id)
       => await _jobsRepository.GetByIdAsync(id);
+
+   public async Task<Job?> DetailsAsync(int id)
+      => await _jobsRepository.FirstOrDefaultAsync(new JobSpecification(id));
 
    public async Task<Job> CreateAsync(Job Job)
 		=> await _jobsRepository.AddAsync(Job);

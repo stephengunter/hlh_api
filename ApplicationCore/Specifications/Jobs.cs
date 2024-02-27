@@ -13,5 +13,9 @@ public class JobSpecification : Specification<Job>
       var depIds = departments.Select(d => d.Id);
       Query.Where(item => !item.Removed && depIds.Contains(item.DepartmentId));
    }
+   public JobSpecification(int id)
+   {
+      Query.Include(item => item.Department).Where(user => user.Id == id);
+   }
 }
 

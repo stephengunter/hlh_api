@@ -1,26 +1,32 @@
-﻿using Infrastructure.Views;
+﻿using Infrastructure.Entities;
+using Infrastructure.Helpers;
+using Infrastructure.Views;
 
 namespace ApplicationCore.Views;
-public class AttachmentViewModel : BaseRecordView
+
+
+public class AttachmentViewModel : EntityBaseView, IBaseUploadFileView, IBaseRecordView
 {
+   public string PostType { get; set; } = string.Empty;
 	public int PostId { get; set; }
+   public string? Path { get; set; }
+   public string? PreviewPath { get; set; }
+   public int Width { get; set; }
+   public int Height { get; set; }
+   public string? Type { get; set; }
+   public string? Name { get; set; }
+   public string? Title { get; set; }
+   public string? Description { get; set; }
 
-	public string? PostType { get; set; }
+   public bool Removed { get; set; }
+   public int Order { get; set; }
+   public bool Active { get; set; }
+   
+   public DateTime CreatedAt { get; set; }
+   public DateTime? LastUpdated { get; set; }
+   public string? UpdatedBy { get; set; }
 
-	public string? Type { get; set; }
-
-	public string? Path { get; set; }
-
-	public string? PreviewPath { get; set; }
-
-	public string? Name { get; set; }
-
-	public string? Title { get; set; }
-
-
-	public int Width { get; set; }
-
-	public int Height { get; set; }
-
+   public string CreatedAtText => CreatedAt.ToDateString();
+   public string LastUpdatedText => LastUpdated.ToDateString();
 
 }

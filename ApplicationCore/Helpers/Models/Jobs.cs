@@ -1,17 +1,26 @@
 using ApplicationCore.Models;
 using ApplicationCore.Views;
 using AutoMapper;
-using System;
+using Infrastructure.Paging;
+using Infrastructure.Helpers;
 
 namespace ApplicationCore.Helpers;
 public static class JobHelpers
 {
+   public static string RoleText(this JobRole role)
+   {
+      if (role == JobRole.Normal) return "一般";
+      if (role == JobRole.Vice) return "副主管";
+      if (role == JobRole.Chief) return "主管";
+      return "";
+   }
 
    public static JobViewModel MapViewModel(this Job job, IMapper mapper)
    {
       var model = mapper.Map<JobViewModel>(job);
-      model.SetBaseRecordViewValues();
-      
+      model.RoleText = job.Role.RoleText();
+
+
       return model;
    }
 
@@ -32,7 +41,7 @@ public static class JobHelpers
       if (entity == null) entity = mapper.Map<JobViewModel, Job>(model);
       else entity = mapper.Map<JobViewModel, Job>(model, entity);
 
-      entity.SetBaseRecordValues(model);
+      entity.SetActive(model.Active);
 
       if (model.Id == 0) entity.SetCreated(currentUserId);
       else entity.SetUpdated(currentUserId);

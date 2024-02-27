@@ -2,6 +2,7 @@
 using ApplicationCore.Models;
 using Infrastructure.Helpers;
 using AutoMapper;
+using Infrastructure.Paging;
 
 namespace ApplicationCore.Helpers;
 

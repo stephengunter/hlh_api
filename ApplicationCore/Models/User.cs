@@ -1,4 +1,5 @@
-﻿using Infrastructure.Interfaces;
+﻿using Infrastructure.Entities;
+using Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Text;
 
 namespace ApplicationCore.Models;
 
-public class User : IdentityUser, IAggregateRoot
+public class User : IdentityUser, IAggregateRoot, IBaseRecord
 {	
 	public string Name { get; set; } = String.Empty;
 	public DateTime CreatedAt { get; set; } = DateTime.Now;
@@ -21,7 +22,6 @@ public class User : IdentityUser, IAggregateRoot
 
    
    public virtual ICollection<OAuth>? OAuthList { get; set; }
-   public virtual ICollection<Job>? Jobs { get; set; }
    public virtual ICollection<UserRole>? UserRoles { get; set; }
 
 }

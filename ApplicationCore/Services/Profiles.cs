@@ -13,8 +13,9 @@ namespace ApplicationCore.Services;
 
 public interface IProfilesService
 {
-   Task<Profiles?> FindAsync(User user);
+   Task<IEnumerable<Profiles>> FetchAsync();
 
+   Task<Profiles?> FindAsync(User user);
    Task<Profiles> CreateAsync(Profiles Profiles);
 	Task UpdateAsync(Profiles Profiles);
    Task DeleteAsync(Profiles Profiles);
@@ -28,6 +29,8 @@ public class ProfilessService : IProfilesService
 	{
       _profilesRepository = profilesRepository;
 	}
+   public async Task<IEnumerable<Profiles>> FetchAsync()
+      => await _profilesRepository.ListAsync();
 
    public async Task<Profiles?> FindAsync(User user)
       => await _profilesRepository.FirstOrDefaultAsync(new ProfilesSpecification(user));

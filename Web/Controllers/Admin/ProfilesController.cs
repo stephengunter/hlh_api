@@ -24,6 +24,14 @@ public class ProfilesController : BaseAdminController
       _mapper = mapper;
    }
 
+   [HttpGet]
+   public async Task<ActionResult<IEnumerable<ProfilesViewModel>>> Fetch()
+   {
+      var profiles = await _profilesService.FetchAsync();
+
+      return profiles.MapViewModelList(_mapper);
+   }
+
    [HttpGet("create/{id}")]
    public async Task<ActionResult<ProfilesViewModel>> Create(string id)
    {
@@ -42,7 +50,7 @@ public class ProfilesController : BaseAdminController
       ValidateRequest(model);
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
-      var profiles = model.MapEntity(_mapper);
+      var profiles = model.MapEntity(_mapper, User.Id());
       profiles.CreatedAt = DateTime.Now;
       profiles.LastUpdated = DateTime.Now;
       profiles.UpdatedBy = User.Id();
@@ -72,7 +80,7 @@ public class ProfilesController : BaseAdminController
       ValidateRequest(model);
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
-      profiles = model.MapEntity(_mapper, profiles);
+      profiles = model.MapEntity(_mapper, User.Id(), profiles);
       profiles.LastUpdated = DateTime.Now;
       profiles.UpdatedBy = User.Id();
 
@@ -87,7 +95,7 @@ public class ProfilesController : BaseAdminController
       var profiles = await _profilesService.FindAsync(new User { Id = id });
       if (profiles == null) return NotFound();
       
-      await _profilesService.UpdateAsync(profiles);
+      await _profilesService.DeleteAsync(profiles);
 
       return NoContent();
    }

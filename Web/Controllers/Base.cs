@@ -6,6 +6,7 @@ using ApplicationCore.Models;
 using Microsoft.AspNetCore.Authorization;
 using ApplicationCore.Authorization;
 using ApplicationCore.Exceptions;
+using Infrastructure.Helpers;
 
 namespace Web.Controllers;
 
@@ -20,6 +21,29 @@ public abstract class BaseController : ControllerBase
       string id = User.Id();
       if(String.IsNullOrEmpty(id)) throw new CurrentUserIdNotFoundException();
       if(id != user.Id) throw new CurrentUserIdNotEqualToRequestUserIdException();
+   }
+
+   protected string TempPath(IWebHostEnvironment environment)
+     => Path.Combine(environment.WebRootPath, "temp");
+
+   protected string GetTempPath(IWebHostEnvironment environment, string folder)
+     => Path.Combine(TempPath(environment), folder);
+
+   protected string TemplatePath(IWebHostEnvironment environment, AppSettings appSettings)
+     => Path.Combine(environment.WebRootPath, appSettings.TemplatePath.HasValue() ? appSettings.TemplatePath : "templates");
+
+   protected string GetMailTemplate(IWebHostEnvironment environment, AppSettings appSettings, string name = "default")
+   {
+      var pathToFile = Path.Combine(TemplatePath(environment, appSettings), $"{name}.html");
+      if (!System.IO.File.Exists(pathToFile)) throw new Exception("email template file not found: " + pathToFile);
+
+      string body = "";
+      using (StreamReader reader = System.IO.File.OpenText(pathToFile))
+      {
+         body = reader.ReadToEnd();
+      }
+
+      return body.Replace("APPNAME", appSettings.Title).Replace("APPURL", appSettings.ClientUrl);
    }
 }
 
@@ -38,9 +62,12 @@ public class BaseAdminController : BaseController
 {
    protected void ValidateRequest(AdminRequest model, AdminSettings adminSettings)
    {
-      if (model.Key != adminSettings.Key) ModelState.AddModelError("key", "認證錯誤");
-
-   }
+      if (string.IsNullOrEmpty(model.Key)) ModelState.AddModelError("key", "認證錯誤");
+      else 
+      {
+         if (model.Key != adminSettings.Key) ModelState.AddModelError("key", "認證錯誤");
+      }
+   }  
 }
 
 [EnableCors("Global")]

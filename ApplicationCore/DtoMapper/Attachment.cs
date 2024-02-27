@@ -8,8 +8,8 @@ public class AttachmentMappingProfile : Profile
 {
 	public AttachmentMappingProfile()
 	{
-		CreateMap<UploadFile, AttachmentViewModel>();
+		CreateMap<Attachment, AttachmentViewModel>();
 
-		CreateMap<AttachmentViewModel, UploadFile>();
+		CreateMap<AttachmentViewModel, Attachment>();
 	}
 }

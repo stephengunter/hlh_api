@@ -1,6 +1,8 @@
-﻿using ApplicationCore.Models;
+﻿using Infrastructure.Helpers;
+using ApplicationCore.Models;
 using ApplicationCore.Views;
 using AutoMapper;
+using Infrastructure.Paging;
 using System;
 
 namespace ApplicationCore.Helpers;
@@ -10,8 +12,6 @@ public static class TagHelpers
    public static TagViewModel MapViewModel(this Tag tag, IMapper mapper)
    {
       var model = mapper.Map<TagViewModel>(tag);
-      model.SetBaseRecordViewValues();
-      
       return model;
    }
 
@@ -32,11 +32,8 @@ public static class TagHelpers
       if (entity == null) entity = mapper.Map<TagViewModel, Tag>(model);
       else entity = mapper.Map<TagViewModel, Tag>(model, entity);
 
-      entity.SetBaseRecordValues(model);
-
       if (model.Id == 0) entity.SetCreated(currentUserId);
       else entity.SetUpdated(currentUserId);
-
       return entity;
    }
 

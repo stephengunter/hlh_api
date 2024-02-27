@@ -2,7 +2,7 @@
 using Ardalis.Specification;
 
 namespace ApplicationCore.Specifications;
-public class AttachmentsSpecification : Specification<UploadFile>
+public class AttachmentsSpecification : Specification<Attachment>
 {
 	public AttachmentsSpecification()
 	{
@@ -14,7 +14,7 @@ public class AttachmentsSpecification : Specification<UploadFile>
 	}
 }
 
-public class AttachmentsByTypesSpecification : Specification<UploadFile>
+public class AttachmentsByTypesSpecification : Specification<Attachment>
 {
 	public AttachmentsByTypesSpecification(PostType postType)
 	{

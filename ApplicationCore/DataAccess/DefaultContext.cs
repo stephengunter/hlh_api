@@ -34,6 +34,7 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
    public DbSet<Profiles> Profiles => Set<Profiles>();
    public DbSet<Department> Departments => Set<Department>();
    public DbSet<Job> Jobs => Set<Job>();
+   public DbSet<JobUserProfiles> JobUserProfiles => Set<JobUserProfiles>();
 
 
    #region Auth
@@ -45,7 +46,7 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
    #region Articles	
    public DbSet<Category> Categories => Set<Category>();
    public DbSet<Article> Articles => Set<Article>();
-   public DbSet<UploadFile> UploadFiles => Set<UploadFile>();
+   public DbSet<Attachment> Attachments => Set<Attachment>();
 	#endregion
 
 	public override int SaveChanges() => SaveChangesAsync().GetAwaiter().GetResult();

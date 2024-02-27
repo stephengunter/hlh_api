@@ -49,7 +49,8 @@ public static class SeedData
 					Name = adminName,
 					PhoneNumber = adminPhone,
 					EmailConfirmed = true,
-					SecurityStamp = Guid.NewGuid().ToString()
+					SecurityStamp = Guid.NewGuid().ToString(),
+					Active = true
 				};
 				await CreateUserIfNotExist(userManager, user, new List<string>() { DevRoleName });
 			}
@@ -121,8 +122,12 @@ public static class SeedData
    }
    static async Task AddDepartmentsIfNotExist(DefaultContext context, Department department)
    {
+		if (context.Departments.Count() == 0) 
+		{
+         context.Departments.Add(department);
+         return;
+      }
 		var exist = await context.Departments.FirstOrDefaultAsync(x => x.Key == department.Key);
-
 		if (exist == null) context.Departments.Add(department);
    }
 

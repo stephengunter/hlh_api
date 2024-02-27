@@ -1,16 +1,16 @@
-﻿using ApplicationCore.Models;
+﻿using Infrastructure.Helpers;
+using ApplicationCore.Models;
 using ApplicationCore.Views;
 using AutoMapper;
+using Infrastructure.Paging;
 using System;
 
 namespace ApplicationCore.Helpers;
 public static class ArticleHelpers
 {
-
    public static ArticleViewModel MapViewModel(this Article article, IMapper mapper)
    {
       var model = mapper.Map<ArticleViewModel>(article);
-      model.SetBaseRecordViewValues();
       
       return model;
    }
@@ -32,7 +32,7 @@ public static class ArticleHelpers
       if (entity == null) entity = mapper.Map<ArticleViewModel, Article>(model);
       else entity = mapper.Map<ArticleViewModel, Article>(model, entity);
 
-      entity.SetBaseRecordValues(model);
+      entity.SetActive(model.Active);
 
       if (model.Id == 0) entity.SetCreated(currentUserId);
       else entity.SetUpdated(currentUserId);

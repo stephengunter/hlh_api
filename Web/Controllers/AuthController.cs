@@ -93,8 +93,8 @@ public class AuthController : BaseController
 	}
 	void ValidateRequest(LoginRequest request)
 	{
-		if(String.IsNullOrEmpty(request.Username)) ModelState.AddModelError("name", ValidationMeesages.Empty("name"));
-		if(String.IsNullOrEmpty(request.Password)) ModelState.AddModelError("password", ValidationMeesages.Empty("password"));
+		if(String.IsNullOrEmpty(request.Username)) ModelState.AddModelError("name", ValidationMessages.Empty("name"));
+		if(String.IsNullOrEmpty(request.Password)) ModelState.AddModelError("password", ValidationMessages.Empty("password"));
 	}
 
 
