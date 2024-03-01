@@ -18,8 +18,8 @@ public class JobUserProfilesViewModel : EntityBaseView, IBaseRecordView, IBaseCo
    public DateTime? StartDate { get; set; }
    public DateTime? EndDate { get; set; }
 
-   public string StartDateText => StartDate.ToDateString();
-   public string EndDateText => EndDate.ToDateString();
+   public string? StartDateText { get; set; }
+   public string? EndDateText { get; set; }
 
    public string? PS { get; set; }
 

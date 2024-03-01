@@ -29,31 +29,31 @@ public class ATestsController : BaseTestController
   
    private readonly AppSettings _appSettings;
    private readonly DefaultContext _context;
-   private readonly IWebHostEnvironment _environment;
 
-   public ATestsController(IWebHostEnvironment environment, IOptions<AppSettings> appSettings, DefaultContext context)
+   public ATestsController(IOptions<AppSettings> appSettings, DefaultContext context)
    {
-      _environment = environment;
       _context = context;
       _appSettings = appSettings.Value;
-      _environment = environment;
    }
    [HttpGet]
    public async Task<ActionResult> Index()
    {
-      var path = GetTempPath(_environment, DateTime.Today.ToDateNumber().ToString());
-      var filePath = Path.Combine(GetTempPath(_environment, DateTime.Today.ToDateNumber().ToString()), "departments.json");
-
-      // Check if the file exists
-      if (!System.IO.File.Exists(filePath))
+      var departments = _context.Departments.ToList();
+      foreach (var department in departments)
       {
-         return NotFound(); // Return 404 if the file does not exist
+         if (department.Type == DepartmentTypes.GU)
+         {
+            await AddLocationIfNotExist(_context, new Location { Title = $"{department.Title}ªk©x«Ç", Key = department.Key, Order = department.Order, ParentId = 20 });
+         }
+        
       }
-      // Example stream (replace with your own)
-      Stream stream = new FileStream(filePath, FileMode.Open);
-
-      // Return the stream as a file
-      return File(stream, "application/octet-stream", "departments.json");
+      _context.SaveChanges();
+      return Ok();
+   }
+   async Task AddLocationIfNotExist(DefaultContext context, Location location)
+   {
+      var exist = await context.Locations.FirstOrDefaultAsync(x => x.Title == location.Title);
+      if (exist == null) context.Locations.Add(location);
    }
 
    [HttpGet("version")]

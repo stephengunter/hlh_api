@@ -12,6 +12,7 @@ public class DepartmentsAdminView
 
    public List<DepartmentViewModel> Departments { get; }
    public Dictionary<string, string> Keys { get; }
+   public List<JobTitleViewModel> JobTitles { get; set; }
 
 }
 

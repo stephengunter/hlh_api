@@ -3,7 +3,6 @@ using ApplicationCore.DataAccess;
 using ApplicationCore.Models;
 using ApplicationCore.Settings;
 using ApplicationCore.Helpers;
-using ApplicationCore.Views;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 

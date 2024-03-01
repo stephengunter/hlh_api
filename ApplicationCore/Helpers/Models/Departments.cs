@@ -2,14 +2,16 @@ using Infrastructure.Helpers;
 using ApplicationCore.Models;
 using ApplicationCore.Views;
 using AutoMapper;
-using Infrastructure.Helpers;
 using Microsoft.Extensions.Primitives;
 using System;
 using Infrastructure.Paging;
+using ApplicationCore.Consts;
 
 namespace ApplicationCore.Helpers;
 public static class DepartmentHelpers
 {
+   public static bool IsCourt(this Department entity) => entity.Type == DepartmentTypes.COURT;
+   public static bool IsGU(this Department entity) => entity.Type == DepartmentTypes.GU;
 
    public static DepartmentViewModel MapViewModel(this Department department, IMapper mapper)
    {
@@ -17,7 +19,6 @@ public static class DepartmentHelpers
       
       return model;
    }
-
 
    public static List<DepartmentViewModel> MapViewModelList(this IEnumerable<Department> departments, IMapper mapper)
       => departments.Select(item => MapViewModel(item, mapper)).ToList();

@@ -8,7 +8,8 @@ namespace ApplicationCore.Views;
 
 public class JobViewModel : EntityBaseView, IBaseRecordView
 {
-   public string Title { get; set; } = string.Empty;
+   public int JobTitleId { get; set; }
+   public JobTitleViewModel? JobTitle  { get; set; }
 
    public int DepartmentId { get; set; }
 
@@ -41,3 +42,9 @@ public class JobViewModel : EntityBaseView, IBaseRecordView
 
 }
 
+public class JobTitleViewModel : EntityBaseView
+{
+   public string Title { get; set; } = string.Empty;
+   public int Order { get; set; }
+   public bool Active { get; set; }
+}

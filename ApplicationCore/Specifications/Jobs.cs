@@ -6,16 +6,16 @@ public class JobSpecification : Specification<Job>
 {
 	public JobSpecification()
 	{
-		Query.Where(item => !item.Removed);
+		Query.Include(item => item.JobTitle).Where(item => !item.Removed);
 	}
    public JobSpecification(IEnumerable<Department> departments)
    {
       var depIds = departments.Select(d => d.Id);
-      Query.Where(item => !item.Removed && depIds.Contains(item.DepartmentId));
+      Query.Include(item => item.JobTitle).Where(item => !item.Removed && depIds.Contains(item.DepartmentId));
    }
    public JobSpecification(int id)
    {
-      Query.Include(item => item.Department).Where(user => user.Id == id);
+      Query.Include(item => item.JobTitle).Include(item => item.Department).Where(user => user.Id == id);
    }
 }
 

@@ -5,7 +5,8 @@ namespace ApplicationCore.Models;
 
 public class Job : EntityBase, IBaseRecord, IRemovable, ISortable
 {
-   public string Title { get; set; } = string.Empty;
+   public int JobTitleId { get; set; }
+   public virtual required JobTitle JobTitle { get; set; }
 
    public int DepartmentId { get; set; }
 
@@ -27,6 +28,14 @@ public class Job : EntityBase, IBaseRecord, IRemovable, ISortable
    public bool Removed { get; set; }
    public int Order { get; set; }
    public bool Active => ISortableHelpers.IsActive(this);
+}
+
+public class JobTitle : EntityBase, ISortable
+{
+   public string Title { get; set; } = string.Empty;
+   public int Order { get; set; }
+   public bool Active => ISortableHelpers.IsActive(this);
+   public virtual ICollection<Job>? Jobs { get; set; }
 }
 
 public enum JobRole

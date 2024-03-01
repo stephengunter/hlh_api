@@ -4,6 +4,7 @@ using ApplicationCore.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApplicationCore.Migrations
 {
     [DbContext(typeof(DefaultContext))]
-    partial class DefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20240229074230_JobTitle-rename")]
+    partial class JobTitlerename
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -311,38 +314,6 @@ namespace ApplicationCore.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("JobUserProfiles");
-                });
-
-            modelBuilder.Entity("ApplicationCore.Models.Location", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Key")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Order")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ParentId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("Removed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentId");
-
-                    b.ToTable("Locations");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.OAuth", b =>
@@ -771,15 +742,6 @@ namespace ApplicationCore.Migrations
                     b.Navigation("UserProfiles");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.Location", b =>
-                {
-                    b.HasOne("ApplicationCore.Models.Location", "Parent")
-                        .WithMany("SubItems")
-                        .HasForeignKey("ParentId");
-
-                    b.Navigation("Parent");
-                });
-
             modelBuilder.Entity("ApplicationCore.Models.OAuth", b =>
                 {
                     b.HasOne("ApplicationCore.Models.User", "User")
@@ -921,11 +883,6 @@ namespace ApplicationCore.Migrations
             modelBuilder.Entity("ApplicationCore.Models.JobTitle", b =>
                 {
                     b.Navigation("Jobs");
-                });
-
-            modelBuilder.Entity("ApplicationCore.Models.Location", b =>
-                {
-                    b.Navigation("SubItems");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Profiles", b =>

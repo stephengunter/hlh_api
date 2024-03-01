@@ -9,10 +9,31 @@ public static class IEnumerableHelpers
 		if (collection != null) return collection.Count < 1;
 		return !enumerable.Any();
 	}
+   
+   public static bool HasItems<T>(this IEnumerable<T> enumerable) => !IsNullOrEmpty(enumerable);
 
-	public static bool HasItems<T>(this IEnumerable<T> enumerable) => !IsNullOrEmpty(enumerable);
+   public static async Task ForEachWithIndexAsync<T>(this IEnumerable<T> enumerable, Func<T, int, Task> action)
+   {
+      if (enumerable == null)
+         throw new ArgumentNullException(nameof(enumerable));
+      if (action == null)
+         throw new ArgumentNullException(nameof(action));
 
-	public static bool AllTheSame(this IEnumerable<int> listA, IEnumerable<int> listB)
+      int index = 0;
+      foreach (var item in enumerable)
+      {
+         await action(item, index);
+         index++;
+      }
+   }
+
+   public static void Each<T>(this IEnumerable<T> ie, Action<T, int> action)
+   {
+      var i = 0;
+      foreach (var e in ie) action(e, i++);
+   }
+
+   public static bool AllTheSame(this IEnumerable<int> listA, IEnumerable<int> listB)
 		=> listB.All(listA.Contains) && listA.Count() == listB.Count();
 
 	public static IEnumerable<T> GetList<T>(this IEnumerable<T>? enumerable)

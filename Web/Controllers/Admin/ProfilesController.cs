@@ -78,6 +78,7 @@ public class ProfilesController : BaseAdminController
       if (profiles == null) return NotFound();
 
       ValidateRequest(model);
+      throw new Exception();
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
       profiles = model.MapEntity(_mapper, User.Id(), profiles);

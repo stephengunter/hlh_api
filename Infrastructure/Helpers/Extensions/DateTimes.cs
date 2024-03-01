@@ -3,9 +3,11 @@
 namespace Infrastructure.Helpers;
 public static class DateTimeHelpers
 {
-	public static DateTime? ToStartDate(this string input)
+	public static DateTime? ToStartDate(this string? input)
 	{
-		var startDate = input.ToDatetimeOrNull();
+		if(string.IsNullOrEmpty(input)) return null;
+
+      var startDate = input.ToDatetimeOrNull();
 		if (startDate.HasValue)
 		{
 			var dateStart = Convert.ToDateTime(startDate);
@@ -14,9 +16,11 @@ public static class DateTimeHelpers
 		else return null;
 	}
 
-	public static DateTime? ToEndDate(this string input)
+	public static DateTime? ToEndDate(this string? input)
 	{
-		var endDate = input.ToDatetimeOrNull();
+      if (string.IsNullOrEmpty(input)) return null;
+
+      var endDate = input.ToDatetimeOrNull();
 		if (endDate.HasValue)
 		{
 			var dateEnd = Convert.ToDateTime(endDate);

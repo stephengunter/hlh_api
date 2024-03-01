@@ -67,6 +67,8 @@ public class JobUserProfilesController : BaseAdminController
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
       var entity = model.MapEntity(_mapper, User.Id());
+      entity.StartDate = model.StartDateText.ToStartDate();
+      entity.EndDate = model.EndDateText.ToEndDate();
 
       entity = await _service.CreateAsync(entity);
 
@@ -100,8 +102,13 @@ public class JobUserProfilesController : BaseAdminController
       await ValidateRequestAsync(model);
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
-      entity = model.MapEntity(_mapper, User.Id(), entity);
+      //entity = model.MapEntity(_mapper, User.Id(), entity);
+      //entity.StartDate = model.StartDateText.ToStartDate();
+      //entity.EndDate = model.EndDateText.ToStartDate();
 
+      entity.StartDate = new DateTime(2023, 10, 1);
+      entity.EndDate = new DateTime(2023, 10, 1);
+      entity.PS += "pp";
       await _service.UpdateAsync(entity);
 
       return NoContent();

@@ -7,8 +7,6 @@ using ApplicationCore.Consts;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 using ApplicationCore.Specifications;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace ApplicationCore.Services;
 

@@ -1,14 +1,6 @@
-﻿using ApplicationCore.Auth;
-using ApplicationCore.DataAccess;
+﻿using ApplicationCore.DataAccess;
 using ApplicationCore.Models;
-using ApplicationCore.Settings;
-using ApplicationCore.Helpers;
-using ApplicationCore.Views;
-using Microsoft.Extensions.Options;
-using System.Security.Claims;
-using ApplicationCore.Consts;
 using ApplicationCore.Specifications;
-using Infrastructure.Interfaces;
 
 namespace ApplicationCore.Services;
 

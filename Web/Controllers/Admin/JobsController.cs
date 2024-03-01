@@ -13,14 +13,12 @@ namespace Web.Controllers.Admin;
 public class JobsController : BaseAdminController
 {
    private readonly IJobsService _jobsService;
-   private readonly IDepartmentsService _departmentsService;
    private readonly IMapper _mapper;
 
   
    public JobsController(IJobsService jobsService, IDepartmentsService departmentsService, IMapper mapper)
    {
       _jobsService = jobsService;
-      _departmentsService = departmentsService;
       _mapper = mapper;
    }
    [HttpGet]
@@ -77,7 +75,7 @@ public class JobsController : BaseAdminController
    {
       var job = await _jobsService.GetByIdAsync(id);
       if (job == null) return NotFound();
-
+      throw new Exception();
       ValidateRequest(model);
       if (!ModelState.IsValid) return BadRequest(ModelState);
 

@@ -23,7 +23,8 @@ public static class JobHelpers
 
       return model;
    }
-
+   public static JobTitleViewModel MapViewModel(this JobTitle jobTitle, IMapper mapper)
+      => mapper.Map<JobTitleViewModel>(jobTitle);
 
    public static List<JobViewModel> MapViewModelList(this IEnumerable<Job> jobs, IMapper mapper)
       => jobs.Select(item => MapViewModel(item, mapper)).ToList();

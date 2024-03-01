@@ -24,23 +24,19 @@ using ApplicationCore;
 
 namespace Web.Controllers.Admin;
 
-public class DepartmentsController : BaseAdminController
+public class LocationsController : BaseAdminController
 {
-   private readonly IDepartmentsService _departmentsService;
-   private readonly IJobsService _jobsService;
+   private readonly ILocationsService _locationsService;
    private readonly IMapper _mapper;
-   private readonly IWebHostEnvironment _environment;
    private readonly DefaultContext _context;
    private readonly AdminSettings _adminSettings;
    private readonly DbSettings _dbSettings;
 
-   public DepartmentsController(IDepartmentsService departmentsService, IJobsService jobsService,
+   public LocationsController(ILocationsService locationsService, IJobsService jobsService,
       IWebHostEnvironment environment, DefaultContext context,
       IOptions<AdminSettings> adminSettings, IOptions<DbSettings> dbSettings, IMapper mapper)
    {
-      _departmentsService = departmentsService;
-      _jobsService = jobsService;
-      _environment = environment;
+      _locationsService = locationsService;
       _context = context;
       _mapper = mapper;
       _dbSettings = dbSettings.Value;
@@ -48,57 +44,52 @@ public class DepartmentsController : BaseAdminController
    }
 
    [HttpGet]
-   public async Task<ActionResult<DepartmentsAdminView>> Index()
+   public async Task<ActionResult<IEnumerable<LocationViewModel>>> Index()
    {
-      var allDepartments = await _departmentsService.FetchAllAsync();
-      var keys = typeof(DepartmentKeys).GetDictionaries<string>();
-      var model = new DepartmentsAdminView(allDepartments.MapViewModelList(_mapper), keys);
-
-      var jotTitles = await _jobsService.FetchJobTitlesAsync();
-      model.JobTitles = jotTitles.Select(x => x.MapViewModel(_mapper)).ToList();
-      return model;
+      var allLocations = await _locationsService.FetchAllAsync();
+      return allLocations.MapViewModelList(_mapper);
    }
 
 
    [HttpGet("create/{parentId}")]
-   public async Task<ActionResult<DepartmentViewModel>> Create(int parentId)
+   public async Task<ActionResult<LocationViewModel>> Create(int parentId)
    {
-      var parent = await _departmentsService.GetByIdAsync(parentId);
+      var parent = await _locationsService.GetByIdAsync(parentId);
       if (parent is null)
       {
-         ModelState.AddModelError("parentId", "指定的父部門不存在");
+         ModelState.AddModelError("parentId", "指定的父位置不存在");
          return BadRequest(ModelState);
       } 
 
-      return new DepartmentViewModel() { ParentId = parentId, Active = true, Parent = parent.MapViewModel(_mapper) };
+      return new LocationViewModel() { ParentId = parentId, Active = true, Parent = parent.MapViewModel(_mapper) };
    }
 
 
    [HttpPost]
-   public async Task<ActionResult<DepartmentViewModel>> Store([FromBody] DepartmentViewModel model)
+   public async Task<ActionResult<LocationViewModel>> Store([FromBody] LocationViewModel model)
    {
       await ValidateRequestAsync(model);
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
-      var department = model.MapEntity(_mapper, User.Id());
-      department.Order = model.Active ? 0 : -1;
+      var location = model.MapEntity(_mapper, User.Id());
+      location.Order = model.Active ? 0 : -1;
 
-      department = await _departmentsService.CreateAsync(department);
+      location = await _locationsService.CreateAsync(location);
 
-      return Ok(department.MapViewModel(_mapper));
+      return Ok(location.MapViewModel(_mapper));
    }
 
    [HttpGet("edit/{id}")]
    public async Task<ActionResult> Edit(int id)
    {
-      var department = await _departmentsService.GetByIdAsync(id);
-      if (department == null) return NotFound();
+      var location = await _locationsService.GetByIdAsync(id);
+      if (location == null) return NotFound();
 
-      var model = department.MapViewModel(_mapper);
+      var model = location.MapViewModel(_mapper);
 
-      if (department.ParentId.HasValue)
+      if (location.ParentId.HasValue)
       {
-         var parent = await _departmentsService.GetByIdAsync(department.ParentId.Value);
+         var parent = await _locationsService.GetByIdAsync(location.ParentId.Value);
          model.Parent = parent!.MapViewModel(_mapper);
       }
 
@@ -106,16 +97,16 @@ public class DepartmentsController : BaseAdminController
    }
 
    [HttpPut("{id}")]
-   public async Task<ActionResult> Update(int id, [FromBody] DepartmentViewModel model)
+   public async Task<ActionResult> Update(int id, [FromBody] LocationViewModel model)
    {
-      var department = await _departmentsService.GetByIdAsync(id);
-      if (department == null) return NotFound();
+      var location = await _locationsService.GetByIdAsync(id);
+      if (location == null) return NotFound();
 
       await ValidateRequestAsync(model);
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
-      department = model.MapEntity(_mapper, User.Id(), department);
-      await _departmentsService.UpdateAsync(department);
+      location = model.MapEntity(_mapper, User.Id(), location);
+      await _locationsService.UpdateAsync(location);
 
       return NoContent();
    }
@@ -123,12 +114,12 @@ public class DepartmentsController : BaseAdminController
    [HttpDelete("{id}")]
    public async Task<IActionResult> Remove(int id)
    {
-      var department = await _departmentsService.GetByIdAsync(id);
-      if (department == null) return NotFound();
+      var location = await _locationsService.GetByIdAsync(id);
+      if (location == null) return NotFound();
 
-      department.Removed = true;
-      department.Order = -1;
-      await _departmentsService.UpdateAsync(department);
+      location.Removed = true;
+      location.Order = -1;
+      await _locationsService.UpdateAsync(location);
 
       return NoContent();
    }
@@ -136,13 +127,13 @@ public class DepartmentsController : BaseAdminController
    [HttpPut]
    public async Task<IActionResult> Orders([FromBody] OrdersRequest model)
    {
-      var departments = await _departmentsService.FetchAsync(model.Ids);
+      var locations = await _locationsService.FetchAsync(model.Ids);
       for (int i = 0; i < model.Ids.Count; i++)
       {
-         var department = departments.First(x => x.Id == model.Ids[i]);
-         department.Order = model.Ids.Count - i;
+         var location = locations.First(x => x.Id == model.Ids[i]);
+         location.Order = model.Ids.Count - i;
       }
-      await _departmentsService.UpdateRangeAsync(departments);
+      await _locationsService.UpdateRangeAsync(locations);
 
       return NoContent();
    }
@@ -152,16 +143,13 @@ public class DepartmentsController : BaseAdminController
       ValidateRequest(request, _adminSettings);
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
-      var path = GetTempPath(_environment, DateTime.Today.ToDateNumber().ToString());
-      if (!Directory.Exists(path)) Directory.CreateDirectory(path);
-
-      var allDepartments = await _departmentsService.FetchAllAsync();
-      foreach (var department in allDepartments)
+      var allLocations = await _locationsService.FetchAllAsync();
+      foreach (var location in allLocations)
       {
-         department.Parent = null;
-         department.SubItems = new List<Department>();
+         location.Parent = null;
+         location.SubItems = new List<Location>();
       } 
-      var viewList = allDepartments.MapViewModelList(_mapper);
+      var viewList = allLocations.MapViewModelList(_mapper);
 
       // Serialize users data to JSON format
       string jsonData = JsonConvert.SerializeObject(viewList);
@@ -170,7 +158,7 @@ public class DepartmentsController : BaseAdminController
       byte[] fileBytes = Encoding.UTF8.GetBytes(jsonData);
 
       // Return the JSON data as a downloadable file
-      return File(fileBytes, "application/json", "departments.json");
+      return File(fileBytes, "application/json", "locations.json");
    }
    [HttpPost("import")]
    public async Task<ActionResult> Import([FromForm] AdminFileRequest request)
@@ -192,14 +180,14 @@ public class DepartmentsController : BaseAdminController
       }
 
       string content = await ReadFileTextAsync(file);
-      var viewList = JsonConvert.DeserializeObject<List<DepartmentViewModel>>(content);
+      var viewList = JsonConvert.DeserializeObject<List<LocationViewModel>>(content);
 
       var connectionString = _context.Database.GetDbConnection().ConnectionString;
 
-      var newEntities = new List<Department>();
+      var newEntities = new List<Location>();
       foreach (var viewModel in viewList!)
       {
-         var existingEntity = _context.Departments.Find(viewModel.Id);
+         var existingEntity = _context.Locations.Find(viewModel.Id);
          if (existingEntity == null) newEntities.Add(viewModel.MapEntity(_mapper, User.Id()));
          else 
          {
@@ -213,11 +201,11 @@ public class DepartmentsController : BaseAdminController
 
       if (newEntities.HasItems())
       {
-         var tableName = _context.Model.FindEntityType(typeof(Department))!.GetTableName();
+         var tableName = _context.Model.FindEntityType(typeof(Location))!.GetTableName();
          using (var context = Factories.CreateDefaultContext(connectionString, _dbSettings))
          {
-            context.Departments.AddRange(newEntities);
-            // context.Departments
+            context.Locations.AddRange(newEntities);
+            // context.Locations
             context.Database.OpenConnection();
             try
             {
@@ -237,33 +225,33 @@ public class DepartmentsController : BaseAdminController
       return Ok();
    }
 
-   async Task ValidateRequestAsync(DepartmentViewModel model)
+   async Task ValidateRequestAsync(LocationViewModel model)
    {
       if (String.IsNullOrEmpty(model.Title)) ModelState.AddModelError("title", "必須填寫名稱");
-      Department? parent = null;
+      Location? parent = null;
       if (model.ParentId.HasValue)
       {
-         parent = await _departmentsService.GetByIdAsync(model.ParentId.Value);
-         if (parent is null) ModelState.AddModelError("parentId", "指定的父部門不存在");
+         parent = await _locationsService.GetByIdAsync(model.ParentId.Value);
+         if (parent is null) ModelState.AddModelError("parentId", "指定的父位置不存在");
       }
 
-      var depatments = await _departmentsService.FetchAsync(parent);
+      var depatments = await _locationsService.FetchAsync(parent);
       CheckName(depatments, model);
 
-      depatments = await _departmentsService.FetchAllAsync();
+      depatments = await _locationsService.FetchAllAsync();
       CheckKey(depatments, model);
    }
 
-   void CheckName(IEnumerable<Department> departments, DepartmentViewModel model)
+   void CheckName(IEnumerable<Location> locations, LocationViewModel model)
    {
-      var exist = departments.FindByName(model.Title);
+      var exist = locations.FindByName(model.Title);
       if (exist != null && exist.Id != model.Id) ModelState.AddModelError("title", "名稱重複了");
    }
-   void CheckKey(IEnumerable<Department> departments, DepartmentViewModel model)
+   void CheckKey(IEnumerable<Location> locations, LocationViewModel model)
    {
       if (model.Key.HasValue())
       {
-         var exist = departments.FindByKey(model.Key);
+         var exist = locations.FindByKey(model.Key);
          if (exist != null && exist.Id != model.Id) ModelState.AddModelError("key", "key重複了");
       }
       

@@ -11,7 +11,8 @@ public static class JobUserProfilesHelpers
       var model = mapper.Map<JobUserProfilesViewModel>(entity);
       model.Status = Convert.ToInt32(entity.Status);
       model.StatusText = entity.Status.ToText();
-
+      model.StartDateText = entity.StartDate.ToDateTimeString();
+      model.EndDateText = entity.EndDate.ToDateTimeString();
       return model;
    }
 

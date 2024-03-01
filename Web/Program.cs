@@ -42,21 +42,29 @@ try
 	{
 		builder.RegisterModule<ApplicationCoreModule>();
 	});
-	#endregion
+   #endregion
 
-	#region Add Configurations
-	builder.Services.Configure<AppSettings>(Configuration.GetSection(SettingsKeys.App));
+   #region Add Configurations
+   builder.Services.Configure<DbSettings>(Configuration.GetSection(SettingsKeys.Db));
+   builder.Services.Configure<AppSettings>(Configuration.GetSection(SettingsKeys.App));
 	builder.Services.Configure<AdminSettings>(Configuration.GetSection(SettingsKeys.Admin));
 	builder.Services.Configure<AuthSettings>(Configuration.GetSection(SettingsKeys.Auth));
 	builder.Services.Configure<MailSettings>(Configuration.GetSection(SettingsKeys.Mail));
    builder.Services.Configure<JudSettings>(Configuration.GetSection(SettingsKeys.Jud));
    #endregion
 
-   // Add services to the container.
    string connectionString = Configuration.GetConnectionString("Default")!;
-	builder.Services.AddDbContext<DefaultContext>(options =>
-						//options.UseNpgsql(connectionString));
-						options.UseSqlServer(connectionString));
+   if (Configuration[$"{SettingsKeys.Db}:Provider"].EqualTo(DbProvider.PostgreSql))
+	{
+      builder.Services.AddDbContext<DefaultContext>(options =>
+                  options.UseNpgsql(connectionString));
+   }
+	else
+	{
+      builder.Services.AddDbContext<DefaultContext>(options =>
+                  options.UseSqlServer(connectionString));
+   }
+	
 
    #region AddIdentity
    builder.Services.AddIdentity<User, Role>(options =>

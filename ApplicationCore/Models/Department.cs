@@ -1,3 +1,4 @@
+using ApplicationCore.Consts;
 using Infrastructure.Entities;
 using Infrastructure.Helpers;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -33,5 +34,22 @@ public class Department : EntityBase, IBaseCategory<Department>, IBaseRecord, IR
    public DateTime? LastUpdated { get; set; }
    public string? UpdatedBy { get; set; }
 
+
+   [NotMapped]
+   public string Type
+   {
+      get 
+      {
+         if (string.IsNullOrEmpty(Key)) return "";
+         string key = Key.ToUpper();
+         if (key.Equals(DepartmentTypes.TOP)) return DepartmentTypes.TOP;
+         if (key.Equals(DepartmentTypes.A_TOP)) return DepartmentTypes.A_TOP;
+         if (key.StartsWith("C")) return DepartmentTypes.COURT;
+         if (key.StartsWith("G")) return DepartmentTypes.GU;
+         return "";
+      }
+   }
+
 }
+
 

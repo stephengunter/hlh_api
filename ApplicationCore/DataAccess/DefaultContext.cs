@@ -12,27 +12,29 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
   
    public DefaultContext(DbContextOptions<DefaultContext> options) : base(options)
 	{
-	}
-   protected override void OnModelCreating(ModelBuilder modelBuilder)
-   {
-      base.OnModelCreating(modelBuilder);
-      modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+      
    }
-   //protected override void OnModelCreating(ModelBuilder builder)
-   //{
-   //	base.OnModelCreating(builder);
-   //	builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-   //	var types = builder.Model.GetEntityTypes()
-   //					.SelectMany(t => t.GetProperties())
-   //					.Where(p => p.ClrType == typeof(DateTime) || p.ClrType == typeof(DateTime?));
-   //	foreach (var property in types)
-   //	{
-   //		property.SetColumnType("timestamp without time zone");
-   //	}
-   //}
-  
+   protected override void OnModelCreating(ModelBuilder builder)
+   {
+      base.OnModelCreating(builder);
+      builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+      if (Database.IsNpgsql())
+      {
+         var types = builder.Model.GetEntityTypes()
+                     .SelectMany(t => t.GetProperties())
+                     .Where(p => p.ClrType == typeof(DateTime) || p.ClrType == typeof(DateTime?));
+         foreach (var property in types)
+         {
+            property.SetColumnType("timestamp without time zone");
+         }
+      }
+   }
+
    public DbSet<Profiles> Profiles => Set<Profiles>();
    public DbSet<Department> Departments => Set<Department>();
+   public DbSet<Location> Locations => Set<Location>();
+   public DbSet<JobTitle> JobTitles => Set<JobTitle>();
    public DbSet<Job> Jobs => Set<Job>();
    public DbSet<JobUserProfiles> JobUserProfiles => Set<JobUserProfiles>();
 

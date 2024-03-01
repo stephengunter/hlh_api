@@ -20,12 +20,15 @@ public class UsersController : BaseAdminController
    private readonly IUsersService _usersService;
    private readonly IMapper _mapper;
    private readonly JudSettings _judSettings;
+   private readonly AdminSettings _adminSettings;
 
-   public UsersController(IUsersService usersService, IOptions<JudSettings> judSettings, IMapper mapper)
+   public UsersController(IUsersService usersService, IOptions<JudSettings> judSettings,
+      IOptions<AdminSettings> adminSettings, IMapper mapper)
    {
       _usersService = usersService;
       _judSettings = judSettings.Value;
       _mapper = mapper;
+      _adminSettings = adminSettings.Value;
    }
    [HttpGet("")]
    public async Task<ActionResult<UsersAdminModel>> Index(bool active, string? role, string? keyword, int page = 1, int pageSize = 10)
@@ -117,17 +120,19 @@ public class UsersController : BaseAdminController
       var roles = _usersService.FetchRoles();
       return roles.MapViewModelList(_mapper);
    }
-
    [HttpPost("import")]
-   public async Task<IActionResult> Import([FromForm] AdminFileRequest model)
+   public async Task<IActionResult> Import([FromForm] AdminFileRequest request)
    {
-      if (model.Files.Count < 1)
+      ValidateRequest(request, _adminSettings);
+      if (!ModelState.IsValid) return BadRequest(ModelState);
+
+      if (request.Files.Count < 1)
       {
          ModelState.AddModelError("files", "必須上傳檔案");
          return BadRequest(ModelState);
       }
 
-      var file = model.Files.FirstOrDefault();
+      var file = request.Files.FirstOrDefault();
       if (Path.GetExtension(file!.FileName).ToLower() != ".txt")
       {
          ModelState.AddModelError("files", "檔案格式錯誤");
