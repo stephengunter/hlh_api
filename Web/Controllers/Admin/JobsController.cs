@@ -75,7 +75,7 @@ public class JobsController : BaseAdminController
    {
       var job = await _jobsService.GetByIdAsync(id);
       if (job == null) return NotFound();
-      throw new Exception();
+
       ValidateRequest(model);
       if (!ModelState.IsValid) return BadRequest(ModelState);
 

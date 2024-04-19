@@ -38,6 +38,8 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
    public DbSet<Job> Jobs => Set<Job>();
    public DbSet<JobUserProfiles> JobUserProfiles => Set<JobUserProfiles>();
 
+   public DbSet<Judgebook> Judgebooks => Set<Judgebook>();
+
 
    #region Auth
    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();

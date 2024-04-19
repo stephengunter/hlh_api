@@ -184,6 +184,7 @@ public class DepartmentsController : BaseAdminController
          return BadRequest(ModelState);
       }
 
+
       var file = request.Files.FirstOrDefault();
       if (Path.GetExtension(file!.FileName).ToLower() != ".json")
       {
