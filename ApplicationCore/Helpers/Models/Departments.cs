@@ -5,7 +5,7 @@ using AutoMapper;
 using Microsoft.Extensions.Primitives;
 using System;
 using Infrastructure.Paging;
-using ApplicationCore.Consts;
+using ApplicationCore.Consts;using Infrastructure.Helpers;
 
 namespace ApplicationCore.Helpers;
 public static class DepartmentHelpers

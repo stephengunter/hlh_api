@@ -14,7 +14,8 @@ public static class SeedData
 	
 	static string DevRoleName = AppRoles.Dev.ToString();
 	static string BossRoleName = AppRoles.Boss.ToString();
-   static string ClerRoleName = AppRoles.Clerk.ToString();
+   static string ClerkRoleName = AppRoles.Clerk.ToString();
+   static string FilesRoleName = AppRoles.Files.ToString();
 
    public static async Task EnsureSeedData(IServiceProvider serviceProvider, ConfigurationManager Configuration)
 	{
@@ -69,7 +70,8 @@ public static class SeedData
 		{ 
 			new Role { Name = DevRoleName, Title = "開發者" },
          new Role { Name = BossRoleName, Title = "老闆" },
-         new Role { Name = ClerRoleName, Title = "書記官" }
+         new Role { Name = ClerkRoleName, Title = "書記官" },
+         new Role { Name = FilesRoleName, Title = "檔案管理員" }
       };
 		foreach (var item in roles) await AddRoleIfNotExist(roleManager, item);
 	}

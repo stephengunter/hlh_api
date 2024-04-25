@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Authorization;
 using Infrastructure.Helpers;
 using Autofac.Core;
 using Google;
+using ApplicationCore.Settings.Files;
 
 Log.Logger = new LoggerConfiguration()
 	.MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Information)
@@ -51,6 +52,7 @@ try
 	builder.Services.Configure<AuthSettings>(Configuration.GetSection(SettingsKeys.Auth));
 	builder.Services.Configure<MailSettings>(Configuration.GetSection(SettingsKeys.Mail));
    builder.Services.Configure<JudSettings>(Configuration.GetSection(SettingsKeys.Jud));
+   builder.Services.Configure<JudgebookFileSettings>(Configuration.GetSection(SettingsKeys.JudgebookFile));
    #endregion
 
    string connectionString = Configuration.GetConnectionString("Default")!;
@@ -89,6 +91,8 @@ try
         {
             options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
         });
+
+
 	builder.Services.AddSwagger(Configuration);
 
 	var app = builder.Build();

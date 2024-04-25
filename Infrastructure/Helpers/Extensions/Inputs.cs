@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 
@@ -35,4 +36,12 @@ public static class InputHelpers
          return false;
       }
    }
+
+   public static string FormatNumberWithLeadingZeros(this int num, int len)
+   {
+      string strNum = num.ToString(); // Convert the number to a string
+      string paddedStr = strNum.PadLeft(len, '0'); // Pad with leading zeros to make the length 'len'
+      return paddedStr;
+   }
+
 }

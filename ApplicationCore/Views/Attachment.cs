@@ -9,14 +9,19 @@ public class AttachmentViewModel : EntityBaseView, IBaseUploadFileView, IBaseRec
 {
    public string PostType { get; set; } = string.Empty;
 	public int PostId { get; set; }
-   public string? Path { get; set; }
    public string? PreviewPath { get; set; }
    public int Width { get; set; }
    public int Height { get; set; }
    public string? Type { get; set; }
-   public string? Name { get; set; }
    public string? Title { get; set; }
    public string? Description { get; set; }
+
+   public string FileName { get; set; } = String.Empty;
+   public string Ext { get; set; } = String.Empty;
+   public long FileSize { get; set; }
+   public string Host { get; set; } = String.Empty;
+   public string DirectoryPath { get; set; } = String.Empty;
+
 
    public bool Removed { get; set; }
    public int Order { get; set; }

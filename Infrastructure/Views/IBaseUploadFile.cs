@@ -2,19 +2,9 @@
 
 public interface IBaseUploadFileView
 {
-	string? Path { get; set; }
-
-	string? PreviewPath { get; set; }
-
-	int Width { get; set; }
-
-	int Height { get; set; }
-
-	string? Type { get; set; }
-
-	string? Name { get; set; }
-
-	string? Title { get; set; }
-
-	string? Description { get; set; }
+   string FileName { get; set; }
+   string Ext { get; set; }
+   long FileSize { get; set; }
+   string Host { get; set; }
+   string DirectoryPath { get; set; }
 }

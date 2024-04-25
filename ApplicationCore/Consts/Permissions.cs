@@ -8,5 +8,6 @@ public enum AppRoles
 {
 	Boss,
 	Dev,
-   Clerk //書記官
+   Clerk,//書記官
+   Files //檔案管理
 }

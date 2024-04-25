@@ -6,13 +6,13 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ApplicationCore.Migrations
 {
     /// <inheritdoc />
-    public partial class addJudgebook : Migration
+    public partial class JudgebookFileadd : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Judgebooks",
+                name: "JudgebookFiles",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -22,9 +22,11 @@ namespace ApplicationCore.Migrations
                     Num = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Ps = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Type = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    OriFileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FileSize = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Ext = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FileSize = table.Column<long>(type: "bigint", nullable: false),
+                    Host = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DirectoryPath = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Removed = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastUpdated = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -32,7 +34,7 @@ namespace ApplicationCore.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Judgebooks", x => x.Id);
+                    table.PrimaryKey("PK_JudgebookFiles", x => x.Id);
                 });
         }
 
@@ -40,7 +42,7 @@ namespace ApplicationCore.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Judgebooks");
+                name: "JudgebookFiles");
         }
     }
 }

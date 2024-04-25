@@ -10,4 +10,7 @@ public class SettingsKeys
 	public static string CloudStorage = "CloudStorage";
    public static string Db = "Db";
    public static string Jud = "Jud";
+
+	//Files
+   public static string JudgebookFile = "JudgebookFile";
 }
