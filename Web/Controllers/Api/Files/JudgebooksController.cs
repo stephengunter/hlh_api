@@ -183,8 +183,22 @@ namespace Web.Controllers.Api.Files
 
          byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(entity.FullPath);
 
-         return File(fileBytes, "application/pdf", "1.pdf");
+         return File(fileBytes, "application/pdf", entity.FileName);
       }
+
+      [HttpDelete("{id}")]
+      public async Task<IActionResult> Remove(int id)
+      {
+         var entity = await _judgebooksService.GetByIdAsync(id);
+         if (entity == null) return NotFound();
+
+         entity.Removed = true;
+         await _judgebooksService.UpdateAsync(entity);
+
+         return NoContent();
+      }
+
+
       async Task<Dictionary<string, string>> ValidateEntityAsync(JudgebookFile entity)
       {
          var errors = new Dictionary<string, string>();
