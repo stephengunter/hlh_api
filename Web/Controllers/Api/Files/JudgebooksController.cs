@@ -24,6 +24,7 @@ using ApplicationCore.Settings;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using System.Text;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Web.Controllers.Api.Files
 {
@@ -52,15 +53,17 @@ namespace Web.Controllers.Api.Files
          return folderPath;
       }
 
+      string RemovedFolderPath => GetFolderPath("removed");
+
       [HttpGet]
-      public async Task<ActionResult<JudgebookFilesAdminModel>> Index(string year = "", string category = "", string num = "", int page = 1, int pageSize = 99)
+      public async Task<ActionResult<JudgebookFilesAdminModel>> Index(string courtType = "", string year = "", string category = "", string num = "", int page = 1, int pageSize = 99)
       {
-         var request = new JudgebookFilesAdminRequest(year, category, num, page, pageSize);
+         var request = new JudgebookFilesAdminRequest(courtType, year, category, num, page, pageSize);
 
          var model = new JudgebookFilesAdminModel(request);
 
          var judgebooks = await _judgebooksService.FetchAllAsync();
-
+         if (!String.IsNullOrEmpty(request.CourtType)) judgebooks = judgebooks.Where(x => x.CourtType == request.CourtType);
          if (!String.IsNullOrEmpty(request.Year)) judgebooks = judgebooks.Where(x => x.Year == request.Year);
          if (!String.IsNullOrEmpty(request.Category)) judgebooks = judgebooks.Where(x => x.Category == request.Category);
          if (!String.IsNullOrEmpty(request.Num)) judgebooks = judgebooks.Where(x => x.Num == request.Num);
@@ -87,16 +90,28 @@ namespace Web.Controllers.Api.Files
          var entity = await _judgebooksService.GetByIdAsync(id);
          if (entity == null) return NotFound();
 
-         entity = model.MapEntity(_mapper, User.Id(), entity);
-
-         var errors = await ValidateEntityAsync(entity);
+         var errors = await ValidateModelAsync(model);
          AddErrors(errors);
 
-         //errors = ValidateFile(entity);
-         //AddErrors(errors);
          if (!ModelState.IsValid) return BadRequest(ModelState);
 
+         bool sameCase = entity.IsSameCase(model);
+
+         entity = model.MapEntity(_mapper, User.Id(), entity);
+
+
+         if (!sameCase)
+         {
+            string folderPath = GetFolderPath(entity.CourtType);
+            string destPath = MoveFile(entity, folderPath);
+
+            entity.FileName = Path.GetFileName(destPath);
+            entity.DirectoryPath = folderPath;
+         }
+
          await _judgebooksService.UpdateAsync(entity);
+
+         
 
          return NoContent();
       }
@@ -105,7 +120,7 @@ namespace Web.Controllers.Api.Files
       [HttpPost("upload")]
       public async Task<ActionResult> Upload([FromForm] List<JudgebookUploadRequest> models)
       {
-         string courtType = JudgeCourtTypes.H;
+         string courtType = models.FirstOrDefault()!.CourtType;
          string folderPath = GetFolderPath(courtType);
 
          var resultList = new List<JudgebookFileUploadResponse>();
@@ -113,7 +128,7 @@ namespace Web.Controllers.Api.Files
          {
             var result = new JudgebookFileUploadResponse() { id = models[i].Id};
             var file = models[i].File;
-            var entry = new JudgebookFile(models[i].Year, models[i].Category, models[i].Num, models[i].Ps, models[i].Type);
+            var entry = new JudgebookFile(courtType, models[i].Year, models[i].Category, models[i].Num, models[i].Ps, models[i].Type);
 
             var errors = await ValidateRequestAsync(entry, file);
             if (errors.Count > 0)
@@ -123,8 +138,8 @@ namespace Web.Controllers.Api.Files
             else
             {
                string ext = Path.GetExtension(file.FileName);
-               string fileName = $"{entry.Year}_{entry.Category}_{entry.Num}" + ext;
-               string filePath = GetUniqueFileName(folderPath, fileName);
+               string fileName = entry.CreateFileName() + ext;
+               string filePath = FilesHelpers.GetUniqueFileName(folderPath, fileName);
                
                try
                {
@@ -141,8 +156,8 @@ namespace Web.Controllers.Api.Files
 
                   continue;
                }
-
-               entry.FileName = fileName;
+               
+               entry.FileName = Path.GetFileName(filePath);
                entry.Ext = ext;
                entry.FileSize = file!.Length;
                entry.Host = _judgebookSettings.Host;
@@ -181,9 +196,9 @@ namespace Web.Controllers.Api.Files
             throw new FileNotExistException(entity, entity.FullPath);
          }
 
-         byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(entity.FullPath);
+         var model = entity.MapViewModel(_mapper, entity.FullPath);
 
-         return File(fileBytes, "application/pdf", entity.FileName);
+         return Ok(model);
       }
 
       [HttpDelete("{id}")]
@@ -191,6 +206,7 @@ namespace Web.Controllers.Api.Files
       {
          var entity = await _judgebooksService.GetByIdAsync(id);
          if (entity == null) return NotFound();
+         MoveFile(entity, RemovedFolderPath);
 
          entity.Removed = true;
          await _judgebooksService.UpdateAsync(entity);
@@ -198,17 +214,40 @@ namespace Web.Controllers.Api.Files
          return NoContent();
       }
 
+      string MoveFile(JudgebookFile entity, string folderPath)
+      {
+         string sourcePath = entity.FullPath;
+         if (!System.IO.File.Exists(sourcePath))
+         {
+            throw new FileNotExistException(entity, sourcePath);
+         }
+         
+         string fileName = entity.CreateFileName() + entity.Ext;
+         string destPath = FilesHelpers.GetUniqueFileName(folderPath, fileName);
 
-      async Task<Dictionary<string, string>> ValidateEntityAsync(JudgebookFile entity)
+         try
+         {
+            System.IO.File.Move(sourcePath, destPath);
+         }
+         catch (Exception ex)
+         {
+            throw new MoveFileFailedException(entity, sourcePath, destPath);
+         }
+         return destPath;
+      }
+
+      async Task<Dictionary<string, string>> ValidateModelAsync(IJudgebookFile model)
       {
          var errors = new Dictionary<string, string>();
-         if (String.IsNullOrEmpty(entity.Year)) errors.Add("year", "必須填寫年度");
-         if (String.IsNullOrEmpty(entity.Category)) errors.Add("category", "必須填寫字號");
-         if (String.IsNullOrEmpty(entity.Num)) errors.Add("num", "必須填寫案號");
+         if (String.IsNullOrEmpty(model.CourtType)) errors.Add("courtType", "錯誤的CourtType");
+
+         if (String.IsNullOrEmpty(model.Year)) errors.Add("year", "必須填寫年度");
+         if (String.IsNullOrEmpty(model.Category)) errors.Add("category", "必須填寫字號");
+         if (String.IsNullOrEmpty(model.Num)) errors.Add("num", "必須填寫案號");
 
 
-         var exist = await _judgebooksService.FindAsync(entity);
-         if (exist != null && exist.Id != entity.Id) errors.Add("duplicate", "此年度字號案號重複了");
+         //var exist = await _judgebooksService.FindAsync(entity);
+         //if (exist != null && exist.Id != entity.Id) errors.Add("duplicate", "此年度字號案號重複了");
 
          return errors;
       }
@@ -229,42 +268,14 @@ namespace Web.Controllers.Api.Files
 
       async Task<Dictionary<string, string>> ValidateRequestAsync(JudgebookFile model, IFormFile file)
       {
-         var errors = new Dictionary<string, string>();
-
-         if (String.IsNullOrEmpty(model.Year)) errors.Add("year", "必須填寫年度");
-         if (String.IsNullOrEmpty(model.Category)) errors.Add("category", "必須填寫字號");
-         if (String.IsNullOrEmpty(model.Num)) errors.Add("num", "必須填寫案號");
-
-         if (file == null) errors.Add("file", "必須上傳檔案");
-         else
-         {
-            long fileSize = file!.Length; // Size of the file in bytes
-            long maxFileSize = 250 * 1024 * 1024; // 250 MB (in bytes)
-            if (fileSize > maxFileSize) errors.Add("file", "檔案過大");
-         }
-
-         var exist = await _judgebooksService.FindAsync(model);
-         if (exist != null) errors.Add("duplicate", "此年度字號案號重複了");
+         var modelErrors = await ValidateModelAsync(model);
+         var fileErrors = ValidateFile(file);
+        
+         Dictionary<string, string> errors = modelErrors.Concat(fileErrors)
+            .ToDictionary(pair => pair.Key, pair => pair.Value);
 
          return errors;
       }
-
-      string GetUniqueFileName(string folderPath, string fileName)
-      {
-         string extension = Path.GetExtension(fileName);
-         string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
-         string filePath = Path.Combine(folderPath, fileName);
-         int count = 1;
-         while (System.IO.File.Exists(filePath))
-         {
-            string newFileName = $"{fileNameWithoutExtension}_({count}){extension}";
-            filePath = Path.Combine(folderPath, newFileName);
-            count++;
-         }
-         return filePath;
-      }
-
-
    }
 
 

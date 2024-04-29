@@ -13,3 +13,11 @@ public class FileNotExistException : Exception
 
    }
 }
+
+public class MoveFileFailedException : Exception
+{
+   public MoveFileFailedException(EntityBase entity, string source, string dest) : base($"MoveFileFailedException. Type: {entity.GetType().Name}  Id: {entity.Id}  SourcePath: {source}  DestPath: {dest}")
+   {
+
+   }
+}

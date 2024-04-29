@@ -6,18 +6,18 @@ using Infrastructure.Helpers;
 namespace Web.Models.Files;
 public class JudgebookFilesAdminRequest
 {
-   public JudgebookFilesAdminRequest(string year = "", string category = "", string num = "", int page = 1, int pageSize = 10)
+   public JudgebookFilesAdminRequest(string courtType, string year = "", string category = "", string num = "", int page = 1, int pageSize = 10)
    {
-      var model = new JudgebookFile(year, category, num);
-      Year = model.Year;
-      Category = model.Category;
-      Num = model.Num;
+      Model = new JudgebookFile(courtType, year, category, num);
       Page = page < 1 ? 1 : page;
       PageSize = pageSize < 1 ? 1 : pageSize;
    }
-   public string Year { get; set; }
-   public string Category { get; set; }
-   public string Num { get; set; }
+
+   public JudgebookFile Model { get; set; }
+   public string CourtType => Model.CourtType;
+   public string Year => Model.Year;
+   public string Category => Model.Category;
+   public string Num => Model.Num;
    public int Page { get; set; }
    public int PageSize { get; set; }
 
@@ -39,6 +39,7 @@ public class JudgebookFilesAdminModel
 public class JudgebookUploadRequest
 {
    public int Id { get; set; }
+   public string CourtType { get; set; } = String.Empty;
    public string Year { get; set; } = String.Empty;
    public string Category { get; set; } = String.Empty;
    public string Num { get; set; } = String.Empty;

@@ -3,20 +3,34 @@ using System.ComponentModel.DataAnnotations;
 using Infrastructure.Helpers;
 using Infrastructure.Entities;
 using Ardalis.Specification;
+using ApplicationCore.Consts;
 
 namespace ApplicationCore.Models.Files;
 
-[Table("Files.Judgebooks")]
-public class JudgebookFile : EntityBase, IBaseUploadFile, IBaseRecord, IRemovable
+public interface IJudgebookFile
 {
-   public JudgebookFile(string year = "", string category = "", string num = "", string? ps = "", string? type = "")
+   int Id { get; set; }
+   string CourtType { get; set; }
+   string Year { get; set; }
+   string Category { get; set; }
+   string Num { get; set; }
+   string? Ps { get; set; }
+   string? Type { get; set; }
+}
+
+[Table("Files.Judgebooks")]
+public class JudgebookFile : EntityBase, IJudgebookFile, IBaseUploadFile, IBaseRecord, IRemovable
+{
+   public JudgebookFile(string courtType = "", string year = "", string category = "", string num = "", string? ps = "", string? type = "")
    {
+      CourtType = CheckCourtType(courtType) ? courtType.ToUpper() : "";
       Year = CheckYear(year) ? year : "";
       Category = CheckCategory(category) ? category : "";
       Num = CheckNum(num) ? num.ToInt().FormatNumberWithLeadingZeros(6) : "";
       Ps = ps;
       Type = type;
    }
+   public string CourtType { get; set; } = String.Empty;
    public string Year { get; set; } = String.Empty;
    public string Category { get; set; } = String.Empty;
    public string Num { get; set; } = String.Empty;
@@ -37,9 +51,13 @@ public class JudgebookFile : EntityBase, IBaseUploadFile, IBaseRecord, IRemovabl
 
    [NotMapped]
    public string FullPath => Path.Combine(DirectoryPath, FileName);
-   //{
-   //   return System.IO.Path.Combine(entity.DirectoryPath, entity.FileName);
-   //}
+
+   public static bool CheckCourtType(string val)
+   {
+      if (String.IsNullOrEmpty(val)) return false;
+      if (val.ToUpper() == JudgeCourtTypes.H) return true;
+      return val.ToUpper() == JudgeCourtTypes.V;
+   }
    public static bool CheckYear(string val)
    {
       if (String.IsNullOrEmpty(val)) return false;

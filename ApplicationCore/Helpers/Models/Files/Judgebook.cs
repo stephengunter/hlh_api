@@ -10,9 +10,17 @@ using Ardalis.Specification;
 namespace ApplicationCore.Helpers.Files;
 public static class JudgebookFileHelpers
 {
-   public static JudgebookFileViewModel MapViewModel(this JudgebookFile entity, IMapper mapper)
+   public static JudgebookFileViewModel MapViewModel(this JudgebookFile entity, IMapper mapper, string fileFullPath = "")
    {
       var model = mapper.Map<JudgebookFileViewModel>(entity);
+      if (!String.IsNullOrEmpty(fileFullPath))
+      {
+         model.FileView = new Infrastructure.Views.BaseFileView()
+         {
+            FileName = entity.FileName,
+            FileBytes = File.ReadAllBytes(fileFullPath)
+         };
+      }
       return model;
    }
 
@@ -20,7 +28,7 @@ public static class JudgebookFileHelpers
    public static List<JudgebookFileViewModel> MapViewModelList(this IEnumerable<JudgebookFile> entities, IMapper mapper)
       => entities.Select(item => MapViewModel(item, mapper)).ToList();
 
-   public static PagedList<JudgebookFile, JudgebookFileViewModel> GetPagedList(this IEnumerable<JudgebookFile> entities, IMapper mapper, 
+   public static PagedList<JudgebookFile, JudgebookFileViewModel> GetPagedList(this IEnumerable<JudgebookFile> entities, IMapper mapper,
       int page = 1, int pageSize = 999)
    {
       var pageList = new PagedList<JudgebookFile, JudgebookFileViewModel>(entities, page, pageSize);
@@ -42,4 +50,12 @@ public static class JudgebookFileHelpers
 
    public static IEnumerable<JudgebookFile> GetOrdered(this IEnumerable<JudgebookFile> entities)
      => entities.OrderByDescending(item => item.CreatedAt);
+
+   public static string CreateFileName(this JudgebookFile entry) => $"{entry.Year}_{entry.Category}_{entry.Num}";
+
+   public static bool IsSameCase(this JudgebookFile entry, JudgebookFileViewModel model)
+   { 
+      return (entry.CourtType == model.CourtType) && (entry.Year == model.Year) 
+         && (entry.Category == model.Category) && (entry.Num == model.Num);
+   }
 }

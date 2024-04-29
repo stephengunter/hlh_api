@@ -1,11 +1,13 @@
 using ApplicationCore.Models;
+using ApplicationCore.Models.Files;
 using Infrastructure.Entities;
 using Infrastructure.Helpers;
 using Infrastructure.Views;
 
 namespace ApplicationCore.Views.Files;
-public class JudgebookFileViewModel : EntityBaseView, IBaseRecordView
+public class JudgebookFileViewModel : EntityBaseView, IJudgebookFile, IBaseRecordView
 {
+   public string CourtType { get; set; } = String.Empty;
    public string Year { get; set; } = String.Empty;
    public string Category { get; set; } = String.Empty;
    public string Num { get; set; } = String.Empty;
@@ -28,5 +30,8 @@ public class JudgebookFileViewModel : EntityBaseView, IBaseRecordView
 
    public string CreatedAtText => CreatedAt.ToDateTimeString();
    public string LastUpdatedText => LastUpdated.ToDateTimeString();
+
+
+   public BaseFileView? FileView { get; set; }
 }
 
