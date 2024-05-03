@@ -143,6 +143,103 @@ namespace ApplicationCore.Migrations
                     b.ToTable("Attachments");
                 });
 
+            modelBuilder.Entity("ApplicationCore.Models.Auth.AuthToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AdListJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Expires")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Provider")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RemoteIpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Auth.Token");
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Auth.OAuth", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FamilyName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GivenName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OAuthId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PictureUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Provider")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Auth.OAuth");
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Auth.RefreshToken", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("Expires")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RemoteIpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("Auth.RefreshToken");
+                });
+
             modelBuilder.Entity("ApplicationCore.Models.Category", b =>
                 {
                     b.Property<int>("Id")
@@ -263,8 +360,8 @@ namespace ApplicationCore.Migrations
                     b.Property<bool>("Removed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Type")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("TypeId")
+                        .HasColumnType("int");
 
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -275,7 +372,41 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("TypeId");
+
                     b.ToTable("Files.Judgebooks");
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Files.JudgebookType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Removed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("Files.JudgebookTypes");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Job", b =>
@@ -424,7 +555,7 @@ namespace ApplicationCore.Migrations
                     b.ToTable("Locations");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.OAuth", b =>
+            modelBuilder.Entity("ApplicationCore.Models.ModifyRecord", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -432,33 +563,28 @@ namespace ApplicationCore.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("FamilyName")
+                    b.Property<string>("Action")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("GivenName")
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("EntityId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("EntityType")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OAuthId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PictureUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Provider")
-                        .HasColumnType("int");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
-
-                    b.ToTable("OAuth");
+                    b.ToTable("ModifyRecords");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Profiles", b =>
@@ -485,29 +611,6 @@ namespace ApplicationCore.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("Profiles");
-                });
-
-            modelBuilder.Entity("ApplicationCore.Models.RefreshToken", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("Expires")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("LastUpdated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("RemoteIpAddress")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("UserId");
-
-                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Role", b =>
@@ -796,6 +899,28 @@ namespace ApplicationCore.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("ApplicationCore.Models.Auth.OAuth", b =>
+                {
+                    b.HasOne("ApplicationCore.Models.User", "User")
+                        .WithMany("OAuthList")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Auth.RefreshToken", b =>
+                {
+                    b.HasOne("ApplicationCore.Models.User", "User")
+                        .WithOne("RefreshToken")
+                        .HasForeignKey("ApplicationCore.Models.Auth.RefreshToken", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("ApplicationCore.Models.Category", b =>
                 {
                     b.HasOne("ApplicationCore.Models.Category", "Parent")
@@ -808,6 +933,26 @@ namespace ApplicationCore.Migrations
             modelBuilder.Entity("ApplicationCore.Models.Department", b =>
                 {
                     b.HasOne("ApplicationCore.Models.Department", "Parent")
+                        .WithMany("SubItems")
+                        .HasForeignKey("ParentId");
+
+                    b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Files.JudgebookFile", b =>
+                {
+                    b.HasOne("ApplicationCore.Models.Files.JudgebookType", "Type")
+                        .WithMany("JudgebookFiles")
+                        .HasForeignKey("TypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Type");
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Files.JudgebookType", b =>
+                {
+                    b.HasOne("ApplicationCore.Models.Files.JudgebookType", "Parent")
                         .WithMany("SubItems")
                         .HasForeignKey("ParentId");
 
@@ -859,33 +1004,11 @@ namespace ApplicationCore.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.OAuth", b =>
-                {
-                    b.HasOne("ApplicationCore.Models.User", "User")
-                        .WithMany("OAuthList")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("ApplicationCore.Models.Profiles", b =>
                 {
                     b.HasOne("ApplicationCore.Models.User", "User")
                         .WithOne("Profiles")
                         .HasForeignKey("ApplicationCore.Models.Profiles", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("ApplicationCore.Models.RefreshToken", b =>
-                {
-                    b.HasOne("ApplicationCore.Models.User", "User")
-                        .WithOne("RefreshToken")
-                        .HasForeignKey("ApplicationCore.Models.RefreshToken", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -988,6 +1111,13 @@ namespace ApplicationCore.Migrations
             modelBuilder.Entity("ApplicationCore.Models.Department", b =>
                 {
                     b.Navigation("Jobs");
+
+                    b.Navigation("SubItems");
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Files.JudgebookType", b =>
+                {
+                    b.Navigation("JudgebookFiles");
 
                     b.Navigation("SubItems");
                 });

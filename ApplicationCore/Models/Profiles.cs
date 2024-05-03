@@ -21,4 +21,6 @@ public class Profiles : IAggregateRoot, IBaseRecord
 	public virtual User? User { get; set; }
 
    public virtual ICollection<JobUserProfiles>? JobUserProfiles { get; set; }
+
+   public object GetId() => UserId;
 }

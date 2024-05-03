@@ -22,3 +22,22 @@ public class OAuthLoginRequest
 	public string Token { get; set; } = String.Empty;
 
 }
+
+public class AuthTokenRequest
+{
+   public string Key { get; set; } = String.Empty;
+   public string UserName { get; set; } = String.Empty;
+
+   public string AdListJson { get; set; } = String.Empty;
+
+   public string Provider { get; set; } = String.Empty;
+
+}
+
+public class AuthTokenLoginRequest
+{
+   public string Token { get; set; } = String.Empty;
+   public string UserName { get; set; } = String.Empty;
+   public string Provider { get; set; } = String.Empty;
+
+}

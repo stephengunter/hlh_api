@@ -1,4 +1,5 @@
-﻿using Infrastructure.Entities;
+﻿using ApplicationCore.Models.Auth;
+using Infrastructure.Entities;
 using Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -24,6 +25,7 @@ public class User : IdentityUser, IAggregateRoot, IBaseRecord
    public virtual ICollection<OAuth>? OAuthList { get; set; }
    public virtual ICollection<UserRole>? UserRoles { get; set; }
 
+   public object GetId() => Id;
 }
 
 public class Role : IdentityRole

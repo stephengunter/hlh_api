@@ -6,6 +6,7 @@ using ApplicationCore.Consts;
 using Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
+using ApplicationCore.Models.Files;
 
 namespace ApplicationCore.DataAccess;
 
@@ -61,6 +62,7 @@ public static class SeedData
       await SeedDepartments(context);
       await SeedJobTitles(context);
 		await SeedLocations(context);
+      await SeedJudgebookTypes(context);
       Console.WriteLine("Done seeding database.");
 	}
 
@@ -183,4 +185,28 @@ public static class SeedData
 		if (exist == null) context.JobTitles.Add(jobTitle);
 		else exist.Order = jobTitle.Order;
    }
+   static async Task SeedJudgebookTypes(DefaultContext context)
+   {
+      var types = new List<string>
+      {
+         "判決","裁定","和解筆錄"
+      };
+
+      await types.ForEachWithIndexAsync(async (title, index) =>
+      {
+         await AddJudgebookTypeIfNotExist(context, new JudgebookType { Title = title, Order = index });
+      });
+      context.SaveChanges();
+   }
+   static async Task AddJudgebookTypeIfNotExist(DefaultContext context, JudgebookType type)
+	{
+		if (context.JudgebookTypes.Count() == 0)
+		{
+			context.JudgebookTypes.Add(type);
+			return;
+		}
+		var exist = await context.JudgebookTypes.FirstOrDefaultAsync(x => x.Title == type.Title);
+		if (exist == null) context.JudgebookTypes.Add(type);
+		else exist.Order = type.Order;
+	}
 }

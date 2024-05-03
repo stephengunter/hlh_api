@@ -7,6 +7,7 @@ using ApplicationCore.Authorization;
 using Infrastructure.Helpers;
 using ApplicationCore.Consts;
 using System.Security.Principal;
+using ApplicationCore.Models.Auth;
 
 
 namespace ApplicationCore.Auth;

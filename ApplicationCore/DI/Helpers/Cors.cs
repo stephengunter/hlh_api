@@ -44,7 +44,7 @@ public static class CorsDI
                      .AllowAnyMethod();
          });
 
-         options.AddPolicy("Test",
+         options.AddPolicy("Open",
          builder =>
          {
                builder.AllowAnyOrigin()

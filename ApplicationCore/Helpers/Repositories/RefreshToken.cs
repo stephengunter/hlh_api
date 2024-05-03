@@ -1,6 +1,7 @@
 ﻿using ApplicationCore.DataAccess;
 using ApplicationCore.Models;
-using ApplicationCore.Specifications;
+using ApplicationCore.Models.Auth;
+using ApplicationCore.Specifications.Auth;
 
 namespace ApplicationCore.Helpers;
 

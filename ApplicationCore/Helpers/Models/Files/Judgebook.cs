@@ -55,7 +55,7 @@ public static class JudgebookFileHelpers
 
    public static bool IsSameCase(this JudgebookFile entry, JudgebookFileViewModel model)
    { 
-      return (entry.CourtType == model.CourtType) && (entry.Year == model.Year) 
+      return (entry.TypeId == model.TypeId) && (entry.CourtType == model.CourtType) && (entry.Year == model.Year) 
          && (entry.Category == model.Category) && (entry.Num == model.Num);
    }
 }

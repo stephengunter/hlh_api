@@ -10,24 +10,26 @@ using ApplicationCore.Exceptions;
 using ApplicationCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Infrastructure.Helpers;
+using ApplicationCore.Models.Auth;
+using ApplicationCore.Services.Auth;
 
 namespace Web.Controllers;
 
 [EnableCors("Global")]
 public class AuthController : BaseController
 {
-	private readonly IUsersService _usersService;
-	private readonly IJwtTokenService _jwtTokenService;
-	private readonly IOAuthService _oAuthService;
+   private readonly IUsersService _usersService;
+   private readonly IJwtTokenService _jwtTokenService;
+   private readonly IOAuthService _oAuthService;
 
-	public AuthController(IOptions<AdminSettings> adminSettings, IUsersService usersService, 
+   public AuthController(IUsersService usersService, 
 		IOAuthService oAuthService, IJwtTokenService jwtTokenService)
 	{
-		
 		_usersService = usersService;
 		_jwtTokenService = jwtTokenService;
 		_oAuthService = oAuthService;
-	}
+
+   }
 
 	[HttpPost]
 	public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginRequest request)
@@ -35,7 +37,7 @@ public class AuthController : BaseController
 		ValidateRequest(request);
 		if(!ModelState.IsValid) return BadRequest(ModelState);
 
-		var user = await _usersService.FindByEmailAsync(request.Username);
+		var user = await _usersService.FindByUsernameAsync(request.Username);
 		if(user == null)
 		{
 			ModelState.AddModelError("", "身分驗證失敗, 請重新登入.");
@@ -86,6 +88,7 @@ public class AuthController : BaseController
 		return new AuthResponse(accessToken.Token, accessToken.ExpiresIn, refreshToken);
 
 	}
+
 	async Task ValidateRequestAsync(RefreshTokenRequest request, User user)
 	{
 		bool isValid = await _jwtTokenService.IsValidRefreshTokenAsync(request.RefreshToken, user);

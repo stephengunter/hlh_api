@@ -95,7 +95,7 @@ public class UsersService : IUsersService
    #region Store
    public async Task<User> CreateAsync(User user)
 	{
-		var result = await _userManager.CreateAsync(user);
+      var result = await _userManager.CreateAsync(user);
 		if (result.Succeeded) return user;
 
 		var error = result.Errors.FirstOrDefault();

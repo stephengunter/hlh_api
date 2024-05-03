@@ -21,46 +21,60 @@ using Newtonsoft.Json;
 using Microsoft.AspNetCore.Hosting.Server;
 using System.IO;
 using Microsoft.Extensions.Hosting;
+using ApplicationCore.Settings.Files;
+using FluentFTP;
+using System.Runtime;
 
 namespace Web.Controllers.Tests;
 
 public class ATestsController : BaseTestController
 {
   
-   private readonly AppSettings _appSettings;
-   private readonly DefaultContext _context;
+   private readonly JudgebookFileSettings _settings;
+   private readonly UserManager<User> _userManager;
 
-   public ATestsController(IOptions<AppSettings> appSettings, DefaultContext context)
+   public ATestsController(IOptions<JudgebookFileSettings> settings, UserManager<User> userManager)
    {
-      _context = context;
-      _appSettings = appSettings.Value;
+      _userManager = userManager;
+      _settings = settings.Value;
    }
    [HttpGet]
    public async Task<ActionResult> Index()
    {
-      var departments = _context.Departments.ToList();
-      foreach (var department in departments)
+      
+      var client = new AsyncFtpClient(_settings.Host, _settings.UserName, _settings.Password);
+
+      await client.AutoConnect();
+
+      foreach (FtpListItem item in await client.GetListing(_settings.Directory))
       {
-         if (department.Type == DepartmentTypes.GU)
+
+         // if this is a file
+         if (item.Type == FtpObjectType.File)
          {
-            await AddLocationIfNotExist(_context, new Location { Title = $"{department.Title}ªk©x«Ç", Key = department.Key, Order = department.Order, ParentId = 20 });
+
+            // get the file size
+            long size = await client.GetFileSize(item.FullName);
+
+            // calculate a hash for the file on the server side (default algorithm)
+            FtpHash hash = await client.GetChecksum(item.FullName);
          }
-        
+
+         // get modified date/time of the file or folder
+         DateTime time = await client.GetModifiedTime(item.FullName);
       }
-      _context.SaveChanges();
+      await client.Disconnect();
+
       return Ok();
    }
-   async Task AddLocationIfNotExist(DefaultContext context, Location location)
-   {
-      var exist = await context.Locations.FirstOrDefaultAsync(x => x.Title == location.Title);
-      if (exist == null) context.Locations.Add(location);
-   }
+   
 
-   [HttpGet("version")]
-   public ActionResult Version()
-   {
-      return Ok(_appSettings.ApiVersion);
-   }
+
+   //[HttpGet("version")]
+   //public ActionResult Version()
+   //{
+   //   return Ok(_appSettings.ApiVersion);
+   //}
 
 
    [HttpGet("ex")]

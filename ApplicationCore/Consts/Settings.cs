@@ -9,8 +9,9 @@ public class SettingsKeys
 	public static string Subscribes = "Subscribes";
 	public static string CloudStorage = "CloudStorage";
    public static string Db = "Db";
-   public static string Jud = "Jud";
+   public static string Judicial = "Judicial";
+   public static string Jud3 = "Jud3";
 
-	//Files
+   //Files
    public static string JudgebookFile = "JudgebookFile";
 }

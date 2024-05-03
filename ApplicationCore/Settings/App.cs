@@ -7,10 +7,10 @@ public class AppSettings
 	public string? ClientUrl { get; set; }
 	public string? AdminUrl { get; set; }
 	public string? BackendUrl { get; set; }
-	public string? ApiVersion { get; set; }
 
-	public string UploadPath { get; set; } = string.Empty;
-	public string TemplatePath { get; set; } = string.Empty;
+   public string UploadPath { get; set; } = string.Empty;
+   public string TemplatePath { get; set; } = string.Empty;
+   public string? ApiVersion { get; set; }
 }
 
 

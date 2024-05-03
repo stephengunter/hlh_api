@@ -5,6 +5,8 @@ using ApplicationCore.Services;
 using Google.Apis.Auth;
 using ApplicationCore.Consts;
 using Microsoft.AspNetCore.Cors;
+using ApplicationCore.Models.Auth;
+using ApplicationCore.Services.Auth;
 
 namespace Web.Controllers;
 
@@ -37,7 +39,8 @@ public class OAuthController : BaseController
             Email = payload.Email,
             UserName = payload.Email,
             Name = payload.Name,
-            EmailConfirmed = true
+            EmailConfirmed = true,
+            SecurityStamp = Guid.NewGuid().ToString()
          });
 		}
 
@@ -67,6 +70,8 @@ public class OAuthController : BaseController
 		
       return new AuthResponse(accessToken.Token, accessToken.ExpiresIn, refreshToken);
    }
+
+	
 
 
 }

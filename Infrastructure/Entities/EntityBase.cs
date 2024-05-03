@@ -7,4 +7,7 @@ public abstract class EntityBase : IAggregateRoot
 {
    [Key]
    public int Id { get; set; }
+
+
+   public object GetId() => Id;
 }

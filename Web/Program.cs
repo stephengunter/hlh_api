@@ -51,7 +51,8 @@ try
 	builder.Services.Configure<AdminSettings>(Configuration.GetSection(SettingsKeys.Admin));
 	builder.Services.Configure<AuthSettings>(Configuration.GetSection(SettingsKeys.Auth));
 	builder.Services.Configure<MailSettings>(Configuration.GetSection(SettingsKeys.Mail));
-   builder.Services.Configure<JudSettings>(Configuration.GetSection(SettingsKeys.Jud));
+   builder.Services.Configure<JudSettings>(Configuration.GetSection(SettingsKeys.Judicial));
+   builder.Services.Configure<Jud3Settings>(Configuration.GetSection(SettingsKeys.Jud3));
    builder.Services.Configure<JudgebookFileSettings>(Configuration.GetSection(SettingsKeys.JudgebookFile));
    #endregion
 
@@ -71,7 +72,7 @@ try
    #region AddIdentity
    builder.Services.AddIdentity<User, Role>(options =>
 	{
-		options.User.RequireUniqueEmail = true;
+      options.User.RequireUniqueEmail = false;
 	})
 	.AddEntityFrameworkStores<DefaultContext>()
    .AddDefaultTokenProviders();

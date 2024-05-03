@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System.Reflection;
 using Microsoft.AspNetCore.Identity;
 using ApplicationCore.Models.Files;
+using ApplicationCore.Models.Auth;
 
 namespace ApplicationCore.DataAccess;
 public class DefaultContext : IdentityDbContext<User, Role, string,
@@ -31,7 +32,7 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
          }
       }
    }
-
+   public DbSet<ModifyRecord> ModifyRecords => Set<ModifyRecord>();
    public DbSet<Profiles> Profiles => Set<Profiles>();
    public DbSet<Department> Departments => Set<Department>();
    public DbSet<Location> Locations => Set<Location>();
@@ -40,12 +41,14 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
    public DbSet<JobUserProfiles> JobUserProfiles => Set<JobUserProfiles>();
 
    //Files
+   public DbSet<JudgebookType> JudgebookTypes => Set<JudgebookType>();
    public DbSet<JudgebookFile> JudgebookFiles => Set<JudgebookFile>();
 
 
    #region Auth
    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 	public DbSet<OAuth> OAuth => Set<OAuth>();
+   public DbSet<AuthToken> AuthTokens => Set<AuthToken>();
    #endregion
 
 

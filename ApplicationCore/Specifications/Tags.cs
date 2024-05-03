@@ -11,7 +11,7 @@ public class TagSpecification : Specification<Tag>
 	}
    public TagSpecification(string title)
 	{
-		Query.Where(item => !item.Removed && item.Title.EqualTo(title));
+      Query.Where(item => !item.Removed && item.Title.ToLower() == title.ToLower());
 	}
 
 }
