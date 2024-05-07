@@ -3,6 +3,7 @@ using ApplicationCore.Models;
 using ApplicationCore.Views.Files;
 using AutoMapper;
 using Infrastructure.Paging;
+using Infrastructure.Views;
 using System;
 using ApplicationCore.Models.Files;
 using Ardalis.Specification;
@@ -21,6 +22,16 @@ public static class JudgebookFileHelpers
             FileBytes = File.ReadAllBytes(fileFullPath)
          };
       }
+      return model;
+   }
+   public static JudgebookFileViewModel MapViewModel(this JudgebookFile entity, IMapper mapper, byte[] filebytes)
+   {
+      var model = mapper.Map<JudgebookFileViewModel>(entity);
+      model.FileView = new BaseFileView()
+      {
+         FileName = entity.FileName,
+         FileBytes = filebytes
+      };
       return model;
    }
 
@@ -51,7 +62,11 @@ public static class JudgebookFileHelpers
    public static IEnumerable<JudgebookFile> GetOrdered(this IEnumerable<JudgebookFile> entities)
      => entities.OrderByDescending(item => item.CreatedAt);
 
-   public static string CreateFileName(this JudgebookFile entry) => $"{entry.Year}_{entry.Category}_{entry.Num}";
+   public static string CreateFileName(this JudgebookFile entry)
+   { 
+      if (entry.Removed) return $"{entry.CourtType}_{entry.Year}_{entry.Category}_{entry.Num}";
+      return $"{entry.Year}_{entry.Category}_{entry.Num}";
+   }
 
    public static bool IsSameCase(this JudgebookFile entry, JudgebookFileViewModel model)
    { 

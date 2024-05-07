@@ -1,3 +1,5 @@
+using ApplicationCore.Exceptions;
+using Ardalis.Specification;
 using FluentFTP;
 using Infrastructure.Helpers;
 using Microsoft.AspNetCore.Http;
@@ -8,7 +10,10 @@ namespace ApplicationCore.Services.Files;
 public interface IFileStoragesService : IDisposable
 {
    string Create(IFormFile file, string folderPath, string fileName);
-   
+   byte[] GetBytes(string folderPath, string fileName);
+   // move the uploaded file
+   string Move(string sourceFolder, string sourceFileName, string destFolder, string destFileName);
+
 }
 
 public class FtpStoragesService : IFileStoragesService
@@ -22,7 +27,8 @@ public class FtpStoragesService : IFileStoragesService
       try
       {
          _client.Connect();
-
+         
+         //client.DownloadFile(@"C:\MyVideo_2.mp4", "/htdocs/MyVideo_2.mp4");
          if (!_client.IsConnected)
          {
             // Handle connection failure if needed
@@ -35,46 +41,77 @@ public class FtpStoragesService : IFileStoragesService
          throw new Exception($"FTP Connection Error: {ex.Message}");
       }
    }
-   string GetFolderPath(string folderPath) => Path.Combine(_root_directory, folderPath);
+   string GetFolderPath(string folderPath) => CombinePath(_root_directory, folderPath);
+   string CombinePath(string path1, string path2) => Path.Combine(path1, path2).Replace('\\', '/');
 
    public string Create(IFormFile file, string folderPath, string fileName)
    {
       folderPath = GetFolderPath(folderPath);
+      string filePath = "";
       if (_client.DirectoryExists(folderPath))
       {
-         string filePath = GetUniqueFileName(folderPath, fileName);
-
-         using (var stream = new FileStream(filePath, FileMode.Create))
-         {
-            file.CopyTo(stream);
-         }
-         return filePath;
-
+         filePath = CombinePath(folderPath, GetUniqueFileName(folderPath, fileName));
+         _client.UploadStream(file.OpenReadStream(), filePath);
 
       }
       else
       {
-         _client.UploadStream(file.OpenReadStream(), Path.Combine(folderPath, fileName), FtpRemoteExists.Overwrite, true);
-         return Path.Combine(folderPath, fileName);
+         filePath = CombinePath(folderPath, fileName);
+         _client.UploadStream(file.OpenReadStream(), filePath, FtpRemoteExists.Overwrite, true);
       }
-      
+      return filePath;
+   }
+   public byte[] GetBytes(string folderPath, string fileName)
+   {
+      folderPath = GetFolderPath(folderPath);
+      string filePath = CombinePath(folderPath, fileName);
+      if(_client.FileExists(filePath))
+      {
+         byte[] bytes;
+         if (!_client.DownloadBytes(out bytes, filePath))
+         {
+            throw new Exception($"DownloadBytes failed. path: {filePath}");
+         }
+         return bytes;
+      }
+      else throw new FileNotExistException(filePath);
+   }
+
+   public string Move(string sourceFolder, string sourceFileName, string destFolder, string destFileName)
+   {
+      sourceFolder = GetFolderPath(sourceFolder);
+      string sourcePath = CombinePath(sourceFolder, sourceFileName);
+      if (_client.FileExists(sourcePath))
+      {
+         destFolder = GetFolderPath(destFolder);
+         if (!_client.DirectoryExists(destFolder))
+         { 
+            if(!_client.CreateDirectory(destFolder)) throw new Exception($"CreateDirectory Failed. destFolder {destFolder}");
+         } 
+
+         destFileName = FilesHelpers.GetUniqueFileName(destFolder, destFileName);
+         string destPath = CombinePath(destFolder, destFileName);
+         
+         if(_client.MoveFile(sourcePath, destPath)) return destPath;
+         throw new MoveFileFailedException(sourcePath, destPath);
+
+      }
+      else throw new FileNotExistException(sourcePath);
    }
    string GetUniqueFileName(string folderPath, string fileName)
    {
       string extension = Path.GetExtension(fileName);
       string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
-
-      folderPath = GetFolderPath(folderPath);
-      string filePath = Path.Combine(folderPath, fileName);
+      string filePath = CombinePath(folderPath, fileName);
       int count = 1;
      
       while (_client.FileExists(filePath))
       {
-         string newFileName = $"{fileNameWithoutExtension}_({count}){extension}";
-         filePath = Path.Combine(folderPath, newFileName);
+         fileName = $"{fileNameWithoutExtension}_({count}){extension}";
+         filePath = CombinePath(folderPath, fileName);
          count++;
       }
-      return filePath;
+      return fileName;
 
    }
 
@@ -108,10 +145,15 @@ public class LocalStoragesService : IFileStoragesService
    {
       _root_directory = directory;
    }
+
+   string GetFolderPath(string folderPath) => Path.Combine(_root_directory, folderPath);
    public string Create(IFormFile file, string folderPath, string fileName)
    {
-      string filePath = FilesHelpers.GetUniqueFileName(folderPath, fileName);
+      folderPath = GetFolderPath(folderPath);
+      if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
 
+      fileName = FilesHelpers.GetUniqueFileName(folderPath, fileName);
+      string filePath = Path.Combine(folderPath, fileName);
       using (var stream = new FileStream(filePath, FileMode.Create))
       {
          file.CopyTo(stream);
@@ -119,6 +161,32 @@ public class LocalStoragesService : IFileStoragesService
       return filePath;
    }
 
+   public byte[] GetBytes(string folderPath, string fileName)
+   {
+      folderPath = GetFolderPath(folderPath);
+      string filePath = Path.Combine(folderPath, fileName);
+      if (File.Exists(filePath))
+      {
+         return File.ReadAllBytes(filePath);
+      }
+      else throw new FileNotExistException(filePath);
+   }
+   public string Move(string sourceFolder, string sourceFileName, string destFolder, string destFileName)
+   {
+      
+      string sourcePath = Path.Combine(sourceFolder, sourceFileName);
+      if (File.Exists(sourcePath))
+      {
+         destFolder = GetFolderPath(destFolder);
+         if (!Directory.Exists(destFolder)) Directory.CreateDirectory(destFolder);
+
+         destFileName = FilesHelpers.GetUniqueFileName(destFolder, destFileName);
+         string destPath = Path.Combine(destFolder, destFileName);
+         File.Move(sourcePath, destPath);
+         return destPath;
+      }
+      else throw new FileNotExistException(sourcePath);
+   }
    public void Dispose()
    {
       Dispose(true);

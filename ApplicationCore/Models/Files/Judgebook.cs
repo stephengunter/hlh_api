@@ -15,15 +15,17 @@ public interface IJudgebookFile
    string Year { get; set; }
    string Category { get; set; }
    string Num { get; set; }
+   string FileNumber { get; set; }
    string? Ps { get; set; }
 }
 
 [Table("Files.Judgebooks")]
 public class JudgebookFile : EntityBase, IJudgebookFile, IBaseUploadFile, IBaseRecord, IRemovable
 {
-   public JudgebookFile(int typeId, string courtType = "", string year = "", string category = "", string num = "", string? ps = "")
+   public JudgebookFile(int typeId, string fileNumber , string courtType = "", string year = "", string category = "", string num = "", string? ps = "")
    {
       TypeId = typeId;
+      FileNumber = CheckFileNumber(fileNumber) ? fileNumber : ""; ;
       CourtType = CheckCourtType(courtType) ? courtType.ToUpper() : "";
       Year = CheckYear(year) ? year : "";
       Category = CheckCategory(category) ? category : "";
@@ -33,6 +35,7 @@ public class JudgebookFile : EntityBase, IJudgebookFile, IBaseUploadFile, IBaseR
 
    public int TypeId { get; set; }
    public virtual JudgebookType Type { get; set; }
+   public string FileNumber { get; set; } = String.Empty;
 
    public string CourtType { get; set; } = String.Empty;
    public string Year { get; set; } = String.Empty;
@@ -54,7 +57,11 @@ public class JudgebookFile : EntityBase, IJudgebookFile, IBaseUploadFile, IBaseR
 
    [NotMapped]
    public string FullPath => Path.Combine(DirectoryPath, FileName);
-
+   public static bool CheckFileNumber(string val)
+   {
+      if (String.IsNullOrEmpty(val)) return false;
+      return true;
+   }
    public static bool CheckCourtType(string val)
    {
       if (String.IsNullOrEmpty(val)) return false;

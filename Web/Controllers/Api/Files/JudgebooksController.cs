@@ -16,6 +16,8 @@ using ApplicationCore.Views;
 using ApplicationCore.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
+using Infrastructure.Entities;
+using System.IO;
 
 namespace Web.Controllers.Api.Files
 {
@@ -26,6 +28,7 @@ namespace Web.Controllers.Api.Files
       private readonly IJudgebookFilesService _judgebooksService;
       private readonly IFileStoragesService _fileStoragesService;
       private readonly IMapper _mapper;
+      private const string REMOVED = "removed";
 
       public JudgebooksController(IOptions<JudgebookFileSettings> judgebookSettings, IJudgebookFilesService judgebooksService,
          IMapper mapper)
@@ -34,37 +37,33 @@ namespace Web.Controllers.Api.Files
          _judgebooksService = judgebooksService;
          _mapper = mapper;
 
-         _fileStoragesService = new FtpStoragesService(_judgebookSettings.Host, _judgebookSettings.UserName, 
-            _judgebookSettings.Password, _judgebookSettings.Directory);
-      }
-
-      string GetFolderPath(string key)
-      {
-         if (String.IsNullOrEmpty(_judgebookSettings.Directory))
+         if (String.IsNullOrEmpty(_judgebookSettings.Host))
          {
-            throw new SettingsException("JudgebookFileSettings.Directory");
+            _fileStoragesService = new LocalStoragesService(_judgebookSettings.Directory);
          }
-         string folderPath = Path.Combine(_judgebookSettings.Directory, key);
-         if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
-         return folderPath;
+         else
+         {
+            _fileStoragesService = new FtpStoragesService(_judgebookSettings.Host, _judgebookSettings.UserName,
+            _judgebookSettings.Password, _judgebookSettings.Directory);
+         }
+         
       }
-
-      string RemovedFolderPath => GetFolderPath("removed");
 
       [HttpGet]
-      public async Task<ActionResult<JudgebookFilesAdminModel>> Index(int typeId, string courtType = "", string year = "", string category = "", string num = "", int page = 1, int pageSize = 99)
+      public async Task<ActionResult<JudgebookFilesAdminModel>> Index(int typeId, string fileNumber = "", string courtType = "", string year = "", string category = "", string num = "", int page = 1, int pageSize = 99)
       {
          var type = await _judgebooksService.GetTypeByIdAsync(typeId);
-         if(type == null)
+         if (type == null)
          {
             ModelState.AddModelError("typeId", $"Type ¤£¦s¦b Id: ${typeId}");
             return BadRequest(ModelState);
          }
-         var request = new JudgebookFilesAdminRequest(typeId, courtType, year, category, num, page, pageSize);
+         var request = new JudgebookFilesAdminRequest(typeId, fileNumber,courtType, year, category, num, page, pageSize);
 
          var model = new JudgebookFilesAdminModel(request);
          string include = "type";
          var judgebooks = await _judgebooksService.FetchAsync(type, include);
+         if (!String.IsNullOrEmpty(request.FileNumber)) judgebooks = judgebooks.Where(x => x.FileNumber == request.FileNumber);
          if (!String.IsNullOrEmpty(request.CourtType)) judgebooks = judgebooks.Where(x => x.CourtType == request.CourtType);
          if (!String.IsNullOrEmpty(request.Year)) judgebooks = judgebooks.Where(x => x.Year == request.Year);
          if (!String.IsNullOrEmpty(request.Category)) judgebooks = judgebooks.Where(x => x.Category == request.Category);
@@ -90,26 +89,6 @@ namespace Web.Controllers.Api.Files
          var entity = await _judgebooksService.GetByIdAsync(id);
          if (entity == null) return NotFound();
 
-         //for (int i = 0; i < 32; i++)
-         //{
-         //   var test = new JudgebookFile
-         //   {
-         //      Year = entity.Year,
-         //      Category = entity.Category,
-         //      Num = entity.Num,
-         //      Type = entity.Type,
-         //      CourtType = entity.CourtType,
-         //      CreatedAt = DateTime.Now,
-         //      DirectoryPath = entity.DirectoryPath,
-         //      Ext = entity.Ext,
-         //      FileName = entity.FileName,
-         //      FileSize = entity.FileSize,
-         //      Host = entity.Host,
-         //      LastUpdated = DateTime.Now,
-         //      UpdatedBy = entity.UpdatedBy
-         //   };
-         //   await _judgebooksService.CreateAsync(test);
-         //}
 
          return entity.MapViewModel(_mapper);
       }
@@ -132,43 +111,33 @@ namespace Web.Controllers.Api.Files
 
          if (!sameCase)
          {
-            string folderPath = GetFolderPath(entity.CourtType);
-            string destPath = MoveFileAsync(entity, folderPath);
+            string destPath = MoveFile(entity);
 
             entity.FileName = Path.GetFileName(destPath);
-            entity.DirectoryPath = folderPath;
+            entity.DirectoryPath = Path.GetDirectoryName(destPath)!;
          }
 
          await _judgebooksService.UpdateAsync(entity);
 
-         
+
 
          return NoContent();
       }
 
-      async Task<string> SaveFileAsync(IFormFile file, JudgebookFile entry, string folderPath)
+      string SaveFile(IFormFile file, JudgebookFile entry)
       {
-         var errors = new Dictionary<string, string>();
-
+         string folderPath = entry.CourtType;
          string ext = Path.GetExtension(file.FileName);
-         string fileName = entry.CreateFileName() + ext;
+         string fileName = entry.CreateFileName() + ext;   //$"{entry.Year}_{entry.Category}_{entry.Num}";
 
-         string filePath = FilesHelpers.GetUniqueFileName(folderPath, fileName);
-
-         using (var stream = new FileStream(filePath, FileMode.Create))
-         {
-            await file.CopyToAsync(stream);
-         }
-         return filePath;
+         return _fileStoragesService.Create(file, folderPath, fileName);
       }
 
       async Task<JudgebookFileUploadResponse> AddOneAsync(JudgebookUploadRequest request)
       {
          var result = new JudgebookFileUploadResponse() { id = request.Id };
-
-         string folderPath = GetFolderPath(request.CourtType);
          var file = request.File;
-         var entry = new JudgebookFile(request.TypeId, request.CourtType, request.Year, request.Category, request.Num, request.Ps);
+         var entry = new JudgebookFile(request.TypeId, request.FileNumber, request.CourtType, request.Year, request.Category, request.Num, request.Ps);
          var errors = await ValidateRequestAsync(entry, file);
          if (errors.Count > 0)
          {
@@ -176,10 +145,29 @@ namespace Web.Controllers.Api.Files
             return result;
          }
 
-         string filePath = "";
          try
          {
-            filePath = await SaveFileAsync(file, entry, folderPath);
+            string filePath = SaveFile(file, entry);
+            entry.FileName = Path.GetFileName(filePath);
+            entry.Ext = Path.GetExtension(file.FileName);
+
+            entry.Host = _judgebookSettings.Host;
+            entry.DirectoryPath = Path.GetDirectoryName(filePath)!;
+
+            entry.FileSize = file!.Length;
+            entry.SetCreated(User.Id());
+
+            entry = await _judgebooksService.CreateAsync(entry);
+            if (entry == null)
+            {
+               errors.Add("create", "create failed");
+               result.Errors = errors;
+            }
+            else
+            {
+               result.Model = entry.MapViewModel(_mapper);
+            }
+            return result;
          }
          catch (Exception ex)
          {
@@ -188,25 +176,7 @@ namespace Web.Controllers.Api.Files
             return result;
          }
 
-         entry.FileName = Path.GetFileName(filePath);
-         entry.Ext = Path.GetExtension(file.FileName);
-         entry.FileSize = file!.Length;
-         entry.Host = _judgebookSettings.Host;
-         entry.DirectoryPath = folderPath;
-         entry.SetCreated(User.Id());
 
-         entry = await _judgebooksService.CreateAsync(entry);
-         if (entry == null)
-         {
-            errors.Add("create", "create failed");
-            result.Errors = errors;
-         }
-         else
-         {
-            result.Model = entry.MapViewModel(_mapper);
-         }
-        // new ModifyRecord(entity, ActionsTypes.Create, entry.crea, entry.CreatedAt);
-         return result;
       }
 
 
@@ -229,49 +199,64 @@ namespace Web.Controllers.Api.Files
          var entity = await _judgebooksService.GetByIdAsync(id);
          if (entity == null) return NotFound();
 
-         if (!System.IO.File.Exists(entity.FullPath))
+         byte[] bytes;
+         try
          {
-            throw new FileNotExistException(entity, entity.FullPath);
+            bytes = _fileStoragesService.GetBytes(entity.DirectoryPath, entity.FileName);
+         }
+         catch (Exception ex)
+         {
+            if (ex is FileNotExistException)
+            {
+               throw new FileNotExistException(entity, (ex as FileNotExistException)!.Path);
+            }
+            throw;
          }
 
-         var model = entity.MapViewModel(_mapper, entity.FullPath);
-
+         var model = entity.MapViewModel(_mapper, bytes);
          return Ok(model);
       }
+
 
       [HttpDelete("{id}")]
       public async Task<IActionResult> Remove(int id)
       {
          var entity = await _judgebooksService.GetByIdAsync(id);
          if (entity == null) return NotFound();
-         MoveFileAsync(entity, RemovedFolderPath);
 
          entity.Removed = true;
-         await _judgebooksService.UpdateAsync(entity);
+         MoveFile(entity);
 
+         await _judgebooksService.UpdateAsync(entity);
          return NoContent();
       }
 
-      string MoveFileAsync(JudgebookFile entity, string folderPath)
+      string MoveFile(JudgebookFile entity)
       {
-         string sourcePath = entity.FullPath;
-         if (!System.IO.File.Exists(sourcePath))
-         {
-            throw new FileNotExistException(entity, sourcePath);
-         }
-         
-         string fileName = entity.CreateFileName() + entity.Ext;
-         string destPath = FilesHelpers.GetUniqueFileName(folderPath, fileName);
+         string sourceFolder = entity.DirectoryPath;
+         string sourceFileName = entity.FileName;
+
+         string destFolder = entity.Removed ? REMOVED : entity.CourtType;
+         string destFileName = entity.CreateFileName() + entity.Ext;
 
          try
          {
-            System.IO.File.Move(sourcePath, destPath);
+            string destPath = _fileStoragesService.Move(sourceFolder, sourceFileName, destFolder, destFileName);
+            return destPath;
          }
          catch (Exception ex)
          {
-            throw new MoveFileFailedException(entity, sourcePath, destPath);
+            if (ex is FileNotExistException)
+            {
+               throw new FileNotExistException(entity, (ex as FileNotExistException)!.Path);
+            }
+            else if (ex is MoveFileFailedException)
+            {
+               throw new MoveFileFailedException(entity, (ex as MoveFileFailedException)!.SourcePath, (ex as MoveFileFailedException)!.DestPath);
+            }
+            throw;
          }
-         return destPath;
+
       }
 
       async Task<Dictionary<string, string>> ValidateModelAsync(IJudgebookFile model)
@@ -308,7 +293,7 @@ namespace Web.Controllers.Api.Files
       {
          var modelErrors = await ValidateModelAsync(model);
          var fileErrors = ValidateFile(file);
-        
+
          Dictionary<string, string> errors = modelErrors.Concat(fileErrors)
             .ToDictionary(pair => pair.Key, pair => pair.Value);
 

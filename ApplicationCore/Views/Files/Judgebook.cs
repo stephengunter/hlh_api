@@ -12,6 +12,7 @@ public class JudgebookFileViewModel : EntityBaseView, IJudgebookFile, IBaseRecor
    public string Year { get; set; } = String.Empty;
    public string Category { get; set; } = String.Empty;
    public string Num { get; set; } = String.Empty;
+   public string FileNumber { get; set; } = String.Empty;
    public string? Ps { get; set; }
 
    public string FileName { get; set; } = String.Empty;
@@ -33,6 +34,7 @@ public class JudgebookFileViewModel : EntityBaseView, IJudgebookFile, IBaseRecor
 
    public JudgebookTypeViewModel? Type { get; set; }
    public BaseFileView? FileView { get; set; }
+  
 }
 
 

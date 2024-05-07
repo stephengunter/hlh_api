@@ -11,11 +11,11 @@ public static class FilesHelpers
       int count = 1;
       while (File.Exists(filePath))
       {
-         string newFileName = $"{fileNameWithoutExtension}_({count}){extension}";
-         filePath = Path.Combine(folderPath, newFileName);
+         fileName = $"{fileNameWithoutExtension}_({count}){extension}";
+         filePath = Path.Combine(folderPath, fileName);
          count++;
       }
-      return filePath;
+      return fileName;
 
    }
 }
