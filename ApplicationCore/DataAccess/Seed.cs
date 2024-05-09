@@ -187,15 +187,17 @@ public static class SeedData
    }
    static async Task SeedJudgebookTypes(DefaultContext context)
    {
-      var types = new List<string>
+      var types = new List<JudgebookType>
       {
-         "判決","裁定","和解筆錄"
+         new JudgebookType() { Key = "JU", Title = "判決", Order = 0 },
+         new JudgebookType() { Key = "RU", Title = "裁定", Order = 1 },
+         new JudgebookType() { Key = "ST", Title = "和解筆錄",Order = 2 }
       };
 
-      await types.ForEachWithIndexAsync(async (title, index) =>
-      {
-         await AddJudgebookTypeIfNotExist(context, new JudgebookType { Title = title, Order = index });
-      });
+		foreach (var item in types)
+		{
+			await AddJudgebookTypeIfNotExist(context, item);
+      }
       context.SaveChanges();
    }
    static async Task AddJudgebookTypeIfNotExist(DefaultContext context, JudgebookType type)
@@ -207,6 +209,10 @@ public static class SeedData
 		}
 		var exist = await context.JudgebookTypes.FirstOrDefaultAsync(x => x.Title == type.Title);
 		if (exist == null) context.JudgebookTypes.Add(type);
-		else exist.Order = type.Order;
+		else
+		{
+         exist.Key = type.Key;
+         exist.Order = type.Order;
+      } 
 	}
 }

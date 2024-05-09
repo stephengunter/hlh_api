@@ -16,7 +16,7 @@ public interface IJudgebookFilesService
    Task<IEnumerable<JudgebookFile>> FetchAllAsync();
 
    Task<IEnumerable<JudgebookFile>> FetchAsync(JudgebookType type, string include = "");
-   Task<JudgebookFile?> GetByIdAsync(int id);
+   Task<JudgebookFile?> GetByIdAsync(int id, string include = "");
 
    Task<JudgebookFile?> CreateAsync(JudgebookFile judgebook);
    Task UpdateAsync(JudgebookFile judgebook);
@@ -44,8 +44,8 @@ public class JudgebooksService : BaseService, IJudgebookFilesService, IBaseServi
    public async Task<IEnumerable<JudgebookFile>> FetchAsync(JudgebookType type, string include = "")
       => await _repository.ListAsync(new JudgebookFilesSpecification(type, include));
 
-   public async Task<JudgebookFile?> GetByIdAsync(int id)
-      => await _repository.GetByIdAsync(id);
+   public async Task<JudgebookFile?> GetByIdAsync(int id, string include = "")
+      => await _repository.FirstOrDefaultAsync(new JudgebookFilesSpecification(id, include));
 
    public async Task<JudgebookFile?> CreateAsync(JudgebookFile entity)
    {

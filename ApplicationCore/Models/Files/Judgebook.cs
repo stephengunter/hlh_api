@@ -22,9 +22,14 @@ public interface IJudgebookFile
 [Table("Files.Judgebooks")]
 public class JudgebookFile : EntityBase, IJudgebookFile, IBaseUploadFile, IBaseRecord, IRemovable
 {
-   public JudgebookFile(int typeId, string fileNumber , string courtType = "", string year = "", string category = "", string num = "", string? ps = "")
+   public JudgebookFile()
+   { 
+   
+   }
+   public JudgebookFile(JudgebookType type, string fileNumber , string courtType = "", string year = "", string category = "", string num = "", string? ps = "")
    {
-      TypeId = typeId;
+      Type = type;
+      TypeId = type.Id;
       FileNumber = CheckFileNumber(fileNumber) ? fileNumber : ""; ;
       CourtType = CheckCourtType(courtType) ? courtType.ToUpper() : "";
       Year = CheckYear(year) ? year : "";

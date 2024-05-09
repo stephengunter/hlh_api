@@ -6,9 +6,9 @@ using Infrastructure.Helpers;
 namespace Web.Models.Files;
 public class JudgebookFilesAdminRequest
 {
-   public JudgebookFilesAdminRequest(int typeId, string fileNumber, string courtType, string year = "", string category = "", string num = "", int page = 1, int pageSize = 10)
+   public JudgebookFilesAdminRequest(JudgebookType type, string fileNumber, string courtType, string year = "", string category = "", string num = "", int page = 1, int pageSize = 10)
    {
-      Model = new JudgebookFile(typeId, fileNumber, courtType, year, category, num);
+      Model = new JudgebookFile(type, fileNumber, courtType, year, category, num);
       Page = page < 1 ? 1 : page;
       PageSize = pageSize < 1 ? 1 : pageSize;
    }

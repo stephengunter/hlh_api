@@ -16,7 +16,7 @@ public static class JudgebookFileHelpers
       var model = mapper.Map<JudgebookFileViewModel>(entity);
       if (!String.IsNullOrEmpty(fileFullPath))
       {
-         model.FileView = new Infrastructure.Views.BaseFileView()
+         model.FileView = new BaseFileView()
          {
             FileName = entity.FileName,
             FileBytes = File.ReadAllBytes(fileFullPath)
@@ -64,8 +64,8 @@ public static class JudgebookFileHelpers
 
    public static string CreateFileName(this JudgebookFile entry)
    { 
-      if (entry.Removed) return $"{entry.CourtType}_{entry.Year}_{entry.Category}_{entry.Num}";
-      return $"{entry.Year}_{entry.Category}_{entry.Num}";
+      if (entry.Removed) return $"{entry.CourtType}_{entry.Year}_{entry.Category}_{entry.Num}_{entry.Type.Key}";
+      return $"{entry.Year}_{entry.Category}_{entry.Num}_{entry.Type.Key}";
    }
 
    public static bool IsSameCase(this JudgebookFile entry, JudgebookFileViewModel model)

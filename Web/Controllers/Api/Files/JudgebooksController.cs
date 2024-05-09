@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Infrastructure.Entities;
 using System.IO;
+using Azure.Core;
 
 namespace Web.Controllers.Api.Files
 {
@@ -58,7 +59,7 @@ namespace Web.Controllers.Api.Files
             ModelState.AddModelError("typeId", $"Type 不存在 Id: ${typeId}");
             return BadRequest(ModelState);
          }
-         var request = new JudgebookFilesAdminRequest(typeId, fileNumber,courtType, year, category, num, page, pageSize);
+         var request = new JudgebookFilesAdminRequest(type, fileNumber,courtType, year, category, num, page, pageSize);
 
          var model = new JudgebookFilesAdminModel(request);
          string include = "type";
@@ -99,6 +100,10 @@ namespace Web.Controllers.Api.Files
          var entity = await _judgebooksService.GetByIdAsync(id);
          if (entity == null) return NotFound();
 
+         var type = await _judgebooksService.GetTypeByIdAsync(model.TypeId);
+         if (type == null) ModelState.AddModelError("type", "錯誤的typeId");
+        
+
          var errors = await ValidateModelAsync(model);
          AddErrors(errors);
 
@@ -107,7 +112,7 @@ namespace Web.Controllers.Api.Files
          bool sameCase = entity.IsSameCase(model);
 
          entity = model.MapEntity(_mapper, User.Id(), entity);
-
+         entity.Type = type;
 
          if (!sameCase)
          {
@@ -135,9 +140,10 @@ namespace Web.Controllers.Api.Files
 
       async Task<JudgebookFileUploadResponse> AddOneAsync(JudgebookUploadRequest request)
       {
+         var type = await _judgebooksService.GetTypeByIdAsync(request.TypeId);
          var result = new JudgebookFileUploadResponse() { id = request.Id };
          var file = request.File;
-         var entry = new JudgebookFile(request.TypeId, request.FileNumber, request.CourtType, request.Year, request.Category, request.Num, request.Ps);
+         var entry = new JudgebookFile(type!, request.FileNumber, request.CourtType, request.Year, request.Category, request.Num, request.Ps);
          var errors = await ValidateRequestAsync(entry, file);
          if (errors.Count > 0)
          {
@@ -221,7 +227,8 @@ namespace Web.Controllers.Api.Files
       [HttpDelete("{id}")]
       public async Task<IActionResult> Remove(int id)
       {
-         var entity = await _judgebooksService.GetByIdAsync(id);
+         string include = "type";
+         var entity = await _judgebooksService.GetByIdAsync(id, include);
          if (entity == null) return NotFound();
 
          entity.Removed = true;
@@ -262,6 +269,8 @@ namespace Web.Controllers.Api.Files
       async Task<Dictionary<string, string>> ValidateModelAsync(IJudgebookFile model)
       {
          var errors = new Dictionary<string, string>();
+        
+
          if (String.IsNullOrEmpty(model.CourtType)) errors.Add("courtType", "錯誤的CourtType");
 
          if (String.IsNullOrEmpty(model.Year)) errors.Add("year", "必須填寫年度");
