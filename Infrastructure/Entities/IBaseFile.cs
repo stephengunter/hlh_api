@@ -4,14 +4,8 @@ namespace Infrastructure.Entities;
 
 public interface IBaseFile
 {
-   public string FileName { get; set; }
-   public byte[] FileBytes { get; set; }
-}
-
-public class BaseFile : IBaseFile
-{
-   public string FileName { get; set; } = string .Empty;
-   public byte[] FileBytes { get; set; }
+   string FileName { get; set; }
+   byte[] FileBytes { get; set; }
 }
 
 

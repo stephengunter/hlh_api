@@ -7,14 +7,14 @@ using System.Runtime.Serialization;
 namespace Infrastructure.Helpers;
 public static class BaseRecordHelpers
 {
-   public static void SetCreated(this IBaseRecord entity, string updatedBy)
+   public static void SetCreated(this IBaseRecord entity, string createdBy)
    {
       entity.CreatedAt = DateTime.Now;
-      SetUpdated(entity, updatedBy);
+      entity.CreatedBy = createdBy;
    }
    public static void SetUpdated(this IBaseRecord entity, string updatedBy)
    {
-      entity.UpdatedBy = updatedBy;
       entity.LastUpdated = DateTime.Now;
+      entity.UpdatedBy = updatedBy;
    }
 }

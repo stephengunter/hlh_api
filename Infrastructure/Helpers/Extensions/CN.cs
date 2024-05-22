@@ -49,4 +49,10 @@ public static class CNHelpers
         return "";
 
     }
+
+   public static bool IsValidRocDate(this int val)
+   {
+      var str_val = val.ToString();
+      return str_val.Length == 6 || str_val.Length == 7;
+   }
 }

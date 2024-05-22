@@ -15,6 +15,8 @@ public static class SeedData
 	
 	static string DevRoleName = AppRoles.Dev.ToString();
 	static string BossRoleName = AppRoles.Boss.ToString();
+   static string ITRoleName = AppRoles.IT.ToString();
+   static string RecorderRoleName = AppRoles.Recorder.ToString();
    static string ClerkRoleName = AppRoles.Clerk.ToString();
    static string FilesRoleName = AppRoles.Files.ToString();
 
@@ -58,7 +60,7 @@ public static class SeedData
 				await CreateUserIfNotExist(userManager, user, new List<string>() { DevRoleName });
 			}
 		}
-
+      await SeedCategories(context);
       await SeedDepartments(context);
       await SeedJobTitles(context);
 		await SeedLocations(context);
@@ -72,6 +74,8 @@ public static class SeedData
 		{ 
 			new Role { Name = DevRoleName, Title = "開發者" },
          new Role { Name = BossRoleName, Title = "老闆" },
+         new Role { Name = ITRoleName, Title = "資訊人員" },
+         new Role { Name = RecorderRoleName, Title = "錄事" },
          new Role { Name = ClerkRoleName, Title = "書記官" },
          new Role { Name = FilesRoleName, Title = "檔案管理員" }
       };
@@ -116,6 +120,27 @@ public static class SeedData
 
 		}
 	}
+
+   static async Task SeedCategories(DefaultContext context)
+   {
+      var categories = new List<Category>
+      {
+         new Category() { Title = "", Key = PostType.Event.ToString(), PostType = PostType.Event },
+         new Category() { Title = "", Key = PostType.Article.ToString(), PostType = PostType.Article },
+      };
+      foreach (var item in categories) await AddCategoryIfNotExist(context, item);
+      context.SaveChanges();
+   }
+   static async Task AddCategoryIfNotExist(DefaultContext context, Category category)
+   {
+      if (context.Categories.Count() == 0)
+      {
+         context.Categories.Add(category);
+         return;
+      }
+      var exist = await context.Categories.FirstOrDefaultAsync(x => x.Key == category.Key);
+      if (exist == null) context.Categories.Add(category);
+   }
 
    static async Task SeedDepartments(DefaultContext context)
    {

@@ -1,7 +1,36 @@
+using Newtonsoft.Json;
+
 namespace Infrastructure.Helpers;
 
 public static class ObjectsHelpers
 {
+   public static void SetValuesTo(this object source, object dest)
+   {
+      var sourceProperties = source.GetType().GetProperties();
+      var destProperties = dest.GetType().GetProperties();
+
+      foreach (var sourceProperty in sourceProperties)
+      {
+         var destProperty = destProperties.FirstOrDefault(p => p.Name == sourceProperty.Name);
+         if (destProperty != null && destProperty.CanWrite)
+         {
+            var value = sourceProperty.GetValue(source);
+            destProperty.SetValue(dest, value);
+         }
+      }
+   }
+
+   public static T CloneEntity<T>(this T entity)
+   {
+      string json = JsonConvert.SerializeObject(entity, new JsonSerializerSettings
+      {
+         ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+      });
+
+      T clonedEntity = JsonConvert.DeserializeObject<T>(json); 
+		return clonedEntity;
+   }
+
    public static void Dump(this object obj, TextWriter writer)
 	{
 		if (obj == null)

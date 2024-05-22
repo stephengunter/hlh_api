@@ -4,13 +4,22 @@ using ApplicationCore.Models;
 namespace ApplicationCore.Specifications;
 public class UsersSpecification : Specification<User>
 {
-	public UsersSpecification()
+	public UsersSpecification(bool includeRoles = false)
 	{
-      Query.Include(u => u.Profiles).Include(u => u.UserRoles);
+      Query.Include(u => u.Profiles);
+      if (includeRoles) Query.Include(u => u.UserRoles);
    }
-   public UsersSpecification(string id)
+   public UsersSpecification(string id, bool includeRoles = false)
    {
-      Query.Include(u => u.Profiles).Include(u => u.UserRoles).Where(user => user.Id == id);
+      Query.Include(u => u.Profiles);
+      if (includeRoles) Query.Include(u => u.UserRoles);
+      Query.Where(user => user.Id == id);
+   }
+   public UsersSpecification(IEnumerable<string> ids, bool includeRoles = false)
+   {
+      Query.Include(u => u.Profiles);
+      if (includeRoles) Query.Include(u => u.UserRoles);
+      Query.Where(user => ids.Contains(user.Id));
    }
 }
 

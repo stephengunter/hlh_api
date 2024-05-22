@@ -21,6 +21,7 @@ public class ArticleViewModel : EntityBaseView, IBaseRecordView
 
    public virtual ICollection<AttachmentViewModel> Attachments { get; set; } = new List<AttachmentViewModel>();
 
+   public string CreatedBy { get; set; } = String.Empty;
    public DateTime CreatedAt { get; set; }
    public DateTime? LastUpdated { get; set; }
    public string? UpdatedBy { get; set; }

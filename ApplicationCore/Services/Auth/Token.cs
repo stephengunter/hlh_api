@@ -8,7 +8,7 @@ namespace ApplicationCore.Services.Auth;
 public interface IAuthTokenService
 {
    Task<AuthToken> CreateAsync(string username, AuthProvider provider, string ipAddress, string json, int minutes);
-   Task<bool> CheckAsync(string token, string username, AuthProvider provider);
+   Task<AuthToken?> CheckAsync(string token, string username, AuthProvider provider);
 }
 
 public class AuthTokenService : IAuthTokenService
@@ -55,12 +55,13 @@ public class AuthTokenService : IAuthTokenService
    }
 
 
-   public async Task<bool> CheckAsync(string token, string username, AuthProvider provider)
+   public async Task<AuthToken?> CheckAsync(string token, string username, AuthProvider provider)
    {
       var entity = await FindAsync(username, provider);
-      if (entity == null) return false;
+      if (entity == null) return null;
 
-      return entity.Token == token && entity.Active;
+      if (entity.Token == token && entity.Active) return entity;
+      return null;
    }
 
    async Task<AuthToken?> FindAsync(string username, AuthProvider provider)

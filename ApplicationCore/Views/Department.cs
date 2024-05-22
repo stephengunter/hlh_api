@@ -19,6 +19,7 @@ public class DepartmentViewModel : EntityBaseView, IBaseCategoryView<DepartmentV
 
    public bool Active { get; set; }
    public DateTime CreatedAt { get; set; }
+   public string CreatedBy { get; set; } = String.Empty;
    public DateTime? LastUpdated { get; set; }
    public string? UpdatedBy { get; set; }
 

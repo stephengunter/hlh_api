@@ -29,25 +29,54 @@ using Web.Models.Files;
 using ApplicationCore.Exceptions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using ApplicationCore.Models.Files;
+using ApplicationCore.Services.Auth;
+using ApplicationCore.Views.Jud;
 
 namespace Web.Controllers.Tests;
 
 public class ATestsController : BaseTestController
 {
+   private readonly DefaultContext _defaultContext;
+   private readonly IUsersService _usersService;
 
-   private readonly JudgebookFileSettings _judgebookSettings;
-   private readonly IFileStoragesService _fileStoragesService;
-
-   public ATestsController(IOptions<JudgebookFileSettings> judgebookSettings, IFileStoragesService fileStoragesService)
-   {     
-      _judgebookSettings = judgebookSettings.Value;
-      _fileStoragesService = fileStoragesService;
-      _fileStoragesService = new FtpStoragesService(_judgebookSettings.Host, _judgebookSettings.UserName,
-            _judgebookSettings.Password, _judgebookSettings.Directory);
+   public ATestsController(IUsersService usersService, DefaultContext defaultContext)
+   {
+      _defaultContext = defaultContext;
+      _usersService = usersService;
    }
    [HttpGet]
    public async Task<ActionResult> Index()
    {
+      var authToken = _defaultContext.AuthTokens.ToList();
+      var entry = authToken[1];
+
+      var user = await _usersService.FindByUsernameAsync(entry.UserName);
+      if (user == null)
+      {
+         user = await _usersService.CreateAsync(new User
+         {
+            UserName = entry.UserName,
+            Name = entry.UserName,
+            SecurityStamp = Guid.NewGuid().ToString(),
+            Active = true
+         });
+      }
+
+      var adUsers = JsonConvert.DeserializeObject<List<AdUserViewModel>>(entry.AdListJson);
+      if (adUsers!.HasItems())
+      {
+         var roles = adUsers.Select(item => item.ResolveRole()).Distinct();
+         if (roles.HasItems())
+         {
+            foreach (string role in roles.Select(x => x.ToString()))
+            {
+               var hasRole = await _usersService.HasRoleAsync(user, role);
+               if (!hasRole) await _usersService.AddToRoleAsync(user, role);
+            }
+         }
+      } 
+      
+
       return Ok();
    }
 

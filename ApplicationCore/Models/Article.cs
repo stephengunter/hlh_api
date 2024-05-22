@@ -18,18 +18,17 @@ public class Article : EntityBase, IBaseRecord, IRemovable, ISortable
    public bool Active => ISortableHelpers.IsActive(this);
 
    public DateTime CreatedAt { get; set; } = DateTime.Now;
+   public string CreatedBy { get; set; } = string.Empty;
    public DateTime? LastUpdated { get; set; }
    public string? UpdatedBy { get; set; }
 
    public int? CategoryId { get; set; }
    public virtual Category? Category { get; set; }
 
-
-   public virtual ICollection<TagArticle>? TagArticles { get; set; }
-
    [NotMapped]
    public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
-  
+   
+
    public void LoadAttachments(IEnumerable<Attachment> attachments)
    {
       attachments = attachments.Where(x => x.PostType == PostType.Article && x.PostId == Id);

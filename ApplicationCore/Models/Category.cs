@@ -6,7 +6,9 @@ namespace ApplicationCore.Models;
 
 public class Category : EntityBase, IBaseCategory<Category>, IRemovable, ISortable
 {
+   public PostType PostType { get; set; } = PostType.None;
    public string Key { get; set; } = String.Empty;
+   public string Title { get; set; } = String.Empty;
 
    public Category? Parent { get; set; }
 

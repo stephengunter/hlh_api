@@ -87,7 +87,7 @@ try
    builder.Services.AddAuthorizationPolicy();
    
    builder.Services.AddDtoMapper();
-	builder.Services.AddControllers()
+   builder.Services.AddControllers()
 	.AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;

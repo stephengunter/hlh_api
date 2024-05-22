@@ -1,26 +1,30 @@
 ﻿using ApplicationCore.Models.Files;
 using ApplicationCore.Views.Files;
+using Azure.Core;
 using Infrastructure.Paging;
-using Infrastructure.Helpers;
 
 namespace Web.Models.Files;
-public class JudgebookFilesAdminRequest
+
+public class JudgebookFilesAdminRequest : BaseJudgebookRequest
 {
-   public JudgebookFilesAdminRequest(JudgebookType type, string fileNumber, string courtType, string year = "", string category = "", string num = "", int page = 1, int pageSize = 10)
+   public JudgebookFilesAdminRequest(JudgebookFile model, int reviewed, int page = 1, int pageSize = 10)
    {
-      Model = new JudgebookFile(type, fileNumber, courtType, year, category, num);
+      if (reviewed == 0 || reviewed == 1) Reviewed = reviewed;
+      else Reviewed = -1;
+
       Page = page < 1 ? 1 : page;
       PageSize = pageSize < 1 ? 1 : pageSize;
+
+      TypeId = model.TypeId;
+      FileNumber = model.FileNumber;
+      CourtType = model.CourtType;
+      Year = model.Year;
+      Category = model.Category;
+      Num = model.Num;
+
    }
-
-   public JudgebookFile Model { get; set; }
-
-   public int TypeId => Model.TypeId;
-   public string FileNumber => Model.FileNumber;
-   public string CourtType => Model.CourtType;
-   public string Year => Model.Year;
-   public string Category => Model.Category;
-   public string Num => Model.Num;
+   public int Reviewed { get; set; }
+  
    public int Page { get; set; }
    public int PageSize { get; set; }
 
@@ -29,28 +33,45 @@ public class JudgebookFilesAdminRequest
 
 public class JudgebookFilesAdminModel
 {
-   public JudgebookFilesAdminModel(JudgebookFilesAdminRequest request)
+   public JudgebookFilesAdminModel(JudgebookFilesAdminRequest request, IEnumerable<string> actions)
    {
       Request = request;
+      Actions = actions;
    }
-
+   public IEnumerable<string> Actions { get; set; }
    public JudgebookFilesAdminRequest Request { get; set; }
 
    public PagedList<JudgebookFile, JudgebookFileViewModel>? PagedList { get; set; }
 
 }
-public class JudgebookUploadRequest
+
+public class JudgebookFileEditModel
 {
-   public int TypeId { get; set; }
+   public JudgebookFileEditModel(JudgebookFileViewModel model, IEnumerable<string> actions)
+   {
+      Model = model;
+      Actions = actions;
+   }
+   public JudgebookFileViewModel Model { get; set; }
+   public IEnumerable<string> Actions { get; set; }
+
+}
+
+public class JudgebookUpdateRequest : BaseJudgebookRequest
+{
+   public string FileName { get; set; } = String.Empty;
+   public bool Reviewed { get; set; }
+}
+public class JudgebookUploadRequest : BaseJudgebookRequest
+{
    public int Id { get; set; }
+}
+public class JudgebookReviewRequest
+{
+   public int Id { get; set; }
+
    public string FileNumber { get; set; } = String.Empty;
-   public string CourtType { get; set; } = String.Empty;
-   public string Year { get; set; } = String.Empty;
-   public string Category { get; set; } = String.Empty;
-   public string Num { get; set; } = String.Empty;
    public string? Ps { get; set; }
-   
-   public IFormFile File { get; set; }
 }
 public class JudgebookFileUploadResponse
 {
@@ -58,3 +79,4 @@ public class JudgebookFileUploadResponse
    public JudgebookFileViewModel? Model { get; set; }
    public Dictionary<string, string>? Errors { get; set; }
 }
+

@@ -13,8 +13,9 @@ namespace ApplicationCore.Services;
 public interface IUsersService
 {
    #region Fetch
-   Task<IEnumerable<User>> FetchAsync(Role? role);
-	IEnumerable<Role> FetchRoles();
+   Task<IEnumerable<User>> FetchByRoleAsync(Role? role, bool includeRoles = false);
+   Task<IEnumerable<User>> FetchByIdsAsync(IEnumerable<string> ids, bool includeRoles = false);
+   IEnumerable<Role> FetchRoles();
 	#endregion
 
 	#region Find
@@ -26,23 +27,25 @@ public interface IUsersService
    #endregion
 
    #region Get
-   Task<User?> GetByIdAsync(string id);
+   Task<User?> GetByIdAsync(string id, bool includeRoles = false);
    #endregion
 
    #region Store
    Task<User> CreateAsync(User user);
 	Task UpdateAsync(User user);
 
-	#endregion
+	Task AddToRoleAsync(User user, string role);
+   #endregion
 
-	#region Get
-	Task<IList<string>> GetRolesAsync(User user);
+   #region Get
+   Task<IList<string>> GetRolesAsync(User user);
 	IEnumerable<Role> GetRolesByUserId(string userId);
 
-	#endregion
+   #endregion
 
-	#region Check
-	Task<bool> IsAdminAsync(User user);
+   #region Check
+   Task<bool> HasRoleAsync(User user, string role);
+   Task<bool> IsAdminAsync(User user);
    Task<bool> HasPasswordAsync(User user);
    Task<bool> CheckPasswordAsync(User user, string password);
    #endregion
@@ -67,14 +70,15 @@ public class UsersService : IUsersService
 	string BossRoleName = AppRoles.Boss.ToString();
 
    #region Fetch
-   public async Task<IEnumerable<User>> FetchAsync(Role? role)
+   public async Task<IEnumerable<User>> FetchByRoleAsync(Role? role, bool includeRoles = false)
 	{
-		var users = await _usersRepository.ListAsync(new UsersSpecification());
+		var users = await _usersRepository.ListAsync(new UsersSpecification(includeRoles));
 		if (role is null) return users;
 
 		return FetchByRole(users, role);
    }
-
+   public async Task<IEnumerable<User>> FetchByIdsAsync(IEnumerable<string> ids, bool includeRoles = false)
+      => await _usersRepository.ListAsync(new UsersSpecification(ids, includeRoles));
    public IEnumerable<Role> FetchRoles() => _roleManager.Roles.ToList();
 	#endregion
 
@@ -88,7 +92,7 @@ public class UsersService : IUsersService
 
 
 	#region Get
-	public async Task<User?> GetByIdAsync(string id)
+	public async Task<User?> GetByIdAsync(string id, bool includeRoles = false)
        => await _usersRepository.FirstOrDefaultAsync(new UsersSpecification(id));
    #endregion
 
@@ -116,10 +120,24 @@ public class UsersService : IUsersService
 		}
 	}
 
-	#endregion
+	public async Task AddToRoleAsync(User user, string role)
+	{
+      var result = await _userManager.AddToRoleAsync(user, role);
+      if (!result.Succeeded)
+      {
+         var error = result.Errors.FirstOrDefault();
+         string msg = $"{error!.Code} : {error!.Description}" ?? string.Empty;
 
-	#region Get
-	public async Task<IList<string>> GetRolesAsync(User user) => await _userManager.GetRolesAsync(user);
+         throw new UpdateUserRoleException(user, role, msg);
+      }
+
+		
+   }
+
+   #endregion
+
+   #region Get
+   public async Task<IList<string>> GetRolesAsync(User user) => await _userManager.GetRolesAsync(user);
 
 	public IEnumerable<Role> GetRolesByUserId(string userId)
 	{
@@ -129,10 +147,12 @@ public class UsersService : IUsersService
 		return _roleManager.Roles.Where(r => roleIds.Contains(r.Id));
 	}
 
-	#endregion
-	
-	#region Check
-	public async Task<bool> IsAdminAsync(User user)
+   #endregion
+
+   #region Check
+   public async Task<bool> HasRoleAsync(User user, string role) 
+      => await _userManager.IsInRoleAsync(user, role);
+   public async Task<bool> IsAdminAsync(User user)
 	{
 		var roles = await GetRolesAsync(user);
 		if (roles.IsNullOrEmpty()) return false;

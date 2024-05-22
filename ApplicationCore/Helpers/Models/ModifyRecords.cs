@@ -7,7 +7,6 @@ using Infrastructure.Helpers;
 namespace ApplicationCore.Helpers;
 public static class ModifyRecordHelpers
 {
-
    public static ModifyRecordViewModel MapViewModel(this ModifyRecord modifyRecord, IMapper mapper)
       => mapper.Map<ModifyRecordViewModel>(modifyRecord);
 

@@ -40,8 +40,7 @@ public static class UsersHelpers
    {
       if (entity == null) entity = mapper.Map<UserViewModel, User>(model);
       else entity = mapper.Map<UserViewModel, User>(model, entity);
-
-      entity.UpdatedBy = currentUserId;
+      
       entity.LastUpdated = DateTime.Now;
 
       return entity;

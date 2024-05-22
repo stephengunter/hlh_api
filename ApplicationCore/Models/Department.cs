@@ -31,6 +31,7 @@ public class Department : EntityBase, IBaseCategory<Department>, IBaseRecord, IR
    public void LoadSubItems(IEnumerable<IBaseCategory<Department>> departments) => BaseCategoriesHelpers.LoadSubItems(this, departments);
 
    public DateTime CreatedAt { get; set; } = DateTime.Now;
+   public string CreatedBy { get; set; } = string.Empty;
    public DateTime? LastUpdated { get; set; }
    public string? UpdatedBy { get; set; }
 

@@ -10,6 +10,7 @@ public class Tag : EntityBase, IBaseRecord, IBaseCategory<Tag>, IRemovable, ISor
    public string Title { get; set; } = String.Empty;
    public bool Removed { get; set; }
    public DateTime CreatedAt { get; set; } = DateTime.Now;
+   public string CreatedBy { get; set; } = string.Empty;
    public DateTime? LastUpdated { get; set; }
    public string? UpdatedBy { get; set; }
    public int Order { get; set; }
@@ -28,16 +29,17 @@ public class Tag : EntityBase, IBaseRecord, IBaseCategory<Tag>, IRemovable, ISor
 
    public void LoadSubItems(IEnumerable<IBaseCategory<Tag>> tags) => BaseCategoriesHelpers.LoadSubItems(this, tags);
 
-   public virtual ICollection<TagArticle>? TagArticles { get; set; }
+   public virtual ICollection<TagPost>? TagPosts { get; set; }
 }
 
-public class TagArticle
+public class TagPost : EntityBase
 {
+
    public int TagId { get; set; }
    [Required]
    public virtual Tag? Tag { get; set; }
 
-   public int ArticleId { get; set; }
-   [Required]
-   public virtual Article? Article { get; set; }
+   public int PostId { get; set; }
+
+   public PostType PostType { get; set; }
 }

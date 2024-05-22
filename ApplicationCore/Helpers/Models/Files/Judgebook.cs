@@ -7,6 +7,7 @@ using Infrastructure.Views;
 using System;
 using ApplicationCore.Models.Files;
 using Ardalis.Specification;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ApplicationCore.Helpers.Files;
 public static class JudgebookFileHelpers
@@ -68,9 +69,22 @@ public static class JudgebookFileHelpers
       return $"{entry.Year}_{entry.Category}_{entry.Num}_{entry.Type.Key}";
    }
 
-   public static bool IsSameCase(this JudgebookFile entry, JudgebookFileViewModel model)
+   public static bool IsSameCase(this JudgebookFile entry, IJudgebookFile model)
    { 
       return (entry.TypeId == model.TypeId) && (entry.CourtType == model.CourtType) && (entry.Year == model.Year) 
          && (entry.Category == model.Category) && (entry.Num == model.Num);
+   }
+
+   public static Dictionary<string, string> Validate(this JudgebookFile model)
+   {
+      var errors = new Dictionary<string, string>();
+      if (!model.JudgeDate.IsValidRocDate()) errors.Add("judgeDate", "錯誤的judgeDate");
+      if (model.TypeId < 1) errors.Add("type", "錯誤的type");
+      if (string.IsNullOrEmpty(model.CourtType)) errors.Add("courtType", "錯誤的courtType");
+      if (string.IsNullOrEmpty(model.Year)) errors.Add("year", "錯誤的年度");
+      if (string.IsNullOrEmpty(model.Category)) errors.Add("category", "錯誤的字號");
+      if (string.IsNullOrEmpty(model.Num)) errors.Add("num", "錯誤的案號");
+
+      return errors;
    }
 }

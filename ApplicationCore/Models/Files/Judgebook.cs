@@ -15,22 +15,38 @@ public interface IJudgebookFile
    string Year { get; set; }
    string Category { get; set; }
    string Num { get; set; }
+
+   string OriginType { get; set; } //"M"原本   "O"正本
+   int JudgeDate { get; set; } // 1050325
    string FileNumber { get; set; }
    string? Ps { get; set; }
+   DateTime CreatedAt { get; set; }
+   string CreatedBy { get; set; }
+   DateTime? LastUpdated { get; set; }
+   string? UpdatedBy { get; set; }
+   bool Reviewed { get; set; }
+   string? ReviewedBy { get; set; }
+
+   bool CanEdit { get; set; }
 }
 
 [Table("Files.Judgebooks")]
-public class JudgebookFile : EntityBase, IJudgebookFile, IBaseUploadFile, IBaseRecord, IRemovable
+public class JudgebookFile : EntityBase, IJudgebookFile, IBaseUploadFile, IBaseRecord, IReviewable, IRemovable
 {
    public JudgebookFile()
    { 
    
    }
-   public JudgebookFile(JudgebookType type, string fileNumber , string courtType = "", string year = "", string category = "", string num = "", string? ps = "")
+   public JudgebookFile(JudgebookType? type, int judgeDate, string fileNumber = "", string originType = "", string courtType = "", string year = "", string category = "", string num = "", string? ps = "")
    {
-      Type = type;
-      TypeId = type.Id;
+      if (type != null)
+      {
+         Type = type;
+         TypeId = type.Id;
+      }
+      JudgeDate = CheckJudgeDate(judgeDate) ? judgeDate : 0;
       FileNumber = CheckFileNumber(fileNumber) ? fileNumber : ""; ;
+      OriginType = CheckOriginType(originType) ? originType.ToUpper() : "";
       CourtType = CheckCourtType(courtType) ? courtType.ToUpper() : "";
       Year = CheckYear(year) ? year : "";
       Category = CheckCategory(category) ? category : "";
@@ -46,6 +62,8 @@ public class JudgebookFile : EntityBase, IJudgebookFile, IBaseUploadFile, IBaseR
    public string Year { get; set; } = String.Empty;
    public string Category { get; set; } = String.Empty;
    public string Num { get; set; } = String.Empty;
+   public string OriginType { get; set; } = String.Empty;
+   public int JudgeDate { get; set; }
    public string? Ps { get; set; }
 
    public string FileName { get; set; } = String.Empty;
@@ -57,11 +75,25 @@ public class JudgebookFile : EntityBase, IJudgebookFile, IBaseUploadFile, IBaseR
    public bool Removed { get; set; }
 
    public DateTime CreatedAt { get; set; } = DateTime.Now;
+   public string CreatedBy { get; set; } = string.Empty;
    public DateTime? LastUpdated { get; set; }
    public string? UpdatedBy { get; set; }
+   public bool Reviewed { get; set; }
+   public string? ReviewedBy { get; set; }
+
+   [NotMapped]
+   public bool CanEdit { get; set; }
 
    [NotMapped]
    public string FullPath => Path.Combine(DirectoryPath, FileName);
+
+
+   public static bool CheckOriginType(string val)
+   {
+      if (String.IsNullOrEmpty(val)) return false;
+      if (val.ToUpper() == OriginTypes.M) return true;
+      return val.ToUpper() == OriginTypes.O;
+   }
    public static bool CheckFileNumber(string val)
    {
       if (String.IsNullOrEmpty(val)) return false;
@@ -72,6 +104,13 @@ public class JudgebookFile : EntityBase, IJudgebookFile, IBaseUploadFile, IBaseR
       if (String.IsNullOrEmpty(val)) return false;
       if (val.ToUpper() == JudgeCourtTypes.H) return true;
       return val.ToUpper() == JudgeCourtTypes.V;
+   }
+   public static bool CheckJudgeDate(int val)
+   {
+      string input = val.ToString();
+      if (input.Length < 6 || input.Length > 7) return false;
+
+      return true;
    }
    public static bool CheckYear(string val)
    {

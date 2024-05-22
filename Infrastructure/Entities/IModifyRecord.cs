@@ -7,4 +7,6 @@ public interface IModifyRecord
    string Action { get; set; }
    DateTime DateTime { get; set; }
    string UserId { get; set; }
+
+   string DataJson { get; set; }
 }

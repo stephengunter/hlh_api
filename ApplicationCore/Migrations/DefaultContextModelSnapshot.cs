@@ -42,6 +42,10 @@ namespace ApplicationCore.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("LastUpdated")
                         .HasColumnType("datetime2");
 
@@ -82,6 +86,10 @@ namespace ApplicationCore.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -258,8 +266,15 @@ namespace ApplicationCore.Migrations
                     b.Property<int?>("ParentId")
                         .HasColumnType("int");
 
+                    b.Property<int>("PostType")
+                        .HasColumnType("int");
+
                     b.Property<bool>("Removed")
                         .HasColumnType("bit");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -278,6 +293,10 @@ namespace ApplicationCore.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Key")
                         .IsRequired()
@@ -309,6 +328,57 @@ namespace ApplicationCore.Migrations
                     b.ToTable("Departments");
                 });
 
+            modelBuilder.Entity("ApplicationCore.Models.Event", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("Removed")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("Events");
+                });
+
             modelBuilder.Entity("ApplicationCore.Models.Files.JudgebookFile", b =>
                 {
                     b.Property<int>("Id")
@@ -327,6 +397,10 @@ namespace ApplicationCore.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DirectoryPath")
                         .IsRequired()
@@ -351,10 +425,17 @@ namespace ApplicationCore.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("JudgeDate")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("LastUpdated")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Num")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OriginType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -363,6 +444,12 @@ namespace ApplicationCore.Migrations
 
                     b.Property<bool>("Removed")
                         .HasColumnType("bit");
+
+                    b.Property<bool>("Reviewed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ReviewedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("TypeId")
                         .HasColumnType("int");
@@ -423,6 +510,10 @@ namespace ApplicationCore.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DepartmentId")
                         .HasColumnType("int");
@@ -493,6 +584,10 @@ namespace ApplicationCore.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
@@ -571,6 +666,10 @@ namespace ApplicationCore.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("DataJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("DateTime")
                         .HasColumnType("datetime2");
 
@@ -579,6 +678,10 @@ namespace ApplicationCore.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RemoteIP")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -598,6 +701,10 @@ namespace ApplicationCore.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("LastUpdated")
                         .HasColumnType("datetime2");
@@ -659,6 +766,10 @@ namespace ApplicationCore.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Key")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -689,22 +800,31 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("Tag");
+                    b.ToTable("Tags");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.TagArticle", b =>
+            modelBuilder.Entity("ApplicationCore.Models.TagPost", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PostType")
+                        .HasColumnType("int");
+
                     b.Property<int>("TagId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ArticleId")
-                        .HasColumnType("int");
+                    b.HasKey("Id");
 
-                    b.HasKey("TagId", "ArticleId");
+                    b.HasIndex("TagId");
 
-                    b.HasIndex("ArticleId");
-
-                    b.ToTable("TagArticle");
+                    b.ToTable("TagPosts");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.User", b =>
@@ -724,6 +844,10 @@ namespace ApplicationCore.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -943,6 +1067,15 @@ namespace ApplicationCore.Migrations
                     b.Navigation("Parent");
                 });
 
+            modelBuilder.Entity("ApplicationCore.Models.Event", b =>
+                {
+                    b.HasOne("ApplicationCore.Models.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId");
+
+                    b.Navigation("Category");
+                });
+
             modelBuilder.Entity("ApplicationCore.Models.Files.JudgebookFile", b =>
                 {
                     b.HasOne("ApplicationCore.Models.Files.JudgebookType", "Type")
@@ -1028,21 +1161,13 @@ namespace ApplicationCore.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.TagArticle", b =>
+            modelBuilder.Entity("ApplicationCore.Models.TagPost", b =>
                 {
-                    b.HasOne("ApplicationCore.Models.Article", "Article")
-                        .WithMany("TagArticles")
-                        .HasForeignKey("ArticleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("ApplicationCore.Models.Tag", "Tag")
-                        .WithMany("TagArticles")
+                        .WithMany("TagPosts")
                         .HasForeignKey("TagId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Article");
 
                     b.Navigation("Tag");
                 });
@@ -1102,11 +1227,6 @@ namespace ApplicationCore.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.Article", b =>
-                {
-                    b.Navigation("TagArticles");
-                });
-
             modelBuilder.Entity("ApplicationCore.Models.Category", b =>
                 {
                     b.Navigation("SubItems");
@@ -1155,7 +1275,7 @@ namespace ApplicationCore.Migrations
                 {
                     b.Navigation("SubItems");
 
-                    b.Navigation("TagArticles");
+                    b.Navigation("TagPosts");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.User", b =>

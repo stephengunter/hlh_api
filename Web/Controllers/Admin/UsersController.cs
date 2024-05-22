@@ -43,7 +43,7 @@ public class UsersController : BaseAdminController
       var selectedRole = GetRole(request, roles);
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
-      var users = await _usersService.FetchAsync(selectedRole);
+      var users = await _usersService.FetchByRoleAsync(selectedRole);
 
       users = users.Where(u => u.Active == request.Active);
 
@@ -72,7 +72,6 @@ public class UsersController : BaseAdminController
          Name = model.Name,
          CreatedAt = DateTime.Now,
          LastUpdated = DateTime.Now,
-         UpdatedBy = User.Id(),
          Active = model.Active
       };
 

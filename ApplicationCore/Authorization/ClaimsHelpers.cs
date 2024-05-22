@@ -42,6 +42,30 @@ public static class ClaimsHelpers
       var boss = Roles(user).FirstOrDefault(r => r.EqualTo(AppRoles.Boss.ToString()));
       return boss != null;
    }
+   public static bool IsIT(this ClaimsPrincipal user)
+   {
+      if (Roles(user).IsNullOrEmpty()) return false;
+      var it = Roles(user).FirstOrDefault(r => r.EqualTo(AppRoles.IT.ToString()));
+      return it != null;
+   }
+   public static bool IsClerk(this ClaimsPrincipal user)
+   {
+      if (Roles(user).IsNullOrEmpty()) return false;
+      var clerk = Roles(user).FirstOrDefault(r => r.EqualTo(AppRoles.Clerk.ToString()));
+      return clerk != null;
+   }
+   public static bool IsRecorder(this ClaimsPrincipal user)
+   {
+      if (Roles(user).IsNullOrEmpty()) return false;
+      var recorder = Roles(user).FirstOrDefault(r => r.EqualTo(AppRoles.Recorder.ToString()));
+      return recorder != null;
+   }
+   public static bool IsFileManager(this ClaimsPrincipal user)
+   {
+      if (Roles(user).IsNullOrEmpty()) return false;
+      var file = Roles(user).FirstOrDefault(r => r.EqualTo(AppRoles.Files.ToString()));
+      return file != null;
+   }
    public static OAuthProvider Provider(this ClaimsPrincipal user)
    {
       string providerName = user.Claims.Find(JwtClaimIdentifiers.Provider)?.Value ?? string.Empty;

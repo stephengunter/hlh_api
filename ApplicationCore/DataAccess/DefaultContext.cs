@@ -52,12 +52,16 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
    #endregion
 
 
-   #region Articles	
+   #region Posts	
    public DbSet<Category> Categories => Set<Category>();
+   public DbSet<Event> Events => Set<Event>();
    public DbSet<Article> Articles => Set<Article>();
    public DbSet<Attachment> Attachments => Set<Attachment>();
-	#endregion
 
-	public override int SaveChanges() => SaveChangesAsync().GetAwaiter().GetResult();
+   public DbSet<Tag> Tags => Set<Tag>();
+   public DbSet<TagPost> TagPosts => Set<TagPost>();
+   #endregion
+
+   public override int SaveChanges() => SaveChangesAsync().GetAwaiter().GetResult();
 
 }

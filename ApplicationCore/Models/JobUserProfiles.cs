@@ -18,6 +18,7 @@ public class JobUserProfiles : EntityBase, IBaseContract, IBaseRecord, IRemovabl
    public string? PS { get; set; }
 
    public DateTime CreatedAt { get; set; } = DateTime.Now;
+   public string CreatedBy { get; set; } = string.Empty;
    public DateTime? LastUpdated { get; set; }
    public string? UpdatedBy { get; set; }
    public bool Removed { get; set; }

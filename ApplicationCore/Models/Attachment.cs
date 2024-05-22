@@ -4,8 +4,9 @@ using Infrastructure.Helpers;
 namespace ApplicationCore.Models;
 public enum PostType
 {
-	Article = 0,
-	None = -1
+	Event = 0,
+   Article = 1,
+   None = -1
 }
 
 public class Attachment : EntityBase, IBaseUploadFile, IBaseRecord, IRemovable, ISortable
@@ -29,7 +30,8 @@ public class Attachment : EntityBase, IBaseUploadFile, IBaseRecord, IRemovable, 
    public bool Active => ISortableHelpers.IsActive(this);
 
    public DateTime CreatedAt { get; set; } = DateTime.Now;
+   public string CreatedBy { get; set; } = string.Empty;
    public DateTime? LastUpdated { get; set; }
    public string? UpdatedBy { get; set; }
-   
+
 }

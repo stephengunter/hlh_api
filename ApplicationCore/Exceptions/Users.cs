@@ -4,7 +4,7 @@ namespace ApplicationCore.Exceptions;
 
 public class CreateUserException : Exception
 {
-	public CreateUserException(User user, string msg = "") : base($"Create User Failed. UserName: {user.UserName} , {msg}")
+	public CreateUserException(User user, string msg = "") : base($"Create User Failed. UserName: {user.UserName} , Msg:{msg}")
 	{
 
 	}
@@ -12,7 +12,7 @@ public class CreateUserException : Exception
 
 public class UpdateUserException : Exception
 {
-	public UpdateUserException(User user, string msg = "") : base($"Update User Failed. UserName: {user.UserName} , {msg}")
+	public UpdateUserException(User user, string msg = "") : base($"Update User Failed. UserName: {user.UserName} , Msg:{msg}")
 	{
 
 	}
@@ -24,4 +24,11 @@ public class UserNotFoundException : Exception
 	{
 
 	}
+}
+public class UpdateUserRoleException : Exception
+{
+   public UpdateUserRoleException(User user, string role, string msg = "") : base($"UpdateUserRoles Failed. UserName: {user.UserName} ,  role: {role}, Msg: {msg}")
+   {
+
+   }
 }

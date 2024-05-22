@@ -23,6 +23,7 @@ public class Job : EntityBase, IBaseRecord, IRemovable, ISortable
    public virtual ICollection<JobUserProfiles>? JobUserProfiles { get; set; }
 
    public DateTime CreatedAt { get; set; } = DateTime.Now;
+   public string CreatedBy { get; set; } = string.Empty;
    public DateTime? LastUpdated { get; set; }
    public string? UpdatedBy { get; set; }
    public bool Removed { get; set; }

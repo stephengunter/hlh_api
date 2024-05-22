@@ -2,10 +2,8 @@ using Infrastructure.Helpers;
 using ApplicationCore.Models;
 using ApplicationCore.Views;
 using AutoMapper;
-using Microsoft.Extensions.Primitives;
-using System;
 using Infrastructure.Paging;
-using ApplicationCore.Consts;using Infrastructure.Helpers;
+using ApplicationCore.Consts;
 
 namespace ApplicationCore.Helpers;
 public static class DepartmentHelpers

@@ -12,6 +12,9 @@ public static class AuthorizationDI
       {
          options.AddPolicy(Permissions.Admin.ToString(), policy =>
             policy.Requirements.Add(new HasPermissionRequirement(Permissions.Admin)));
+
+         options.AddPolicy(Permissions.JudgebookFiles.ToString(), policy =>
+            policy.Requirements.Add(new HasPermissionRequirement(Permissions.JudgebookFiles)));
       });
 
       services.AddSingleton<IAuthorizationHandler, HasPermissionHandler>();

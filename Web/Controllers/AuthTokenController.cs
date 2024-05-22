@@ -13,6 +13,8 @@ using Infrastructure.Helpers;
 using ApplicationCore.Models.Auth;
 using ApplicationCore.Services.Auth;
 using System.Data;
+using ApplicationCore.Views.Jud;
+using Newtonsoft.Json;
 
 namespace Web.Controllers;
 
@@ -67,9 +69,9 @@ public class AuthTokenController : BaseController
       var provider = model.Provider.ToEnum<AuthProvider>(defaultValue: AuthProvider.Unknown);
       if (provider == AuthProvider.Unknown) throw new AuthTokenCreateFailedException($"provider: {model.Provider} 不存在");
 
-      var valid = await _authTokenService.CheckAsync(model.Token, model.UserName, provider);
+      var entry = await _authTokenService.CheckAsync(model.Token, model.UserName, provider);
 
-      if (!valid) throw new AuthTokenLoginFailedException($"provider: {model.Provider} , user: {model.UserName}");
+      if (entry == null) throw new AuthTokenLoginFailedException($"provider: {model.Provider} , user: {model.UserName}");
 
       var user = await _usersService.FindByUsernameAsync(model.UserName);
       if (user == null)
@@ -82,7 +84,30 @@ public class AuthTokenController : BaseController
             Active = true
          });
       }
+      var adUsers = JsonConvert.DeserializeObject<List<AdUserViewModel>>(entry.AdListJson);
+      if (adUsers!.HasItems())
+      {
+         var roles = adUsers!.Select(item => item.ResolveRole()).Distinct();
+         if (roles.HasItems())
+         {
+            foreach (var role in roles )
+            {
+               if (role != AppRoles.UnKnown)
+               {
+                  var hasRole = await _usersService.HasRoleAsync(user, role.ToString());
+                  if (!hasRole) await _usersService.AddToRoleAsync(user, role.ToString());
+               }
+            }
+         }
+      }
 
+      var response = await CreateAuthResponseAsync(user);
+
+      return response;
+   }
+
+   async Task<AuthResponse> CreateAuthResponseAsync(User user)
+   {
       var roles = await _usersService.GetRolesAsync(user);
 
       var accessToken = await _jwtTokenService.CreateAccessTokenAsync(RemoteIpAddress, user, roles);
