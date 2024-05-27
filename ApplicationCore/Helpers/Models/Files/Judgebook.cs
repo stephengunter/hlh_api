@@ -8,37 +8,55 @@ using System;
 using ApplicationCore.Models.Files;
 using Ardalis.Specification;
 using Microsoft.IdentityModel.Tokens;
+using ApplicationCore.Consts;
 
 namespace ApplicationCore.Helpers.Files;
 public static class JudgebookFileHelpers
 {
+   public static string CourtTypeTitle(this string val)
+   {
+      string value = val.ToUpper();
+      if (value == JudgeCourtTypes.H) return "刑事";
+      if (value == JudgeCourtTypes.V) return "民事";
+      return "";
+   }
+   public static string OriginTypeTitle(this string val)
+   {
+      string value = val.ToUpper();
+      if (value == OriginTypes.M) return "原本";
+      if (value == OriginTypes.O) return "正本";
+      return "";
+   }
    public static JudgebookFileViewModel MapViewModel(this JudgebookFile entity, IMapper mapper, string fileFullPath = "")
    {
       var model = mapper.Map<JudgebookFileViewModel>(entity);
       if (!String.IsNullOrEmpty(fileFullPath))
       {
-         model.FileView = new BaseFileView()
-         {
-            FileName = entity.FileName,
-            FileBytes = File.ReadAllBytes(fileFullPath)
-         };
+         model.FileView = new BaseFileView(entity.FileName, File.ReadAllBytes(fileFullPath));
       }
       return model;
    }
    public static JudgebookFileViewModel MapViewModel(this JudgebookFile entity, IMapper mapper, byte[] filebytes)
    {
       var model = mapper.Map<JudgebookFileViewModel>(entity);
-      model.FileView = new BaseFileView()
-      {
-         FileName = entity.FileName,
-         FileBytes = filebytes
-      };
+      model.FileView = new BaseFileView(entity.FileName, filebytes);
       return model;
+   }
+   public static JudgebookFileReportItem MapReportItem(this JudgebookFile entity)
+   {
+      var item = new JudgebookFileReportItem();
+      entity.SetValuesTo(item);
+      item.TypeTitle = entity.Type.Title;
+      //item.ReviewdAtText = entity.ReviewedBy
+      return item;
    }
 
 
    public static List<JudgebookFileViewModel> MapViewModelList(this IEnumerable<JudgebookFile> entities, IMapper mapper)
       => entities.Select(item => MapViewModel(item, mapper)).ToList();
+
+   public static List<JudgebookFileReportItem> MapReportItemList(this IEnumerable<JudgebookFile> entities)
+      => entities.Select(item => MapReportItem(item)).ToList();
 
    public static PagedList<JudgebookFile, JudgebookFileViewModel> GetPagedList(this IEnumerable<JudgebookFile> entities, IMapper mapper,
       int page = 1, int pageSize = 999)

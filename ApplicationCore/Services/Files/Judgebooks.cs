@@ -95,6 +95,7 @@ public class JudgebooksService : BaseService, IJudgebookFilesService, IBaseServi
       foreach (var item in judgebooks)
       {
          item.Reviewed = true;
+         item.ReviewedAt = DateTime.Now;
          item.ReviewedBy = userId;
       }
       await _repository.UpdateRangeAsync(judgebooks);

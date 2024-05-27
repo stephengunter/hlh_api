@@ -6,7 +6,7 @@ namespace ApplicationCore.Services;
 
 public interface IArticlesService
 {
-   Task<IEnumerable<Article>> FetchAsync(Category category);
+   //Task<IEnumerable<Article>> FetchAsync(Category category);
    Task<IEnumerable<Article>> FetchAllAsync();
    Task<Article?> GetByIdAsync(int id);
 
@@ -22,8 +22,8 @@ public class ArticlesService : IArticlesService
 	{
       _articlesRepository = articlesRepository;
 	}
-   public async Task<IEnumerable<Article>> FetchAsync(Category category)
-      => await _articlesRepository.ListAsync(new ArticleSpecification(category));
+   //public async Task<IEnumerable<Article>> FetchAsync(Category category)
+   //   => await _articlesRepository.ListAsync(new ArticleSpecification(category));
    public async Task<IEnumerable<Article>> FetchAllAsync()
       => await _articlesRepository.ListAsync(new ArticleSpecification());
 

@@ -8,18 +8,12 @@ using Microsoft.AspNetCore.Identity;
 using ApplicationCore.Models;
 using ApplicationCore.Settings;
 using ApplicationCore.Consts;
-using ApplicationCore.Helpers;
 using ApplicationCore.DI;
 using Web.Filters;
 using System.Text.Json.Serialization;
-using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Builder;
-using ApplicationCore.Authorization;
-using Microsoft.AspNetCore.Authorization;
 using Infrastructure.Helpers;
-using Autofac.Core;
-using Google;
 using ApplicationCore.Settings.Files;
+using QuestPDF.Infrastructure;
 
 Log.Logger = new LoggerConfiguration()
 	.MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Information)
@@ -50,9 +44,11 @@ try
    builder.Services.Configure<AppSettings>(Configuration.GetSection(SettingsKeys.App));
 	builder.Services.Configure<AdminSettings>(Configuration.GetSection(SettingsKeys.Admin));
 	builder.Services.Configure<AuthSettings>(Configuration.GetSection(SettingsKeys.Auth));
-	builder.Services.Configure<MailSettings>(Configuration.GetSection(SettingsKeys.Mail));
+   builder.Services.Configure<CompanySettings>(Configuration.GetSection(SettingsKeys.Company));
+   builder.Services.Configure<MailSettings>(Configuration.GetSection(SettingsKeys.Mail));
    builder.Services.Configure<JudSettings>(Configuration.GetSection(SettingsKeys.Judicial));
    builder.Services.Configure<Jud3Settings>(Configuration.GetSection(SettingsKeys.Jud3));
+   builder.Services.Configure<EventSettings>(Configuration.GetSection(SettingsKeys.Event));
    builder.Services.Configure<JudgebookFileSettings>(Configuration.GetSection(SettingsKeys.JudgebookFile));
    #endregion
 
@@ -96,7 +92,9 @@ try
 
 	builder.Services.AddSwagger(Configuration);
 
-	var app = builder.Build();
+   QuestPDF.Settings.License = LicenseType.Community;
+
+   var app = builder.Build();
 	AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 	app.UseSerilogRequestLogging(); 
@@ -129,8 +127,8 @@ try
 	}
    //app.UseStaticFiles();
    //app.UseRouting();
-
    
+
    app.UseCors();
    app.UseAuthentication();
    app.UseAuthorization();

@@ -123,12 +123,22 @@ public static class SeedData
 
    static async Task SeedCategories(DefaultContext context)
    {
-      var categories = new List<Category>
+      var rootCategories = new List<Category>
       {
          new Category() { Title = "", Key = PostType.Event.ToString(), PostType = PostType.Event },
-         new Category() { Title = "", Key = PostType.Article.ToString(), PostType = PostType.Article },
+         new Category() { Title = "", Key = PostType.Article.ToString(), PostType = PostType.Article }
       };
-      foreach (var item in categories) await AddCategoryIfNotExist(context, item);
+      foreach (var item in rootCategories) await AddCategoryIfNotExist(context, item);
+      context.SaveChanges();
+
+      var eventRoot = context.Categories.FirstOrDefault(item => item.PostType == PostType.Event  && item.Key == PostType.Event.ToString());
+
+      var eventCategories = new List<Category>
+      {
+         new Category() { ParentId = eventRoot!.Id, Title = "全院行事曆", Key = "ALL", PostType = PostType.Event },
+         new Category() { ParentId = eventRoot!.Id, Title = "資訊室行事曆", Key = "IT", PostType = PostType.Event }
+      };
+      foreach (var item in eventCategories) await AddCategoryIfNotExist(context, item);
       context.SaveChanges();
    }
    static async Task AddCategoryIfNotExist(DefaultContext context, Category category)

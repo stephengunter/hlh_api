@@ -15,6 +15,9 @@ using Infrastructure.Helpers;
 using ApplicationCore.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Infrastructure.Consts;
+using QuestPDF.Fluent;
+using Infrastructure.Views;
+using ApplicationCore.Settings;
 
 namespace Web.Controllers.Api.Files
 {
@@ -22,14 +25,17 @@ namespace Web.Controllers.Api.Files
    [Authorize(Policy = "JudgebookFiles")]
    public class JudgebooksController : BaseApiController, IDisposable
    {
+      private readonly CompanySettings _companySettings;
       private readonly JudgebookFileSettings _judgebookSettings;
       private readonly IJudgebookFilesService _judgebooksService;
       private readonly IFileStoragesService _fileStoragesService;
       private readonly IMapper _mapper;
       private const string REMOVED = "removed";
-      public JudgebooksController(IOptions<JudgebookFileSettings> judgebookSettings, IJudgebookFilesService judgebooksService,
+      public JudgebooksController(IOptions<CompanySettings> companySettings, IOptions<JudgebookFileSettings> judgebookSettings, 
+         IJudgebookFilesService judgebooksService,
          IMapper mapper)
       {
+         _companySettings = companySettings.Value;
          _judgebookSettings = judgebookSettings.Value;
          _judgebooksService = judgebooksService;
          _mapper = mapper;
@@ -46,8 +52,11 @@ namespace Web.Controllers.Api.Files
          
       }
 
+      string ReportTitle => $"{_companySettings.Title}{_judgebookSettings.Title}";
+
       [HttpGet]
-      public async Task<ActionResult<JudgebookFilesAdminModel>> Index(int reviewed = -1, int typeId = 0, string fileNumber = "", string courtType = "", string year = "", string category = "", string num = "", int page = 1, int pageSize = 50)
+      public async Task<ActionResult<JudgebookFilesAdminModel>> Index(int reviewed = -1, int typeId = 0, string courtType = "", string originType = "",
+           string fileNumber = "",  string year = "", string category = "", string num = "", int page = 1, int pageSize = 50)
       {
          JudgebookType? type = null;
          if (typeId > 0)
@@ -59,7 +68,6 @@ namespace Web.Controllers.Api.Files
                return BadRequest(ModelState);
             }
          }
-         string originType = "";
          int judgeDate = 0;
          var request = new JudgebookFilesAdminRequest(new JudgebookFile(type, judgeDate, fileNumber, originType, courtType, year, category, num), reviewed, page, pageSize);
          
@@ -76,8 +84,10 @@ namespace Web.Controllers.Api.Files
          if (request.Reviewed == 0) judgebooks = judgebooks.Where(x => x.Reviewed == false);
          else if (request.Reviewed == 1) judgebooks = judgebooks.Where(x => x.Reviewed == true);
 
-         if (!String.IsNullOrEmpty(request.FileNumber)) judgebooks = judgebooks.Where(x => x.FileNumber == request.FileNumber);
          if (!String.IsNullOrEmpty(request.CourtType)) judgebooks = judgebooks.Where(x => x.CourtType == request.CourtType);
+         if (!String.IsNullOrEmpty(request.OriginType)) judgebooks = judgebooks.Where(x => x.OriginType == request.OriginType);
+         if (!String.IsNullOrEmpty(request.FileNumber)) judgebooks = judgebooks.Where(x => x.FileNumber == request.FileNumber);
+         
          if (!String.IsNullOrEmpty(request.Year)) judgebooks = judgebooks.Where(x => x.Year == request.Year);
          if (!String.IsNullOrEmpty(request.Category)) judgebooks = judgebooks.Where(x => x.Category == request.Category);
          if (!String.IsNullOrEmpty(request.Num)) judgebooks = judgebooks.Where(x => x.Num == request.Num);
@@ -294,6 +304,66 @@ namespace Web.Controllers.Api.Files
 
          var model = entity.MapViewModel(_mapper, bytes);
          return Ok(model);
+      }
+      [HttpGet("reports")]
+      public async Task<IActionResult> Reports(string createdAt = "", string judgeDate = "")
+      {
+         if (!CanReview()) return Forbid();
+
+         string include = "type";
+         var judgebooks = await _judgebooksService.FetchAllAsync(include);
+         
+         judgebooks = judgebooks.Where(x => x.Reviewed == true);
+
+         if (!string.IsNullOrEmpty(createdAt))
+         {
+            string[] parts = createdAt.Split(new string[] { "~" }, StringSplitOptions.None);
+            if (parts.Length == 2)
+            {
+               DateTime? startDate = parts[0].Trim().ToStartDate();
+               DateTime? endDate = parts[1].Trim().ToEndDate();
+
+               if (startDate.HasValue) judgebooks = judgebooks.Where(x => x.ReviewedAt >= startDate.Value);
+               if (endDate.HasValue) judgebooks = judgebooks.Where(x => x.ReviewedAt <= endDate.Value);
+            }
+         }
+         if (!string.IsNullOrEmpty(judgeDate))
+         {
+            string[] parts_j = judgeDate.Split(new string[] { "~" }, StringSplitOptions.None);
+            if (parts_j.Length == 2)
+            {
+               int startNum = parts_j[0].Trim().Replace("-", "").ToInt();
+               int endNum = parts_j[1].Trim().Replace("-", "").ToInt();
+
+
+
+               if (startNum.IsValidRocDate()) judgebooks = judgebooks.Where(x => x.JudgeDate >= startNum);
+               if (endNum.IsValidRocDate()) judgebooks = judgebooks.Where(x => x.JudgeDate <= endNum);
+            }
+         }
+
+         return Ok(judgebooks.GetOrdered().MapReportItemList());
+      }
+
+      [HttpPost("reports")]
+      public async Task<IActionResult> Reports(JudgebookReportsRequest request)
+      {
+         if (!CanReview()) return Forbid();
+         
+         if (request.Ids.IsNullOrEmpty())
+         {
+            ModelState.AddModelError("ids", "¿ù»~ªºids");
+            return BadRequest(ModelState);
+         }
+         string includes = "type";
+         var entryList = await _judgebooksService.FetchAsync(request.Ids, includes);
+         var items = entryList.MapReportItemList();
+
+         var model = new JudgebookFileReportModel(ReportTitle, request, items);
+         var doc = new JudgebookFileReportDocument(model);
+
+         byte[] bytes = doc.GeneratePdf();
+         return Ok(new BaseFileView($"{_judgebookSettings.Title}³øªí{DateTime.Now.ToShortDateString()}", bytes));
       }
 
       [HttpGet("review/{ids}")]

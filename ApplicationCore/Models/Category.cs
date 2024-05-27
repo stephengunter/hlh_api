@@ -1,5 +1,6 @@
 ﻿using Infrastructure.Entities;
 using Infrastructure.Helpers;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ApplicationCore.Models;
@@ -26,4 +27,20 @@ public class Category : EntityBase, IBaseCategory<Category>, IRemovable, ISortab
    public bool Active => ISortableHelpers.IsActive(this);
 
    public void LoadSubItems(IEnumerable<IBaseCategory<Category>> categories) => BaseCategoriesHelpers.LoadSubItems(this, categories);
+
+   public virtual ICollection<CategoryPost>? CategoryPosts { get; set; }
+}
+
+
+
+public class CategoryPost : EntityBase
+{
+
+   public int CategoryId { get; set; }
+   [Required]
+   public virtual Category? Category { get; set; }
+
+   public int PostId { get; set; }
+
+   public PostType PostType { get; set; }
 }

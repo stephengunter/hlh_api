@@ -12,6 +12,12 @@ public interface IBaseFileView
 
 public class BaseFileView : IBaseFileView
 {
+   public BaseFileView(string fileName, byte[] fileBytes)
+   {
+      FileName = fileName;
+      FileBytes = fileBytes;
+   }
+
    public string FileName { get; set; } = string.Empty;
    public byte[] FileBytes { get; set; }
 }

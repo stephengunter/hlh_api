@@ -22,8 +22,8 @@ public class Article : EntityBase, IBaseRecord, IRemovable, ISortable
    public DateTime? LastUpdated { get; set; }
    public string? UpdatedBy { get; set; }
 
-   public int? CategoryId { get; set; }
-   public virtual Category? Category { get; set; }
+   //public int? CategoryId { get; set; }
+   //public virtual Category? Category { get; set; }
 
    [NotMapped]
    public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();

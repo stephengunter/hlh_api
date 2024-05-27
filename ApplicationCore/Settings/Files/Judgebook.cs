@@ -1,6 +1,7 @@
 ﻿namespace ApplicationCore.Settings.Files;
 public class JudgebookFileSettings
 {
+   public string Title { get; set; } = string.Empty;
    public bool NoSameCaseEntries { get; set; }
 
 

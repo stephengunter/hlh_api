@@ -5,6 +5,7 @@ using Infrastructure.Paging;
 
 namespace Web.Models.Files;
 
+#region Request
 public class JudgebookFilesAdminRequest : BaseJudgebookRequest
 {
    public JudgebookFilesAdminRequest(JudgebookFile model, int reviewed, int page = 1, int pageSize = 10)
@@ -16,8 +17,10 @@ public class JudgebookFilesAdminRequest : BaseJudgebookRequest
       PageSize = pageSize < 1 ? 1 : pageSize;
 
       TypeId = model.TypeId;
-      FileNumber = model.FileNumber;
       CourtType = model.CourtType;
+      OriginType = model.OriginType;
+      FileNumber = model.FileNumber;
+     
       Year = model.Year;
       Category = model.Category;
       Num = model.Num;
@@ -29,6 +32,28 @@ public class JudgebookFilesAdminRequest : BaseJudgebookRequest
    public int PageSize { get; set; }
 
 }
+
+public class JudgebookUpdateRequest : BaseJudgebookRequest
+{
+   public string FileName { get; set; } = String.Empty;
+   public bool Reviewed { get; set; }
+}
+public class JudgebookUploadRequest : BaseJudgebookRequest
+{
+   public int Id { get; set; }
+}
+
+public class JudgebookReviewRequest
+{
+   public int Id { get; set; }
+
+   public string FileNumber { get; set; } = String.Empty;
+   public string? Ps { get; set; }
+}
+
+
+
+#endregion
 
 
 public class JudgebookFilesAdminModel
@@ -57,22 +82,6 @@ public class JudgebookFileEditModel
 
 }
 
-public class JudgebookUpdateRequest : BaseJudgebookRequest
-{
-   public string FileName { get; set; } = String.Empty;
-   public bool Reviewed { get; set; }
-}
-public class JudgebookUploadRequest : BaseJudgebookRequest
-{
-   public int Id { get; set; }
-}
-public class JudgebookReviewRequest
-{
-   public int Id { get; set; }
-
-   public string FileNumber { get; set; } = String.Empty;
-   public string? Ps { get; set; }
-}
 public class JudgebookFileUploadResponse
 {
    public int id { get; set; }

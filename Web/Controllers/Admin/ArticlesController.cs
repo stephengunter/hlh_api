@@ -33,9 +33,11 @@ public class ArticlesController : BaseAdminController
    [HttpGet]
    public async Task<ActionResult<PagedList<Article, ArticleViewModel>>> Index(int category, bool active, int page = 1, int pageSize = 10)
    {
-      IEnumerable<Article> articles;
-      if (category > 0) articles = await _articlesService.FetchAsync(new Category { Id = category });
-      else articles = await _articlesService.FetchAllAsync();
+      //IEnumerable<Article> articles;
+      //if (category > 0) articles = await _articlesService.FetchAsync(new Category { Id = category });
+      //else 
+         
+      var   articles = await _articlesService.FetchAllAsync();
 
       if (articles.HasItems())
       {

@@ -54,6 +54,7 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
 
    #region Posts	
    public DbSet<Category> Categories => Set<Category>();
+   public DbSet<CategoryPost> CategoryPosts => Set<CategoryPost>();
    public DbSet<Event> Events => Set<Event>();
    public DbSet<Article> Articles => Set<Article>();
    public DbSet<Attachment> Attachments => Set<Attachment>();

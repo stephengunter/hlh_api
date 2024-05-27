@@ -79,6 +79,7 @@ public class JudgebookFile : EntityBase, IJudgebookFile, IBaseUploadFile, IBaseR
    public DateTime? LastUpdated { get; set; }
    public string? UpdatedBy { get; set; }
    public bool Reviewed { get; set; }
+   public DateTime? ReviewedAt { get; set; }
    public string? ReviewedBy { get; set; }
 
    [NotMapped]

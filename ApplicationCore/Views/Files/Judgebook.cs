@@ -1,3 +1,4 @@
+using ApplicationCore.Helpers.Files;
 using ApplicationCore.Models;
 using ApplicationCore.Models.Files;
 using Infrastructure.Entities;
@@ -42,7 +43,12 @@ public class JudgebookFileViewModel : EntityBaseView, IJudgebookFile, IBaseRecor
 
    public JudgebookTypeViewModel? Type { get; set; }
    public BaseFileView? FileView { get; set; }
-   
+
+
+
+   public string CourtTypeTitle => CourtType.CourtTypeTitle();
+   public string OriginTypeTitle => OriginType.CourtTypeTitle();
+
 }
 
 
