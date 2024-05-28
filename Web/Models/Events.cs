@@ -1,7 +1,34 @@
+using ApplicationCore.Models;
+using ApplicationCore.Models.Files;
 using ApplicationCore.Views;
+using ApplicationCore.Views.Files;
+using Infrastructure.Paging;
+using Web.Models.Files;
 
 namespace Web.Models;
+public class EventsIndexModel
+{
+   public class EventFetchRequest
+   {
+      public EventFetchRequest(Category category) 
+      {
+         Category = category;
+      }
 
+      public string Key => Category.Key;
+      public Category Category { get; set; }
+   }
+   public EventsIndexModel(EventFetchRequest request, IEnumerable<string> actions)
+   {
+      Request = request;
+      Actions = actions;
+   }
+   public IEnumerable<string> Actions { get; set; }
+   public EventFetchRequest Request { get; set; }
+
+   public IEnumerable<EventViewModel> List { get; set; } = new List<EventViewModel>();
+
+}
 public class EventCreateForm
 {
    public string Title { get; set; } = String.Empty;

@@ -1,9 +1,10 @@
 ﻿namespace ApplicationCore.Settings.Files;
 public class JudgebookFileSettings
 {
-   public string Title { get; set; } = string.Empty;
+   public bool AllowEmptyJudgeDate { get; set; }
    public bool NoSameCaseEntries { get; set; }
 
+   public string Title { get; set; } = string.Empty;
 
    //NAS
    public string Host { get; set; } = string.Empty;

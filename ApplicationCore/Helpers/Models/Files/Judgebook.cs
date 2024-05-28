@@ -96,7 +96,7 @@ public static class JudgebookFileHelpers
    public static Dictionary<string, string> Validate(this JudgebookFile model)
    {
       var errors = new Dictionary<string, string>();
-      if (!model.JudgeDate.IsValidRocDate()) errors.Add("judgeDate", "錯誤的judgeDate");
+    
       if (model.TypeId < 1) errors.Add("type", "錯誤的type");
       if (string.IsNullOrEmpty(model.CourtType)) errors.Add("courtType", "錯誤的courtType");
       if (string.IsNullOrEmpty(model.Year)) errors.Add("year", "錯誤的年度");

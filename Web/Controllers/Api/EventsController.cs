@@ -9,6 +9,9 @@ using Infrastructure.Helpers;
 using ApplicationCore.Settings;
 using Microsoft.Extensions.Options;
 using Web.Models;
+using static Web.Models.EventsIndexModel;
+using Infrastructure.Consts;
+using Web.Models.Files;
 
 namespace Web.Controllers.Api
 {
@@ -16,24 +19,20 @@ namespace Web.Controllers.Api
    {
       private readonly EventSettings _eventSettings;
       private readonly IEventsService _eventsService;
-      private readonly ICategorysService _categoriesService;
       
       private readonly IMapper _mapper;
 
-      public EventsController(IOptions<EventSettings> eventSettings, IEventsService eventsService, ICategorysService categoriesService,
+      public EventsController(IOptions<EventSettings> eventSettings, IEventsService eventsService, 
          IMapper mapper)
       {
          _eventSettings = eventSettings.Value;
          _eventsService = eventsService;
-         _categoriesService = categoriesService;
          _mapper = mapper;
       }
-
-      private PostType Type => PostType.Event;
       async Task<ICollection<Category>> GetEventCategoriesAsync()
       {
          var keys = _eventSettings.Categories.Select(c => c.Key).ToList();
-         var categories = await _categoriesService.FetchByKeysAsync(keys, Type);
+         var categories = await _eventsService.FetchCategoriesAsync(keys);
          return categories.ToList();
       }
 
@@ -45,6 +44,31 @@ namespace Web.Controllers.Api
          return categories.GetOrdered().MapViewModelList(_mapper);
       }
 
+      [HttpGet("index/{key}")]
+      public async Task<ActionResult<EventsIndexModel>> Index(string key, string start = "")
+      {
+         var categories = await GetEventCategoriesAsync();
+         var category = categories.FirstOrDefault(x => x.Key.EqualTo(key));
+
+         if (category == null)
+         {
+            ModelState.AddModelError("key", $"category not found. key = {key}");
+            return BadRequest(ModelState);
+         }
+
+         var request = new EventFetchRequest(category);
+         var actions = new List<string>();
+         var model = new EventsIndexModel(request, actions);
+
+         var events = await _eventsService.FetchAsync(category);
+
+         events = events.GetOrdered();
+
+         model.List = events.MapViewModelList(_mapper);
+
+         return model;
+      }
+
       [HttpGet("create")]
       public ActionResult<EventCreateForm> Create()
       { 
@@ -52,18 +76,7 @@ namespace Web.Controllers.Api
       }
 
 
-      [HttpGet("")]
-      public async Task<ActionResult<IEnumerable<EventViewModel>>> Index()
-      {
-
-         var events = await _eventsService.FetchAsync();
-
-         //events = events.Where(x => x.Active);
-
-         events = events.GetOrdered();
-
-         return events.MapViewModelList(_mapper);
-      }
+      
 
 
       [HttpGet("{id}")]

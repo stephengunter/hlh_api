@@ -1,11 +1,14 @@
-﻿using Infrastructure.Entities;
+﻿using ApplicationCore.Models;
+using Infrastructure.Entities;
 using Infrastructure.Views;
 
 namespace ApplicationCore.Views;
 
 public class CategoryViewModel : EntityBaseView, IBaseCategoryView<CategoryViewModel>
 {
+   public PostType PostType { get; set; } = PostType.None;
    public string Key { get; set; } = String.Empty;
+   public string Title { get; set; } = String.Empty;
    public CategoryViewModel? Parent { get; set; }
    public int? ParentId { get; set; }
    public bool IsRootItem { get; set; }

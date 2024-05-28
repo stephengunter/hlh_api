@@ -20,11 +20,11 @@ public class CategoriesSpecification : Specification<Category>
 		Query.Where(item => !item.Removed);
 	}
 
-   public CategoriesSpecification(string key)
+   public CategoriesSpecification(PostType type, string key)
 	{
-		Query.Where(item => !item.Removed && item.Key == key);
+		Query.Where(item => !item.Removed && item.PostType == type && item.Key == key);
 	}
-   public CategoriesSpecification(IList<string> keys, PostType type)
+   public CategoriesSpecification(PostType type, IList<string> keys)
    {
       Query.Where(item => !item.Removed && item.PostType == type && keys.Contains(item.Key.ToLower()));
    }

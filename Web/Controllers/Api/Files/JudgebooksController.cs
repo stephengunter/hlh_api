@@ -455,6 +455,15 @@ namespace Web.Controllers.Api.Files
       async Task<Dictionary<string, string>> ValidateModelAsync(JudgebookFile model)
       {
          var errors = model.Validate();
+         
+         if (model.JudgeDate > 0)
+         {
+            if (!model.JudgeDate.IsValidRocDate()) errors.Add("judgeDate", "¿ù»~ªºjudgeDate");
+         }
+         else
+         {
+            if (!_judgebookSettings.AllowEmptyJudgeDate) errors.Add("judgeDate", "¿ù»~ªºjudgeDate");
+         }
 
          if (_judgebookSettings.NoSameCaseEntries)
          {

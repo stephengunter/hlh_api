@@ -4,9 +4,9 @@ using ApplicationCore.Models;
 namespace ApplicationCore.Specifications;
 public class EventSpecification : Specification<Event>
 {
-	public EventSpecification()
+   public EventSpecification(IList<int> ids)
 	{
-		Query.Where(item => !item.Removed);
+		Query.Where(item => !item.Removed && ids.Contains(item.Id));
 	}
 }
 
