@@ -5,7 +5,6 @@ using ApplicationCore.Models;
 using ApplicationCore.Consts;
 using Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
 using ApplicationCore.Models.Files;
 
 namespace ApplicationCore.DataAccess;
@@ -132,11 +131,15 @@ public static class SeedData
       context.SaveChanges();
 
       var eventRoot = context.Categories.FirstOrDefault(item => item.PostType == PostType.Event  && item.Key == PostType.Event.ToString());
+      var calendar = new Category { ParentId = eventRoot!.Id, Title = "行事曆", Key = "calendar".ToUpper(), PostType = PostType.Event };
+      await AddCategoryIfNotExist(context, calendar);
+      context.SaveChanges();
 
+      calendar = context.Categories.FirstOrDefault(item => item.PostType == PostType.Event && item.Key == "calendar".ToUpper());
       var eventCategories = new List<Category>
       {
-         new Category() { ParentId = eventRoot!.Id, Title = "全院行事曆", Key = "ALL", PostType = PostType.Event },
-         new Category() { ParentId = eventRoot!.Id, Title = "資訊室行事曆", Key = "IT", PostType = PostType.Event }
+         new Category() { ParentId = calendar!.Id, Title = "全院行事曆", Key = "ALL", PostType = PostType.Event },
+         new Category() { ParentId = calendar!.Id, Title = "資訊室行事曆", Key = "IT", PostType = PostType.Event }
       };
       foreach (var item in eventCategories) await AddCategoryIfNotExist(context, item);
       context.SaveChanges();

@@ -6,6 +6,7 @@ using Ardalis.Specification;
 using Infrastructure.Consts;
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
+using Microsoft.Extensions.Options;
 using System;
 
 namespace ApplicationCore.Services.Files;
@@ -27,6 +28,9 @@ public interface IJudgebookFilesService
    Task UpdateAsync(JudgebookFile judgebook, string ip);
 
    Task ReviewRangeAsync(IEnumerable<JudgebookFile> judgebooks, string userId, string ip);
+
+   Task AddDownloadRecordAsync(JudgebookFile entity, string userId, string ip);
+   Task<IEnumerable<ModifyRecord>> FetchDownloadRecordsAsync(ICollection<int> ids);
 }
 
 public class JudgebooksService : BaseService, IJudgebookFilesService, IBaseService
@@ -78,7 +82,11 @@ public class JudgebooksService : BaseService, IJudgebookFilesService, IBaseServi
 
       var modifyRecord = ModifyRecord.Create(existingEntity!, ActionsTypes.Update, entity.UpdatedBy!, ip);
 
-      if (entity.Reviewed) entity.ReviewedBy = userId;
+      if (entity.Reviewed)
+      {
+         entity.ReviewedAt = DateTime.Now;
+         entity.ReviewedBy = userId;
+      } 
 
       await _repository.UpdateAsync(entity);
       await CreateModifyRecordAsync(modifyRecord);
@@ -101,5 +109,15 @@ public class JudgebooksService : BaseService, IJudgebookFilesService, IBaseServi
       await _repository.UpdateRangeAsync(judgebooks);
       await CreateModifyRecordListAsync(modifyRecords);
    }
+
+   public async Task AddDownloadRecordAsync(JudgebookFile entity, string userId, string ip)
+   {
+      var record = ModifyRecord.Create(entity, ActionsTypes.Download, userId, ip);
+      await CreateModifyRecordAsync(record);
+   }
+
+   public async Task<IEnumerable<ModifyRecord>> FetchDownloadRecordsAsync(ICollection<int> ids)
+      => await FetchModifyRecordsAsync(nameof(JudgebookFile), ids.Select(id => id.ToString()).ToList(), new List<string> { ActionsTypes.Download });
+   
 
 }

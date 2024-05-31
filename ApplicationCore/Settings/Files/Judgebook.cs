@@ -2,6 +2,7 @@
 public class JudgebookFileSettings
 {
    public bool AllowEmptyJudgeDate { get; set; }
+   public bool AllowEmptyFileNumber { get; set; }
    public bool NoSameCaseEntries { get; set; }
 
    public string Title { get; set; } = string.Empty;

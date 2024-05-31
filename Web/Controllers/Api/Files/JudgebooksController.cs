@@ -18,6 +18,10 @@ using Infrastructure.Consts;
 using QuestPDF.Fluent;
 using Infrastructure.Views;
 using ApplicationCore.Settings;
+using ApplicationCore.Consts;
+using ApplicationCore.Models;
+using System.Collections.Generic;
+using ApplicationCore.Services;
 
 namespace Web.Controllers.Api.Files
 {
@@ -29,15 +33,17 @@ namespace Web.Controllers.Api.Files
       private readonly JudgebookFileSettings _judgebookSettings;
       private readonly IJudgebookFilesService _judgebooksService;
       private readonly IFileStoragesService _fileStoragesService;
+      private readonly IUsersService _usersService;
       private readonly IMapper _mapper;
       private const string REMOVED = "removed";
       public JudgebooksController(IOptions<CompanySettings> companySettings, IOptions<JudgebookFileSettings> judgebookSettings, 
-         IJudgebookFilesService judgebooksService,
+         IJudgebookFilesService judgebooksService, IUsersService usersService,
          IMapper mapper)
       {
          _companySettings = companySettings.Value;
          _judgebookSettings = judgebookSettings.Value;
          _judgebooksService = judgebooksService;
+         _usersService = usersService;
          _mapper = mapper;
 
          if (String.IsNullOrEmpty(_judgebookSettings.Host))
@@ -55,8 +61,8 @@ namespace Web.Controllers.Api.Files
       string ReportTitle => $"{_companySettings.Title}{_judgebookSettings.Title}";
 
       [HttpGet]
-      public async Task<ActionResult<JudgebookFilesAdminModel>> Index(int reviewed = -1, int typeId = 0, string courtType = "", string originType = "",
-           string fileNumber = "",  string year = "", string category = "", string num = "", int page = 1, int pageSize = 50)
+      public async Task<ActionResult<JudgebookFilesAdminModel>> Index(int reviewed = -1, int typeId = 0, string courtType = "",
+          string fileNumber = "",  string year = "", string category = "", string num = "", int page = 1, int pageSize = 50)
       {
          JudgebookType? type = null;
          if (typeId > 0)
@@ -69,12 +75,15 @@ namespace Web.Controllers.Api.Files
             }
          }
          int judgeDate = 0;
-         var request = new JudgebookFilesAdminRequest(new JudgebookFile(type, judgeDate, fileNumber, originType, courtType, year, category, num), reviewed, page, pageSize);
+         var request = new JudgebookFilesAdminRequest(new JudgebookFile(type, judgeDate, fileNumber, courtType, year, category, num), reviewed, page, pageSize);
          
          var actions = new List<string>();
          if (CanReview()) actions.Add(ActionsTypes.Review);
          var model = new JudgebookFilesAdminModel(request, actions);
-        
+         model.AllowEmptyFileNumber = _judgebookSettings.AllowEmptyFileNumber;
+         model.AllowEmptyJudgeDate = _judgebookSettings.AllowEmptyJudgeDate;
+
+
          string include = "type";
          var judgebooks = type == null ? 
             await _judgebooksService.FetchAllAsync(include) 
@@ -85,7 +94,6 @@ namespace Web.Controllers.Api.Files
          else if (request.Reviewed == 1) judgebooks = judgebooks.Where(x => x.Reviewed == true);
 
          if (!String.IsNullOrEmpty(request.CourtType)) judgebooks = judgebooks.Where(x => x.CourtType == request.CourtType);
-         if (!String.IsNullOrEmpty(request.OriginType)) judgebooks = judgebooks.Where(x => x.OriginType == request.OriginType);
          if (!String.IsNullOrEmpty(request.FileNumber)) judgebooks = judgebooks.Where(x => x.FileNumber == request.FileNumber);
          
          if (!String.IsNullOrEmpty(request.Year)) judgebooks = judgebooks.Where(x => x.Year == request.Year);
@@ -132,6 +140,7 @@ namespace Web.Controllers.Api.Files
          if (entity.Reviewed) return false;
          return entity.CreatedBy == User.Id();
       }
+      bool CanDownload(IJudgebookFile entity) => CanEdit(entity);
       bool CanReview() => User.IsFileManager() || User.IsDev();
 
       [HttpPut("{id}")]
@@ -141,7 +150,7 @@ namespace Web.Controllers.Api.Files
          if (entity == null) return NotFound();
 
          if (!CanEdit(entity)) return Forbid();
-        
+
 
          var type = await _judgebooksService.GetTypeByIdAsync(model.TypeId);
          if (type == null) ModelState.AddModelError("type", "¿ù»~ªºtypeId");
@@ -198,7 +207,6 @@ namespace Web.Controllers.Api.Files
             }
          }
 
-         
          string ip = RemoteIpAddress;
          await _judgebooksService.UpdateAsync(entity, ip);
 
@@ -285,8 +293,8 @@ namespace Web.Controllers.Api.Files
       {
          var entity = await _judgebooksService.GetByIdAsync(id);
          if (entity == null) return NotFound();
-
-         if (!CanEdit(entity)) return Forbid();
+         
+         if (!CanDownload(entity)) return Forbid();
 
          byte[] bytes;
          try
@@ -302,11 +310,13 @@ namespace Web.Controllers.Api.Files
             throw;
          }
 
+         if(entity.Reviewed) await _judgebooksService.AddDownloadRecordAsync(entity, User.Id(), RemoteIpAddress);
+
          var model = entity.MapViewModel(_mapper, bytes);
          return Ok(model);
       }
       [HttpGet("reports")]
-      public async Task<IActionResult> Reports(string createdAt = "", string judgeDate = "")
+      public async Task<ActionResult<ICollection<JudgebookFileReportItem>>> Reports(string createdAt = "", string judgeDate = "")
       {
          if (!CanReview()) return Forbid();
 
@@ -335,14 +345,26 @@ namespace Web.Controllers.Api.Files
                int startNum = parts_j[0].Trim().Replace("-", "").ToInt();
                int endNum = parts_j[1].Trim().Replace("-", "").ToInt();
 
-
-
                if (startNum.IsValidRocDate()) judgebooks = judgebooks.Where(x => x.JudgeDate >= startNum);
                if (endNum.IsValidRocDate()) judgebooks = judgebooks.Where(x => x.JudgeDate <= endNum);
             }
          }
 
-         return Ok(judgebooks.GetOrdered().MapReportItemList());
+         var models = new List<JudgebookFileReportItem>();
+         if (judgebooks.IsNullOrEmpty()) return models;
+
+         var downloadRecords = await _judgebooksService.FetchDownloadRecordsAsync(judgebooks.Select(x => x.Id).ToList());
+         judgebooks = judgebooks.GetOrdered();
+         foreach (var entity in judgebooks)
+         {
+            var downloads = downloadRecords.HasItems() ? downloadRecords.Where(x => x.EntityId == entity.Id.ToString()).ToList() : null;
+            var downloadViews = await downloads.MapViewModelListAsync(_usersService, _mapper);
+            var model = entity.MapReportItem(_mapper);
+            model.ModifyRecords = downloadViews;
+            models.Add(model);
+         }
+
+         return models;
       }
 
       [HttpPost("reports")]
@@ -357,7 +379,7 @@ namespace Web.Controllers.Api.Files
          }
          string includes = "type";
          var entryList = await _judgebooksService.FetchAsync(request.Ids, includes);
-         var items = entryList.MapReportItemList();
+         var items = entryList.MapReportItemList(_mapper);
 
          var model = new JudgebookFileReportModel(ReportTitle, request, items);
          var doc = new JudgebookFileReportDocument(model);
@@ -463,6 +485,14 @@ namespace Web.Controllers.Api.Files
          else
          {
             if (!_judgebookSettings.AllowEmptyJudgeDate) errors.Add("judgeDate", "¿ù»~ªºjudgeDate");
+         }
+         if (string.IsNullOrEmpty(model.FileNumber))
+         {
+            if (!_judgebookSettings.AllowEmptyFileNumber) errors.Add("fileNumber", "¿ù»~ªºfileNumber");
+         }
+         else
+         {
+            if (!JudgebookFile.CheckFileNumber(model.FileNumber)) errors.Add("fileNumber", "¿ù»~ªºfileNumber");
          }
 
          if (_judgebookSettings.NoSameCaseEntries)

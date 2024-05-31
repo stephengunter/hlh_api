@@ -18,7 +18,7 @@ public interface IJudgebookFile
 
    string OriginType { get; set; } //"M"原本   "O"正本
    int JudgeDate { get; set; } // 1050325
-   string FileNumber { get; set; }
+   string? FileNumber { get; set; }
    string? Ps { get; set; }
    DateTime CreatedAt { get; set; }
    string CreatedBy { get; set; }
@@ -37,7 +37,7 @@ public class JudgebookFile : EntityBase, IJudgebookFile, IBaseUploadFile, IBaseR
    { 
    
    }
-   public JudgebookFile(JudgebookType? type, int judgeDate, string fileNumber = "", string originType = "", string courtType = "", string year = "", string category = "", string num = "", string? ps = "")
+   public JudgebookFile(JudgebookType? type, int judgeDate, string? fileNumber, string courtType = "", string year = "", string category = "", string num = "", string? ps = "")
    {
       if (type != null)
       {
@@ -46,17 +46,18 @@ public class JudgebookFile : EntityBase, IJudgebookFile, IBaseUploadFile, IBaseR
       }
       JudgeDate = CheckJudgeDate(judgeDate) ? judgeDate : 0;
       FileNumber = CheckFileNumber(fileNumber) ? fileNumber : ""; ;
-      OriginType = CheckOriginType(originType) ? originType.ToUpper() : "";
+      OriginType = OriginTypes.M;
       CourtType = CheckCourtType(courtType) ? courtType.ToUpper() : "";
       Year = CheckYear(year) ? year : "";
       Category = CheckCategory(category) ? category : "";
       Num = CheckNum(num) ? num.ToInt().FormatNumberWithLeadingZeros(6) : "";
+      
       Ps = ps;
    }
 
    public int TypeId { get; set; }
    public virtual JudgebookType Type { get; set; }
-   public string FileNumber { get; set; } = String.Empty;
+   public string? FileNumber { get; set; }
 
    public string CourtType { get; set; } = String.Empty;
    public string Year { get; set; } = String.Empty;
@@ -95,9 +96,8 @@ public class JudgebookFile : EntityBase, IJudgebookFile, IBaseUploadFile, IBaseR
       if (val.ToUpper() == OriginTypes.M) return true;
       return val.ToUpper() == OriginTypes.O;
    }
-   public static bool CheckFileNumber(string val)
+   public static bool CheckFileNumber(string? val)
    {
-      if (String.IsNullOrEmpty(val)) return false;
       return true;
    }
    public static bool CheckCourtType(string val)

@@ -8,6 +8,8 @@ using ApplicationCore.Views;
 using Infrastructure.Helpers;
 using ApplicationCore.Services.Files;
 using Infrastructure.Interfaces;
+using Infrastructure.Entities;
+using System.Collections.Generic;
 
 namespace Web.Controllers.Api
 {
@@ -27,21 +29,8 @@ namespace Web.Controllers.Api
       [HttpGet]
       public async Task<ActionResult<List<ModifyRecordViewModel>>> Fetch(string type, string id, string action = "")
       {
-         var records = await _baseService.FetchModifyRecordsAsync(type, id, action);
-         var modelList = new List<ModifyRecordViewModel>();
-         if (records.HasItems())
-         {
-            var userIds = records.Select(x => x.UserId).Distinct();
-            var users = await _usersService.FetchByIdsAsync(userIds);
-            modelList = records.GetOrdered().MapViewModelList(_mapper);
-            foreach (var user in users) 
-            {
-               var models = modelList.Where(x => x.UserId == user.Id);
-               foreach (var model in models) model!.UserName = user.UserName!;
-
-            }
-
-         }
+         var records = await _baseService.FetchModifyRecordsAsync(type, id, action.SplitToList());
+         var modelList = await records.MapViewModelListAsync(_usersService, _mapper);
          return modelList;
       }
 

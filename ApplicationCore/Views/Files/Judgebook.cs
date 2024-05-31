@@ -11,10 +11,11 @@ public class JudgebookFileViewModel : EntityBaseView, IJudgebookFile, IBaseRecor
 {
    public int TypeId { get; set; }
    public string CourtType { get; set; } = String.Empty;
+   public string? Dpt { get; set; }
    public string Year { get; set; } = String.Empty;
    public string Category { get; set; } = String.Empty;
    public string Num { get; set; } = String.Empty;
-   public string FileNumber { get; set; } = String.Empty;
+   public string? FileNumber { get; set; }
    public string OriginType { get; set; } = String.Empty;
    public int JudgeDate { get; set; }
    public string? Ps { get; set; }
@@ -70,7 +71,7 @@ public class JudgebookTypeViewModel : EntityBaseView, IBaseCategoryView<Judgeboo
 public abstract class BaseJudgebookRequest
 {
    public int TypeId { get; set; }
-   public string FileNumber { get; set; } = String.Empty;
+   public string? FileNumber { get; set; } = String.Empty;
    public string OriginType { get; set; } = String.Empty;
    public string CourtType { get; set; } = String.Empty;
    public string Year { get; set; } = String.Empty;
@@ -83,5 +84,5 @@ public abstract class BaseJudgebookRequest
 
    public bool HasFile => File != null;
    public JudgebookFile CreateEntity(JudgebookType type)
-      => new JudgebookFile(type, JudgeDate, FileNumber, OriginType, CourtType, Year, Category, Num, Ps);
+      => new JudgebookFile(type, JudgeDate, FileNumber, CourtType, Year, Category, Num, Ps);
 }

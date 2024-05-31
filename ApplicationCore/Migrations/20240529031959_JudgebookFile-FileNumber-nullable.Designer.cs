@@ -4,6 +4,7 @@ using ApplicationCore.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApplicationCore.Migrations
 {
     [DbContext(typeof(DefaultContext))]
-    partial class DefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20240529031959_JudgebookFile-FileNumber-nullable")]
+    partial class JudgebookFileFileNumbernullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -68,7 +71,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Articles", (string)null);
+                    b.ToTable("Articles");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Attachment", b =>
@@ -143,7 +146,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Attachments", (string)null);
+                    b.ToTable("Attachments");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Auth.AuthToken", b =>
@@ -180,7 +183,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Auth.Token", (string)null);
+                    b.ToTable("Auth.Token");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Auth.OAuth", b =>
@@ -217,7 +220,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Auth.OAuth", (string)null);
+                    b.ToTable("Auth.OAuth");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Auth.RefreshToken", b =>
@@ -240,7 +243,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("UserId");
 
-                    b.ToTable("Auth.RefreshToken", (string)null);
+                    b.ToTable("Auth.RefreshToken");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Category", b =>
@@ -275,7 +278,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.CategoryPost", b =>
@@ -299,7 +302,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("CategoryPosts", (string)null);
+                    b.ToTable("CategoryPosts");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Department", b =>
@@ -344,7 +347,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("Departments", (string)null);
+                    b.ToTable("Departments");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Event", b =>
@@ -390,7 +393,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Events", (string)null);
+                    b.ToTable("Events");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Files.JudgebookFile", b =>
@@ -481,7 +484,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("TypeId");
 
-                    b.ToTable("Files.Judgebooks", (string)null);
+                    b.ToTable("Files.Judgebooks");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Files.JudgebookType", b =>
@@ -513,7 +516,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("Files.JudgebookTypes", (string)null);
+                    b.ToTable("Files.JudgebookTypes");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Job", b =>
@@ -567,7 +570,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("JobTitleId");
 
-                    b.ToTable("Jobs", (string)null);
+                    b.ToTable("Jobs");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.JobTitle", b =>
@@ -587,7 +590,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("JobTitles", (string)null);
+                    b.ToTable("JobTitles");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.JobUserProfiles", b =>
@@ -635,7 +638,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("JobUserProfiles", (string)null);
+                    b.ToTable("JobUserProfiles");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Location", b =>
@@ -667,7 +670,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("Locations", (string)null);
+                    b.ToTable("Locations");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.ModifyRecord", b =>
@@ -707,7 +710,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ModifyRecords", (string)null);
+                    b.ToTable("ModifyRecords");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Profiles", b =>
@@ -737,7 +740,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("UserId");
 
-                    b.ToTable("Profiles", (string)null);
+                    b.ToTable("Profiles");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Role", b =>
@@ -816,7 +819,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("Tags", (string)null);
+                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.TagPost", b =>
@@ -840,7 +843,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("TagPosts", (string)null);
+                    b.ToTable("TagPosts");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.User", b =>

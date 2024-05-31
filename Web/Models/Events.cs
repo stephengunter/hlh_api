@@ -6,18 +6,41 @@ using Infrastructure.Paging;
 using Web.Models.Files;
 
 namespace Web.Models;
+public class CanlendarRequest
+{
+   public CanlendarRequest(Category category, int year, int month)
+   {
+      Category = category;
+      Year = year;
+      Month = month;
+   }
+   public int Year { get; set; }
+   public int Month { get; set; }
+   public string Key => Category.Key;
+   public Category Category { get; set; }
+}
+public class CanlendarResponse
+{
+   public CanlendarResponse(CanlendarRequest request)
+   {
+      Request = request;
+   }
+   public CanlendarRequest Request { get; set; }
+   public IEnumerable<EventViewModel> List { get; set; } = new List<EventViewModel>();
+}
+public class EventFetchRequest
+{
+   public EventFetchRequest(Category category)
+   {
+      Category = category;
+   }
+
+   public string Key => Category.Key;
+   public Category Category { get; set; }
+}
 public class EventsIndexModel
 {
-   public class EventFetchRequest
-   {
-      public EventFetchRequest(Category category) 
-      {
-         Category = category;
-      }
-
-      public string Key => Category.Key;
-      public Category Category { get; set; }
-   }
+  
    public EventsIndexModel(EventFetchRequest request, IEnumerable<string> actions)
    {
       Request = request;

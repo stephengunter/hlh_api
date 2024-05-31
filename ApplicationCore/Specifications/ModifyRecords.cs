@@ -1,6 +1,7 @@
 ﻿using Ardalis.Specification;
 using ApplicationCore.Models;
 using Infrastructure.Interfaces;
+using System.Linq;
 
 namespace ApplicationCore.Specifications;
 public class ModifyRecordSpecification : Specification<ModifyRecord>
@@ -13,11 +14,21 @@ public class ModifyRecordSpecification : Specification<ModifyRecord>
    {
       Query.Where(item => item.EntityType.ToLower() == type.ToLower() && item.EntityId == id);
    }
-   public ModifyRecordSpecification(string type, string id, string action)
+   public ModifyRecordSpecification(string type, string id, ICollection<string> actions)
    {
-      Query.Where(item => item.EntityType.ToLower() == type.ToLower() 
-                           && item.EntityId == id 
-                           && item.Action.ToLower() == action.ToLower());
+      actions = actions.Select(x => x.ToLower()).ToList();
+      Query.Where(item => item.EntityType.ToLower() == type.ToLower()
+                           && item.EntityId == id
+                           && actions.Contains(item.Action.ToLower()));
+
+   }
+   public ModifyRecordSpecification(string type, ICollection<string> ids, ICollection<string> actions)
+   {
+      actions = actions.Select(x => x.ToLower()).ToList();
+      Query.Where(item => item.EntityType.ToLower() == type.ToLower()
+                           && ids.Contains(item.EntityId)
+                           && actions.Contains(item.Action.ToLower()));
+
    }
 }
 

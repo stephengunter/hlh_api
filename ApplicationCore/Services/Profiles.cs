@@ -9,16 +9,16 @@ public interface IProfilesService
    Task<IEnumerable<Profiles>> FetchAsync();
 
    Task<Profiles?> FindAsync(User user);
-   Task<Profiles> CreateAsync(Profiles Profiles);
-	Task UpdateAsync(Profiles Profiles);
-   Task DeleteAsync(Profiles Profiles);
+   Task<Profiles> CreateAsync(Profiles profiles);
+	Task UpdateAsync(Profiles profiles);
+   Task DeleteAsync(Profiles profiles);
 }
 
-public class ProfilessService : IProfilesService
+public class ProfilesService : IProfilesService
 {
 	private readonly IDefaultRepository<Profiles> _profilesRepository;
 
-	public ProfilessService(IDefaultRepository<Profiles> profilesRepository)
+	public ProfilesService(IDefaultRepository<Profiles> profilesRepository)
 	{
       _profilesRepository = profilesRepository;
 	}
@@ -28,13 +28,13 @@ public class ProfilessService : IProfilesService
    public async Task<Profiles?> FindAsync(User user)
       => await _profilesRepository.FirstOrDefaultAsync(new ProfilesSpecification(user));
 
-   public async Task<Profiles> CreateAsync(Profiles Profiles)
-		=> await _profilesRepository.AddAsync(Profiles);
+   public async Task<Profiles> CreateAsync(Profiles profiles)
+		=> await _profilesRepository.AddAsync(profiles);
 
-	public async Task UpdateAsync(Profiles Profiles)
-		=> await _profilesRepository.UpdateAsync(Profiles);
+	public async Task UpdateAsync(Profiles profiles)
+		=> await _profilesRepository.UpdateAsync(profiles);
 
-   public async Task DeleteAsync(Profiles Profiles)
-      => await _profilesRepository.DeleteAsync(Profiles);
+   public async Task DeleteAsync(Profiles profiles)
+      => await _profilesRepository.DeleteAsync(profiles);
 
 }

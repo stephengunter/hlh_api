@@ -93,7 +93,7 @@ public class UsersService : IUsersService
 
 	#region Get
 	public async Task<User?> GetByIdAsync(string id, bool includeRoles = false)
-       => await _usersRepository.FirstOrDefaultAsync(new UsersSpecification(id));
+       => await _usersRepository.FirstOrDefaultAsync(new UsersSpecification(id, includeRoles));
    #endregion
 
    #region Store

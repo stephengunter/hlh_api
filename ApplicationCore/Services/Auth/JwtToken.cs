@@ -6,13 +6,15 @@ using ApplicationCore.Helpers;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using ApplicationCore.Models.Auth;
+using ApplicationCore.Views.Jud;
 
 namespace ApplicationCore.Services.Auth;
 
 public interface IJwtTokenService
 {
     Task<AccessToken> CreateAccessTokenAsync(string ipAddress, User user, IList<string>? roles = null, OAuth? oAuth = null);
-    Task<string> CreateRefreshTokenAsync(string ipAddress, User user);
+   Task<AccessToken> CreateAccessTokenAsync(string ipAddress, User user, IList<string>? roles, IList<AdUserViewModel> adUsers);
+   Task<string> CreateRefreshTokenAsync(string ipAddress, User user);
 
     ClaimsPrincipal? ResolveClaimsFromToken(string accessToken);
 
@@ -48,7 +50,9 @@ public class JwtTokenService : IJwtTokenService
     public async Task<AccessToken> CreateAccessTokenAsync(string ipAddress, User user, IList<string>? roles = null, OAuth? oAuth = null)
         => await _jwtFactory.GenerateEncodedTokenAsync(user, roles, oAuth);
 
-    public async Task<string> CreateRefreshTokenAsync(string ipAddress, User user)
+   public async Task<AccessToken> CreateAccessTokenAsync(string ipAddress, User user, IList<string>? roles, IList<AdUserViewModel> adUsers)
+      => await _jwtFactory.GenerateEncodedTokenAsync(user, roles, adUsers);
+   public async Task<string> CreateRefreshTokenAsync(string ipAddress, User user)
     {
         var refreshToken = _tokenFactory.GenerateToken();
         await SetRefreshTokenAsync(ipAddress, user, refreshToken);
@@ -116,4 +120,5 @@ public class JwtTokenService : IJwtTokenService
     async Task<RefreshToken?> GetRefreshTokenAsync(User user)
         => await _refreshTokenRepository.FindAsync(user);
 
+   
 }

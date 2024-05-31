@@ -20,7 +20,7 @@ public class JudgebookFilesAdminRequest : BaseJudgebookRequest
       CourtType = model.CourtType;
       OriginType = model.OriginType;
       FileNumber = model.FileNumber;
-     
+
       Year = model.Year;
       Category = model.Category;
       Num = model.Num;
@@ -63,6 +63,8 @@ public class JudgebookFilesAdminModel
       Request = request;
       Actions = actions;
    }
+   public bool AllowEmptyJudgeDate{ get; set; }
+   public bool AllowEmptyFileNumber { get; set; }
    public IEnumerable<string> Actions { get; set; }
    public JudgebookFilesAdminRequest Request { get; set; }
 

@@ -8,23 +8,24 @@ using ApplicationCore.Views.Jud;
 using ApplicationCore.Settings;
 using Microsoft.Extensions.Options;
 using ApplicationCore.Settings.Files;
+using ApplicationCore.Helpers;
+using AutoMapper;
 
 namespace Web.Controllers.Tests;
 
 public class ATestsController : BaseTestController
 {
-   private readonly EventSettings _eventSettings;
 
-   public ATestsController(IOptions<EventSettings> eventSettings)
+   public ATestsController()
    {
-      _eventSettings = eventSettings.Value;
+      
    }
    [HttpGet]
    public async Task<ActionResult> Index()
    {
       
 
-      return Ok(_eventSettings);
+      return Ok();
    }
 
 

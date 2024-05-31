@@ -144,14 +144,18 @@ namespace ApplicationCore.Views.Files
       public string FileNumber { get; set; } = String.Empty;
       public string OriginType { get; set; } = String.Empty;
       public int JudgeDate { get; set; }
+      public DateTime? ReviewedAt { get; set; }
 
-      public string ReviewdAtText = String.Empty;
+      public ICollection<ModifyRecordViewModel>? ModifyRecords { get; set; }
+
 
 
       public string CourtTypeTitle => CourtType.CourtTypeTitle();
       public string OriginTypeTitle => OriginType.CourtTypeTitle();
       public string CaseInfo => $"{Year} {Category} {Num}";
       public string JudgeDateText => JudgeDate.ToRocDateText();
+
+      public string ReviewdAtText => ReviewedAt.ToDateString();
    }
    public class JudgebookFileReportModel
    {

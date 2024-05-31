@@ -19,5 +19,6 @@ public class ModifyRecordViewModel : EntityBaseView
 
 
    public string UserName { get; set; } = string.Empty;
+   public ProfilesViewModel? Profiles { get; set; } 
 }
 

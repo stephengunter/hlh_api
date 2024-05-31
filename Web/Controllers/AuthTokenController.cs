@@ -26,15 +26,18 @@ public class AuthTokenController : BaseController
    private readonly Jud3Settings _jud3Settings;
 	private readonly IAuthTokenService _authTokenService; 
    private readonly IUsersService _usersService;
+   private readonly IProfilesService _profilesService;
    private readonly IJwtTokenService _jwtTokenService;
 
    public AuthTokenController(IOptions<AppSettings> appSettings, IOptions<Jud3Settings> jud3Settings, 
-		IAuthTokenService authTokenService, IJwtTokenService jwtTokenService, IUsersService usersService)
+		IAuthTokenService authTokenService, IJwtTokenService jwtTokenService, 
+      IUsersService usersService, IProfilesService profilesService)
 	{
       _appSettingss = appSettings.Value;
       _jud3Settings = jud3Settings.Value;
       _authTokenService = authTokenService;
       _usersService = usersService;
+      _profilesService = profilesService;
       _jwtTokenService = jwtTokenService;
    }
 
@@ -85,32 +88,44 @@ public class AuthTokenController : BaseController
          });
       }
       var adUsers = JsonConvert.DeserializeObject<List<AdUserViewModel>>(entry.AdListJson);
-      if (adUsers!.HasItems())
+      if (adUsers.IsNullOrEmpty()) return await CreateAuthResponseAsync(user, adUsers);
+
+
+      var roles = adUsers!.Select(item => item.ResolveRole()).Distinct();
+      if (roles.HasItems())
       {
-         var roles = adUsers!.Select(item => item.ResolveRole()).Distinct();
-         if (roles.HasItems())
+         foreach (var role in roles )
          {
-            foreach (var role in roles )
+            if (role != AppRoles.UnKnown)
             {
-               if (role != AppRoles.UnKnown)
-               {
-                  var hasRole = await _usersService.HasRoleAsync(user, role.ToString());
-                  if (!hasRole) await _usersService.AddToRoleAsync(user, role.ToString());
-               }
+               var hasRole = await _usersService.HasRoleAsync(user, role.ToString());
+               if (!hasRole) await _usersService.AddToRoleAsync(user, role.ToString());
             }
          }
       }
 
-      var response = await CreateAuthResponseAsync(user);
+      var profile = await _profilesService.FindAsync(user);
+      if (profile == null)
+      {
+         var adUser = adUsers!.FirstOrDefault();
+         profile = await _profilesService.CreateAsync(new Profiles
+         {
+            UserId = user.Id,
+            Name = adUser!.usrnm
+         });
+      }
 
-      return response;
+
+      return await CreateAuthResponseAsync(user, adUsers);
    }
 
-   async Task<AuthResponse> CreateAuthResponseAsync(User user)
+   async Task<AuthResponse> CreateAuthResponseAsync(User user, IList<AdUserViewModel>? adUsers)
    {
       var roles = await _usersService.GetRolesAsync(user);
 
-      var accessToken = await _jwtTokenService.CreateAccessTokenAsync(RemoteIpAddress, user, roles);
+      var accessToken = adUsers.IsNullOrEmpty() ?
+                        await _jwtTokenService.CreateAccessTokenAsync(RemoteIpAddress, user, roles)
+                        : await _jwtTokenService.CreateAccessTokenAsync(RemoteIpAddress, user, roles, adUsers!);
       string refreshToken = await _jwtTokenService.CreateRefreshTokenAsync(RemoteIpAddress, user);
 
       return new AuthResponse(accessToken.Token, accessToken.ExpiresIn, refreshToken);

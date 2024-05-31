@@ -44,8 +44,8 @@ namespace Web.Controllers.Api
          return categories.GetOrdered().MapViewModelList(_mapper);
       }
 
-      [HttpGet("index/{key}")]
-      public async Task<ActionResult<EventsIndexModel>> Index(string key, string start = "")
+      [HttpGet("calendar/{key}")]
+      public async Task<ActionResult<CanlendarResponse>> Calendar(string key, int year, int month)
       {
          var categories = await GetEventCategoriesAsync();
          var category = categories.FirstOrDefault(x => x.Key.EqualTo(key));
@@ -56,9 +56,8 @@ namespace Web.Controllers.Api
             return BadRequest(ModelState);
          }
 
-         var request = new EventFetchRequest(category);
-         var actions = new List<string>();
-         var model = new EventsIndexModel(request, actions);
+         var request = new CanlendarRequest(category, year, month);
+         var model = new CanlendarResponse(request);
 
          var events = await _eventsService.FetchAsync(category);
 
