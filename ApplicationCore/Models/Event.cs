@@ -7,7 +7,6 @@ namespace ApplicationCore.Models;
 public class Event : EntityBase, IBasePost, IBaseContract, IBaseRecord, IRemovable
 {
    public string UserId { get; set; } = String.Empty;
-
    public string Title { get; set; } = String.Empty;
    public string? Content { get; set; }
    public DateTime? StartDate { get; set; }

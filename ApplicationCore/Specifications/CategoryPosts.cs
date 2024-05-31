@@ -1,5 +1,4 @@
-﻿using ApplicationCore.Migrations;
-using ApplicationCore.Models;
+﻿using ApplicationCore.Models;
 using Ardalis.Specification;
 using CategoryPost = ApplicationCore.Models.CategoryPost;
 

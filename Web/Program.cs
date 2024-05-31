@@ -51,7 +51,8 @@ try
    #endregion
 
    string connectionString = Configuration.GetConnectionString("Default")!;
-   if (Configuration[$"{SettingsKeys.Db}:Provider"].EqualTo(DbProvider.PostgreSql))
+	bool usePostgreSql = Configuration[$"{SettingsKeys.Db}:Provider"].EqualTo(DbProvider.PostgreSql);
+   if (usePostgreSql)
 	{
       builder.Services.AddDbContext<DefaultContext>(options =>
                   options.UseNpgsql(connectionString));
@@ -93,7 +94,10 @@ try
    QuestPDF.Settings.License = LicenseType.Community;
 
    var app = builder.Build();
-	AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+	if (usePostgreSql) 
+	{
+      AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+   }
 
 	app.UseSerilogRequestLogging(); 
 
