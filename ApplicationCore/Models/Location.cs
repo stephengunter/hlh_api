@@ -12,7 +12,7 @@ public class Location : EntityBase, IBaseCategory<Location>, IRemovable, ISortab
    public string Title { get; set; } = String.Empty;
 
    public virtual Location? Parent { get; set; }
-   
+
    public int? ParentId { get; set; }
 
    public bool IsRootItem => ParentId is null;
@@ -27,6 +27,8 @@ public class Location : EntityBase, IBaseCategory<Location>, IRemovable, ISortab
    public bool Active => ISortableHelpers.IsActive(this);
 
    public void LoadSubItems(IEnumerable<IBaseCategory<Location>> locations) => BaseCategoriesHelpers.LoadSubItems(this, locations);
+
+   public virtual ICollection<LocationEvent>? LocationEvents { get; set; }
 }
 
 

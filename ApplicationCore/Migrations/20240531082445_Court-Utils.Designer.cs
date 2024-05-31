@@ -4,6 +4,7 @@ using ApplicationCore.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApplicationCore.Migrations
 {
     [DbContext(typeof(DefaultContext))]
-    partial class DefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20240531082445_Court-Utils")]
+    partial class CourtUtils
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -650,21 +653,6 @@ namespace ApplicationCore.Migrations
                     b.ToTable("Locations");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.LocationEvent", b =>
-                {
-                    b.Property<int>("EventId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("LocationId")
-                        .HasColumnType("int");
-
-                    b.HasKey("EventId", "LocationId");
-
-                    b.HasIndex("LocationId");
-
-                    b.ToTable("LocationEvents");
-                });
-
             modelBuilder.Entity("ApplicationCore.Models.ModifyRecord", b =>
                 {
                     b.Property<int>("Id")
@@ -1155,25 +1143,6 @@ namespace ApplicationCore.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.LocationEvent", b =>
-                {
-                    b.HasOne("ApplicationCore.Models.Event", "Event")
-                        .WithMany("LocationEvents")
-                        .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ApplicationCore.Models.Location", "Location")
-                        .WithMany("LocationEvents")
-                        .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Event");
-
-                    b.Navigation("Location");
-                });
-
             modelBuilder.Entity("ApplicationCore.Models.Profiles", b =>
                 {
                     b.HasOne("ApplicationCore.Models.User", "User")
@@ -1282,8 +1251,6 @@ namespace ApplicationCore.Migrations
             modelBuilder.Entity("ApplicationCore.Models.Event", b =>
                 {
                     b.Navigation("EventCalendars");
-
-                    b.Navigation("LocationEvents");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Job", b =>
@@ -1298,8 +1265,6 @@ namespace ApplicationCore.Migrations
 
             modelBuilder.Entity("ApplicationCore.Models.Location", b =>
                 {
-                    b.Navigation("LocationEvents");
-
                     b.Navigation("SubItems");
                 });
 

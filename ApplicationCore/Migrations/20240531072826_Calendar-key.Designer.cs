@@ -4,6 +4,7 @@ using ApplicationCore.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApplicationCore.Migrations
 {
     [DbContext(typeof(DefaultContext))]
-    partial class DefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20240531072826_Calendar-key")]
+    partial class Calendarkey
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -339,57 +342,6 @@ namespace ApplicationCore.Migrations
                     b.ToTable("CategoryPosts");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.Court", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Key")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("LastUpdated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("LocationId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Order")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Ps")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Removed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Utils")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LocationId");
-
-                    b.ToTable("Courts");
-                });
-
             modelBuilder.Entity("ApplicationCore.Models.Department", b =>
                 {
                     b.Property<int>("Id")
@@ -648,21 +600,6 @@ namespace ApplicationCore.Migrations
                     b.HasIndex("ParentId");
 
                     b.ToTable("Locations");
-                });
-
-            modelBuilder.Entity("ApplicationCore.Models.LocationEvent", b =>
-                {
-                    b.Property<int>("EventId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("LocationId")
-                        .HasColumnType("int");
-
-                    b.HasKey("EventId", "LocationId");
-
-                    b.HasIndex("LocationId");
-
-                    b.ToTable("LocationEvents");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.ModifyRecord", b =>
@@ -1071,17 +1008,6 @@ namespace ApplicationCore.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.Court", b =>
-                {
-                    b.HasOne("ApplicationCore.Models.Location", "Location")
-                        .WithMany()
-                        .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Location");
-                });
-
             modelBuilder.Entity("ApplicationCore.Models.Department", b =>
                 {
                     b.HasOne("ApplicationCore.Models.Department", "Parent")
@@ -1153,25 +1079,6 @@ namespace ApplicationCore.Migrations
                         .HasForeignKey("ParentId");
 
                     b.Navigation("Parent");
-                });
-
-            modelBuilder.Entity("ApplicationCore.Models.LocationEvent", b =>
-                {
-                    b.HasOne("ApplicationCore.Models.Event", "Event")
-                        .WithMany("LocationEvents")
-                        .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ApplicationCore.Models.Location", "Location")
-                        .WithMany("LocationEvents")
-                        .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Event");
-
-                    b.Navigation("Location");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Profiles", b =>
@@ -1282,8 +1189,6 @@ namespace ApplicationCore.Migrations
             modelBuilder.Entity("ApplicationCore.Models.Event", b =>
                 {
                     b.Navigation("EventCalendars");
-
-                    b.Navigation("LocationEvents");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Job", b =>
@@ -1298,8 +1203,6 @@ namespace ApplicationCore.Migrations
 
             modelBuilder.Entity("ApplicationCore.Models.Location", b =>
                 {
-                    b.Navigation("LocationEvents");
-
                     b.Navigation("SubItems");
                 });
 

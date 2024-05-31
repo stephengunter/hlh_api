@@ -11,8 +11,10 @@ public interface IEventsService
    Task<IEnumerable<Event>> FetchAsync(Category category);
    Task<Event?> GetByIdAsync(int id);
 
-   Task<Event> CreateAsync(Event Event);
-	Task UpdateAsync(Event Event);
+   Task<Event> CreateAsync(Event entity);
+   Task<Event> CreateAsync(Event entity, ICollection<Location> locations);
+   Task<Event> CreateAsync(Event entity, ICollection<Calendar> calendars, ICollection<Location> locations);
+   Task UpdateAsync(Event entity);
 }
 
 public class EventsService : IEventsService
@@ -21,12 +23,14 @@ public class EventsService : IEventsService
    private readonly IDefaultRepository<Category> _categoriesRepository;
    private readonly IDefaultRepository<CategoryPost> _categoryPostRepository;
    private readonly PostType _type;
+   private readonly DefaultContext _context;
    public EventsService(IDefaultRepository<Event> eventsRepository, IDefaultRepository<Category> categoriesRepository,
-      IDefaultRepository<CategoryPost> categoryPostRepository)
+      IDefaultRepository<CategoryPost> categoryPostRepository, DefaultContext context)
 	{
       _eventsRepository = eventsRepository;
       _categoriesRepository = categoriesRepository;
       _categoryPostRepository = categoryPostRepository;
+      _context = context;
       _type = PostType.Event;
    }
 
@@ -47,10 +51,39 @@ public class EventsService : IEventsService
    public async Task<Event?> GetByIdAsync(int id)
       => await _eventsRepository.GetByIdAsync(id);
 
-   public async Task<Event> CreateAsync(Event Event)
-		=> await _eventsRepository.AddAsync(Event);
+   public async Task<Event> CreateAsync(Event entity)
+		=> await _eventsRepository.AddAsync(entity);
 
-		public async Task UpdateAsync(Event Event)
+   public async Task<Event> CreateAsync(Event entity, ICollection<Location> locations)
+   {
+      entity = await _eventsRepository.AddAsync(entity);
+
+      AddLocationEvents(entity, locations);
+
+      return entity;
+   }
+   void AddLocationEvents(Event entity, ICollection<Location> locations)
+   {
+      var locationEvents = locations.Select(location => new LocationEvent { EventId = entity.Id, LocationId = location.Id });
+      _context.LocationEvents.AddRange(locationEvents);
+      _context.SaveChanges();
+   }
+   void AddEventCalendars(Event entity, ICollection<Calendar> calendars)
+   {
+      var eventCalendars = calendars.Select(calendar => new EventCalendar { EventId = entity.Id, CalendarId = calendar.Id });
+      _context.EventCalendars.AddRange(eventCalendars);
+      _context.SaveChanges();
+   }
+   public async Task<Event> CreateAsync(Event entity, ICollection<Calendar> calendars, ICollection<Location> locations)
+   {
+      entity = await _eventsRepository.AddAsync(entity);
+
+      AddEventCalendars(entity, calendars);
+      AddLocationEvents(entity, locations);
+      return entity;
+   }
+
+   public async Task UpdateAsync(Event Event)
 		=> await _eventsRepository.UpdateAsync(Event);
 
 }

@@ -46,17 +46,23 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
    public DbSet<AuthToken> AuthTokens => Set<AuthToken>();
    #endregion
 
+   
+   public DbSet<Court> Courts => Set<Court>();
 
    #region Posts	
    public DbSet<Category> Categories => Set<Category>();
    public DbSet<CategoryPost> CategoryPosts => Set<CategoryPost>();
-   public DbSet<Event> Events => Set<Event>();
    public DbSet<Article> Articles => Set<Article>();
    public DbSet<Attachment> Attachments => Set<Attachment>();
 
    public DbSet<Tag> Tags => Set<Tag>();
    public DbSet<TagPost> TagPosts => Set<TagPost>();
    #endregion
+
+   public DbSet<Event> Events => Set<Event>();
+   public DbSet<LocationEvent> LocationEvents => Set<LocationEvent>();
+   public DbSet<Calendar> Calendars => Set<Calendar>();
+   public DbSet<EventCalendar> EventCalendars => Set<EventCalendar>();
 
    public override int SaveChanges() => SaveChangesAsync().GetAwaiter().GetResult();
 
