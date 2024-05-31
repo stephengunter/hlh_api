@@ -5,7 +5,6 @@ using ApplicationCore.Models;
 using ApplicationCore.Consts;
 using Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
-using ApplicationCore.Models.Files;
 
 namespace ApplicationCore.DataAccess;
 
@@ -63,7 +62,6 @@ public static class SeedData
       await SeedDepartments(context);
       await SeedJobTitles(context);
 		await SeedLocations(context);
-      await SeedJudgebookTypes(context);
       Console.WriteLine("Done seeding database.");
 	}
 
@@ -223,34 +221,4 @@ public static class SeedData
 		if (exist == null) context.JobTitles.Add(jobTitle);
 		else exist.Order = jobTitle.Order;
    }
-   static async Task SeedJudgebookTypes(DefaultContext context)
-   {
-      var types = new List<JudgebookType>
-      {
-         new JudgebookType() { Key = "JU", Title = "判決", Order = 0 },
-         new JudgebookType() { Key = "RU", Title = "裁定", Order = 1 },
-         new JudgebookType() { Key = "ST", Title = "和解筆錄",Order = 2 }
-      };
-
-		foreach (var item in types)
-		{
-			await AddJudgebookTypeIfNotExist(context, item);
-      }
-      context.SaveChanges();
-   }
-   static async Task AddJudgebookTypeIfNotExist(DefaultContext context, JudgebookType type)
-	{
-		if (context.JudgebookTypes.Count() == 0)
-		{
-			context.JudgebookTypes.Add(type);
-			return;
-		}
-		var exist = await context.JudgebookTypes.FirstOrDefaultAsync(x => x.Title == type.Title);
-		if (exist == null) context.JudgebookTypes.Add(type);
-		else
-		{
-         exist.Key = type.Key;
-         exist.Order = type.Order;
-      } 
-	}
 }

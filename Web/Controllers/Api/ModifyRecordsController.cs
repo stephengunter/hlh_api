@@ -3,13 +3,8 @@ using ApplicationCore.Services;
 using Microsoft.AspNetCore.Mvc;
 using ApplicationCore.Helpers;
 using AutoMapper;
-using ApplicationCore.Models;
 using ApplicationCore.Views;
 using Infrastructure.Helpers;
-using ApplicationCore.Services.Files;
-using Infrastructure.Interfaces;
-using Infrastructure.Entities;
-using System.Collections.Generic;
 
 namespace Web.Controllers.Api
 {

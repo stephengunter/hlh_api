@@ -9,9 +9,6 @@ using Infrastructure.Helpers;
 using ApplicationCore.Settings;
 using Microsoft.Extensions.Options;
 using Web.Models;
-using static Web.Models.EventsIndexModel;
-using Infrastructure.Consts;
-using Web.Models.Files;
 
 namespace Web.Controllers.Api
 {

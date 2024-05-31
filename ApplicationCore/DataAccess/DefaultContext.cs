@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System.Reflection;
 using Microsoft.AspNetCore.Identity;
-using ApplicationCore.Models.Files;
 using ApplicationCore.Models.Auth;
 
 namespace ApplicationCore.DataAccess;
@@ -39,10 +38,6 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
    public DbSet<JobTitle> JobTitles => Set<JobTitle>();
    public DbSet<Job> Jobs => Set<Job>();
    public DbSet<JobUserProfiles> JobUserProfiles => Set<JobUserProfiles>();
-
-   //Files
-   public DbSet<JudgebookType> JudgebookTypes => Set<JudgebookType>();
-   public DbSet<JudgebookFile> JudgebookFiles => Set<JudgebookFile>();
 
 
    #region Auth

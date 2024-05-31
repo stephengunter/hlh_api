@@ -8,17 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Controllers\NewFolder\**" />
-    <Content Remove="Controllers\NewFolder\**" />
-    <EmbeddedResource Remove="Controllers\NewFolder\**" />
-    <None Remove="Controllers\NewFolder\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Controllers\Tests\JudgebooksController.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Google.Apis.Auth" Version="1.64.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

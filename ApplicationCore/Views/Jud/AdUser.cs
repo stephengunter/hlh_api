@@ -1,12 +1,4 @@
-﻿using ApplicationCore.Models;
-using ApplicationCore.Models.Files;
-using ApplicationCore.Views.Files;
-using AutoMapper;
-using ApplicationCore.Consts;
-using Infrastructure.Entities;
-using Infrastructure.Helpers;
-using Infrastructure.Views;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using ApplicationCore.Consts;
 
 namespace ApplicationCore.Views.Jud;
 

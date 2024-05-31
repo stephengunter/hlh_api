@@ -12,7 +12,6 @@ using ApplicationCore.DI;
 using Web.Filters;
 using System.Text.Json.Serialization;
 using Infrastructure.Helpers;
-using ApplicationCore.Settings.Files;
 using QuestPDF.Infrastructure;
 
 Log.Logger = new LoggerConfiguration()
@@ -49,7 +48,6 @@ try
    builder.Services.Configure<JudSettings>(Configuration.GetSection(SettingsKeys.Judicial));
    builder.Services.Configure<Jud3Settings>(Configuration.GetSection(SettingsKeys.Jud3));
    builder.Services.Configure<EventSettings>(Configuration.GetSection(SettingsKeys.Event));
-   builder.Services.Configure<JudgebookFileSettings>(Configuration.GetSection(SettingsKeys.JudgebookFile));
    #endregion
 
    string connectionString = Configuration.GetConnectionString("Default")!;
