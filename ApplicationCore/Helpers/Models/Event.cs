@@ -11,6 +11,7 @@ public static class EventHelpers
    public static EventViewModel MapViewModel(this Event entity, IMapper mapper)
    {
       var model = mapper.Map<EventViewModel>(entity);
+      model.StatusText = entity.Status.ToText();
       return model;
    }
 

@@ -28,5 +28,15 @@ public class CategoriesSpecification : Specification<Category>
    {
       Query.Where(item => !item.Removed && item.PostType == type && keys.Contains(item.Key.ToLower()));
    }
+   public CategoriesSpecification(PostType type, string key, int parentId)
+	{
+      if(parentId > 0) Query.Where(item => !item.Removed && item.PostType == type && item.Key == key && item.ParentId == parentId); 
+		else Query.Where(item => !item.Removed && item.PostType == type && item.Key == key && (item.ParentId == null || item.ParentId == 0)); 
+	}
+   public CategoriesSpecification(Category parent)
+	{
+      Query.Where(item => !item.Removed && item.ParentId == parent.Id); 
+		
+	}
 
 }

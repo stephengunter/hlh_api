@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ApplicationCore.PostgreSqlMigrations
 {
     [DbContext(typeof(DefaultContext))]
-    [Migration("20240531132605_init")]
-    partial class init
+    [Migration("20240601031012_Calendar-order")]
+    partial class Calendarorder
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -267,6 +267,9 @@ namespace ApplicationCore.PostgreSqlMigrations
 
                     b.Property<DateTime?>("LastUpdated")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("Removed")
                         .HasColumnType("boolean");

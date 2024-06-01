@@ -12,6 +12,21 @@ public static class BaseContractHelpers
 
       return entity.Status != ContractStatus.NA;
    }
+   public static bool HasConflict(this IBaseContract entity, IBaseContract other)
+   {
+      bool allowNullStateDate = false;
+      bool allowNullEndDate = false;
+      if (!entity.IsValid(allowNullStateDate, allowNullEndDate))
+      {
+         throw new Exception("entity IsNotValid");
+      }
+      if (!other.IsValid(allowNullStateDate, allowNullEndDate))
+      {
+         throw new Exception("other IsNotValid");
+      }
+
+      return entity.StartDate < other.EndDate && entity.EndDate > other.StartDate;
+   }
 
    public static ContractStatus GetStatus(this IBaseContract entity)
    {

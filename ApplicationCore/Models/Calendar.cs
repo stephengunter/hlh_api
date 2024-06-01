@@ -6,11 +6,13 @@ using Microsoft.AspNetCore.Identity;
 
 namespace ApplicationCore.Models;
 
-public class Calendar : EntityBase, IBaseRecord, IRemovable
+public class Calendar : EntityBase, IBaseRecord, IRemovable, ISortable
 {
    public string Title { get; set; } = String.Empty;
    public string Key { get; set; } = String.Empty;
    public bool Removed { get; set; }
+   public int Order { get; set; }
+   public bool Active => ISortableHelpers.IsActive(this);
 
    public DateTime CreatedAt { get; set; } = DateTime.Now;
    public string CreatedBy { get; set; } = string.Empty;

@@ -7,13 +7,17 @@ namespace ApplicationCore.Services;
 
 public interface IEventsService
 {
+   Task<IEnumerable<Category>> FetchCategoriesAsync();
    Task<IEnumerable<Category>> FetchCategoriesAsync(IList<string> keys);
-   Task<IEnumerable<Event>> FetchAsync(Category category);
+
+   Task<IEnumerable<Event>> FetchAsync(Calendar calendar, DateTime start, DateTime end);
+   Task<IEnumerable<Event>> FetchAllAsync();
    Task<Event?> GetByIdAsync(int id);
 
    Task<Event> CreateAsync(Event entity);
    Task<Event> CreateAsync(Event entity, ICollection<Location> locations);
    Task<Event> CreateAsync(Event entity, ICollection<Calendar> calendars, ICollection<Location> locations);
+   Task<Event> CreateAsync(Event entity, ICollection<Category> categories, ICollection<Calendar> calendars, ICollection<Location> locations);
    Task UpdateAsync(Event entity);
 }
 
@@ -33,12 +37,35 @@ public class EventsService : IEventsService
       _context = context;
       _type = PostType.Event;
    }
+   public async Task<IEnumerable<Event>> FetchAllAsync()
+      => await _eventsRepository.ListAsync();
+
+   public async Task<IEnumerable<Category>> FetchCategoriesAsync()
+   {
+      var root = await _categoriesRepository.FirstOrDefaultAsync(new CategoriesSpecification(PostType.Event, PostType.Event.ToString() , 0));      
+      return   await _categoriesRepository.ListAsync(new CategoriesSpecification(root!));
+   }
+     
 
    public async Task<IEnumerable<Category>> FetchCategoriesAsync(IList<string> keys)
       => await _categoriesRepository.ListAsync(new CategoriesSpecification(_type, keys));
 
    async Task<IEnumerable<CategoryPost>> FetchCategoryPostAsync(Category category)
       => await _categoryPostRepository.ListAsync(new CategoryPostsSpecification(category, _type));
+   
+   public async Task<IEnumerable<Event>> FetchAsync(Calendar calendar, DateTime start, DateTime end)
+   {
+      if (start > end)
+      {
+         throw new ArgumentException("The start date must be less than or equal to the end date.");
+      }
+      var events = await _eventsRepository.ListAsync(new EventSpecification(start, end));
+      
+      
+
+      return events;
+
+   }
    public async Task<IEnumerable<Event>> FetchAsync(Category category)
    {
       var categoryPosts = await FetchCategoryPostAsync(category);
@@ -74,6 +101,12 @@ public class EventsService : IEventsService
       _context.EventCalendars.AddRange(eventCalendars);
       _context.SaveChanges();
    }
+   void AddCategoryPosts(Event entity, ICollection<Category> categories)
+   {
+      var categoryPosts = categories.Select(category => new CategoryPost { PostType = PostType.Event, CategoryId = category.Id, PostId = entity.Id });
+      _context.CategoryPosts.AddRange(categoryPosts);
+      _context.SaveChanges();
+   }
    public async Task<Event> CreateAsync(Event entity, ICollection<Calendar> calendars, ICollection<Location> locations)
    {
       entity = await _eventsRepository.AddAsync(entity);
@@ -82,7 +115,14 @@ public class EventsService : IEventsService
       AddLocationEvents(entity, locations);
       return entity;
    }
-
+   public async Task<Event> CreateAsync(Event entity, ICollection<Category> categories, ICollection<Calendar> calendars, ICollection<Location> locations)
+   {
+      entity = await _eventsRepository.AddAsync(entity);
+      AddCategoryPosts(entity, categories);
+      AddEventCalendars(entity, calendars);
+      AddLocationEvents(entity, locations);
+      return entity;
+   }
    public async Task UpdateAsync(Event Event)
 		=> await _eventsRepository.UpdateAsync(Event);
 

@@ -14,18 +14,25 @@ namespace Web.Controllers.Api
 {
    public class CalendarsController : BaseApiController
    {
-      private readonly ICategorysService _categorysService;
+      private readonly ICalendarsService _calendarsService;
       private readonly IMapper _mapper;
 
-      public CalendarsController(ICategorysService categorysService, 
+      public CalendarsController(ICalendarsService calendarsService,
          IMapper mapper)
       {
 
-         _categorysService = categorysService;
+         _calendarsService = calendarsService;
          _mapper = mapper;
       }
-      
 
+      [HttpGet]
+      public async Task<ActionResult<CanlendarsIndexModel>> Index()
+      {
+         var calendars = await _calendarsService.FetchAsync();
+         var model = new CanlendarsIndexModel();
+         model.List = calendars.MapViewModelList(_mapper);
+         return model;
+      }
    }
 
 
