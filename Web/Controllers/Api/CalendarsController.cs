@@ -26,12 +26,11 @@ namespace Web.Controllers.Api
       }
 
       [HttpGet]
-      public async Task<ActionResult<CanlendarsIndexModel>> Index()
+      public async Task<ActionResult<IEnumerable<CalendarViewModel>>> Index()
       {
          var calendars = await _calendarsService.FetchAsync();
-         var model = new CanlendarsIndexModel();
-         model.List = calendars.MapViewModelList(_mapper);
-         return model;
+         calendars = calendars.GetOrdered();
+         return calendars.MapViewModelList(_mapper);
       }
    }
 

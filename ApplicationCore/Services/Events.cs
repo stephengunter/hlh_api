@@ -60,11 +60,10 @@ public class EventsService : IEventsService
          throw new ArgumentException("The start date must be less than or equal to the end date.");
       }
       var events = await _eventsRepository.ListAsync(new EventSpecification(start, end));
-      
-      
+      if(events.IsNullOrEmpty()) return events;
 
-      return events;
-
+      var eventIds = _context.EventCalendars.Where(ec => ec.CalendarId == calendar.Id).Select(ec => ec.EventId);      
+      return events.Where(e => eventIds.Contains(e.Id));
    }
    public async Task<IEnumerable<Event>> FetchAsync(Category category)
    {

@@ -40,5 +40,5 @@ public static class EventHelpers
    }
 
    public static IEnumerable<Event> GetOrdered(this IEnumerable<Event> events)
-     => events.OrderByDescending(item => item.CreatedAt);
+     => events.OrderBy(item => item.StartDate);
 }

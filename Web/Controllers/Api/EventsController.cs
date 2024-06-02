@@ -34,7 +34,7 @@ public class EventsController : BaseApiController
       return categories.ToList();
    }
    [HttpGet("{calendar}/{year}/{month}")]
-   public async Task<ActionResult> Fetch(string calendar, int year, int month)
+   public async Task<ActionResult<IEnumerable<EventViewModel>>> Fetch(string calendar, int year, int month)
    {
       var selectedCalendar = await _calendarsService.FindByKeyAsync(calendar);
       if (selectedCalendar == null)
@@ -45,7 +45,7 @@ public class EventsController : BaseApiController
       var start = DateTimeHelpers.GetFirstDayOfMonth(year, month).ToStartDate();
       var end = DateTimeHelpers.GetLastDayOfMonth(year, month).ToEndDate();
       var events = await _eventsService.FetchAsync(selectedCalendar, start, end);
-      return Ok();
+      return Ok(events.MapViewModelList(_mapper));
    }
 
    [HttpGet("categories")]

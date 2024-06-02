@@ -39,5 +39,5 @@ public static class CalendarsHelpers
    }
 
    public static IEnumerable<Calendar> GetOrdered(this IEnumerable<Calendar> calendars)
-     => calendars.OrderByDescending(item => item.CreatedAt);
+     => calendars.OrderBy(item => item.Order);
 }
