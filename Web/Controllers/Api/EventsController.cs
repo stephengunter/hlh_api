@@ -9,6 +9,7 @@ using Infrastructure.Helpers;
 using ApplicationCore.Settings;
 using Microsoft.Extensions.Options;
 using Web.Models;
+using ApplicationCore.Migrations;
 
 namespace Web.Controllers.Api;
 public class EventsController : BaseApiController
@@ -33,8 +34,8 @@ public class EventsController : BaseApiController
       var categories = await _eventsService.FetchCategoriesAsync(keys);
       return categories.ToList();
    }
-   [HttpGet("{calendar}/{year}/{month}")]
-   public async Task<ActionResult<IEnumerable<EventViewModel>>> Fetch(string calendar, int year, int month)
+   [HttpGet("{calendar}/{start}/{end}")]
+   public async Task<ActionResult<IEnumerable<EventViewModel>>> Fetch(string calendar, string start, string end)
    {
       var selectedCalendar = await _calendarsService.FindByKeyAsync(calendar);
       if (selectedCalendar == null)
@@ -42,9 +43,21 @@ public class EventsController : BaseApiController
          ModelState.AddModelError("calendars", $"calendar key={calendar} not found.");
          return BadRequest(ModelState);
       }
-      var start = DateTimeHelpers.GetFirstDayOfMonth(year, month).ToStartDate();
-      var end = DateTimeHelpers.GetLastDayOfMonth(year, month).ToEndDate();
-      var events = await _eventsService.FetchAsync(selectedCalendar, start, end);
+
+      var startDate = start.ToStartDate();
+      if(!startDate.HasValue)
+      {
+         ModelState.AddModelError("start", $"param start: {start} is not valid date.");
+         return BadRequest(ModelState);
+      }
+      var endDate = end.ToStartDate();
+      if (!endDate.HasValue)
+      {
+         ModelState.AddModelError("end", $"param end: {end} is not valid date.");
+         return BadRequest(ModelState);
+      }
+
+      var events = await _eventsService.FetchAsync(selectedCalendar, startDate.Value, endDate.Value);
       return Ok(events.MapViewModelList(_mapper));
    }
 
