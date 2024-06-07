@@ -21,5 +21,7 @@ public class EventViewModel : EntityBaseView, IBasePostView, IBaseRecordView, IB
    public string StatusText { get; set; } = string.Empty;
    public string CreatedAtText => CreatedAt.ToDateString();
    public string LastUpdatedText => LastUpdated.ToDateString();
+   public string StartDateText => StartDate.ToDateTimeString();
+   public string EndDateText => EndDate.ToDateTimeString();
 }
 
