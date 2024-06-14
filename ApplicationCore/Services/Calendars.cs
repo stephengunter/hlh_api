@@ -9,6 +9,7 @@ public interface ICalendarsService
 {
    Task<IEnumerable<Calendar>> FetchAsync();
    Task<IEnumerable<Calendar>> FetchAsync(ICollection<string> keys);
+   Task<IEnumerable<Calendar>> FetchAsync(ICollection<int> ids);
    Task<Calendar?> FindByKeyAsync(string key);
    Task<Calendar?> GetByIdAsync(int id);
 
@@ -30,6 +31,8 @@ public class CalendarsService : ICalendarsService
       => await _calendarsRepository.ListAsync(new CalendarsSpecification());
    public async Task<IEnumerable<Calendar>> FetchAsync(ICollection<string> keys)
       => await _calendarsRepository.ListAsync(new CalendarsSpecification(keys));
+   public async Task<IEnumerable<Calendar>> FetchAsync(ICollection<int> ids)
+     => await _calendarsRepository.ListAsync(new CalendarsSpecification(ids));
    public async Task<Calendar?> GetByIdAsync(int id)
       => await _calendarsRepository.GetByIdAsync(id);
    public async  Task<Calendar?> FindByKeyAsync(string key)

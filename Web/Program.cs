@@ -98,8 +98,10 @@ try
 	{
       AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
    }
+   app.UseDefaultFiles();
+   app.UseStaticFiles();
 
-	app.UseSerilogRequestLogging(); 
+   app.UseSerilogRequestLogging(); 
 
 	if (app.Environment.IsDevelopment())
 	{
@@ -127,8 +129,7 @@ try
 	{
 		app.UseHttpsRedirection();
 	}
-   //app.UseStaticFiles();
-   //app.UseRouting();
+   
    
 
    app.UseCors();
@@ -136,7 +137,8 @@ try
    app.UseAuthorization();
 
 	app.MapControllers();
-	app.Run();
+   app.MapFallbackToFile("/index.html");
+   app.Run();
 }
 catch (Exception ex)
 {

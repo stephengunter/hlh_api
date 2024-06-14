@@ -17,5 +17,9 @@ public class CalendarsSpecification : Specification<Calendar>
 		keys = keys.Select(item => item.ToLower()).ToList();
 		Query.Where(item => !item.Removed && keys.Contains(item.Key.ToLower()));
 	}
+   public CalendarsSpecification(ICollection<int> ids)
+   {
+      Query.Where(item => !item.Removed && ids.Contains(item.Id));
+   }
 }
 

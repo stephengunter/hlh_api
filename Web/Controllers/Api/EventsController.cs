@@ -8,7 +8,8 @@ using Infrastructure.Helpers;
 using ApplicationCore.Settings;
 using Microsoft.Extensions.Options;
 using Web.Models;
-using ApplicationCore.Migrations;
+using Infrastructure.Entities;
+using System;
 
 namespace Web.Controllers.Api;
 public class EventsController : BaseApiController
@@ -76,6 +77,34 @@ public class EventsController : BaseApiController
       return new EventCreateForm();
    }
 
+   [HttpPost]
+   public async Task<ActionResult<EventViewModel>> Store([FromBody] EventCreateForm model)
+   {
+      await ValidateRequestAsync(model);
+      if (!ModelState.IsValid) return BadRequest(ModelState);
+
+      var entity = new Event();
+      model.SetValuesTo(entity);
+      entity.StartDate = entity.StartDate.ToTaipeiTime();
+      entity.EndDate = entity.EndDate.ToTaipeiTime();
+
+      bool allowNullStartDate = false;
+      bool allowNullEndDate = model.AllDay;
+
+      bool valid = entity.IsValid(allowNullStartDate, allowNullEndDate);
+      if(!valid) 
+      {
+         ModelState.AddModelError("endDate", "日期錯誤");
+         return BadRequest(ModelState);
+
+      }
+
+      var calendars = model.CalendarIds.Select(id => new Calendar { Id = id }).ToList();
+      var locations = new List<Location>();
+      entity = await _eventsService.CreateAsync(entity, calendars, locations);
+
+      return Ok(entity.MapViewModel(_mapper));
+   }
 
 
 
@@ -88,6 +117,36 @@ public class EventsController : BaseApiController
       //if (!event.Active) return NotFound();
 
       return entity.MapViewModel(_mapper);
+   }
+
+   async Task ValidateRequestAsync(BaseEventForm model)
+   {
+      if(String.IsNullOrEmpty(model.Title)) ModelState.AddModelError("title", "必須填寫標題");
+      if(!model.StartDate.HasValue) ModelState.AddModelError("startDate", "必須填寫開始日期");
+    
+
+      if (!model.AllDay)
+      {
+         if(!model.EndDate.HasValue) ModelState.AddModelError("endDate", "必須填寫結束日期");
+      }
+
+      if(model.CalendarIds.IsNullOrEmpty()) ModelState.AddModelError("calendarIds", "必須選擇行事曆");
+
+      var calendars = await _calendarsService.FetchAsync(model.CalendarIds);
+      if (calendars.Count() != model.CalendarIds.Count)
+      { 
+         foreach(var id in model.CalendarIds) 
+         { 
+            var calendar = calendars.FirstOrDefault(c => c.Id == id);
+            if (calendar == null)
+            {
+               ModelState.AddModelError("calendarIds", $"行事曆 id: {id}不存在");
+               break;
+            }
+         }
+         
+      }
+
    }
 
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ardalis.Specification;
+using System;
 
 namespace Infrastructure.Helpers;
 public static class DateTimeHelpers
@@ -34,7 +35,22 @@ public static class DateTimeHelpers
 		// Return the last day of the specified month and year
 		return new DateTime(year, month, daysInMonth);
 	}
-	public static DateTime ToStartDate(this DateTime date)
+
+	public static DateTime ToTaipeiTime(this DateTime date)
+	{
+      if (date.Kind != DateTimeKind.Utc) date = date.ToUniversalTime();
+
+      var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById("Taipei Standard Time");
+      return TimeZoneInfo.ConvertTimeFromUtc(date, timeZoneInfo);
+   }
+   public static DateTime? ToTaipeiTime(this DateTime? date)
+   {
+		if (date.HasValue) return date.Value.ToTaipeiTime();
+		return null;
+   }
+
+
+   public static DateTime ToStartDate(this DateTime date)
 		=> new DateTime(date.Year, date.Month, date.Day, 0, 0, 0);
 	public static DateTime? ToStartDate(this string? input)
 	{

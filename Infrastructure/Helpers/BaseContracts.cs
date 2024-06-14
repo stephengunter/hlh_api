@@ -5,9 +5,9 @@ namespace Infrastructure.Helpers;
 
 public static class BaseContractHelpers
 {
-   public static bool IsValid(this IBaseContract entity, bool allowNullStateDate = false, bool allowNullEndDate = true)
+   public static bool IsValid(this IBaseContract entity, bool allowNullStartDate = false, bool allowNullEndDate = true)
    {
-      if (!entity.StartDate.HasValue && !allowNullStateDate) return false;
+      if (!entity.StartDate.HasValue && !allowNullStartDate) return false;
       if (!entity.EndDate.HasValue && !allowNullEndDate) return false;
 
       return entity.Status != ContractStatus.NA;

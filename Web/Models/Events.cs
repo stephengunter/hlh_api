@@ -26,16 +26,21 @@ public class EventsIndexModel
    public IEnumerable<EventViewModel> List { get; set; } = new List<EventViewModel>();
 
 }
-public class EventCreateForm
+
+public abstract class BaseEventForm
 {
    public string Title { get; set; } = String.Empty;
    public string? Content { get; set; }
    public DateTime? StartDate { get; set; }
    public DateTime? EndDate { get; set; }
-
-   public int CategoryId { get; set; }
+   public bool AllDay { get; set; }
+   public ICollection<int> CalendarIds { get; set; } = new List<int>();
 }
-public class EventEditForm : EventCreateForm
+
+public class EventCreateForm : BaseEventForm
+{
+}
+public class EventEditForm : BaseEventForm
 {
    
 }
