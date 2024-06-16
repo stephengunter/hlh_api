@@ -163,8 +163,9 @@ public static class SeedData
    {
       var calendars = new List<Calendar>
       {
-         new Calendar() { Title = "全院行事曆" , Key = "HLH" },
-         new Calendar() { Title = "資訊室行事曆" , Key = "IT" }
+         new Calendar() { Title = "全院行事曆" , Key = CalendarTypes.HLH },
+         new Calendar() { Title = "資訊室行事曆" , Key = "IT" },
+         new Calendar() { Title = "延伸法庭行事曆" , Key = CalendarTypes.EC }
       };
       foreach (var item in calendars) await AddCalendarIfNotExist(context, item);
       context.SaveChanges();

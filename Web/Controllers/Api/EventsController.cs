@@ -8,31 +8,24 @@ using Infrastructure.Helpers;
 using ApplicationCore.Settings;
 using Microsoft.Extensions.Options;
 using Web.Models;
+using ApplicationCore.Consts;
 using Infrastructure.Entities;
 using System;
 
 namespace Web.Controllers.Api;
 public class EventsController : BaseApiController
 {
-   private readonly EventSettings _eventSettings;
    private readonly IEventsService _eventsService;
    private readonly ICalendarsService _calendarsService;
 
    private readonly IMapper _mapper;
 
-   public EventsController(IOptions<EventSettings> eventSettings, IEventsService eventsService,
+   public EventsController(IEventsService eventsService,
       ICalendarsService calendarsService, IMapper mapper)
    {
-      _eventSettings = eventSettings.Value;
       _eventsService = eventsService;
       _calendarsService = calendarsService;
       _mapper = mapper;
-   }
-   async Task<ICollection<Category>> GetEventCategoriesAsync()
-   {
-      var keys = _eventSettings.Categories.Select(c => c.Key).ToList();
-      var categories = await _eventsService.FetchCategoriesAsync(keys);
-      return categories.ToList();
    }
    [HttpGet("{calendar}/{start}/{end}")]
    public async Task<ActionResult<IEnumerable<EventViewModel>>> Fetch(string calendar, string start, string end)
@@ -61,20 +54,19 @@ public class EventsController : BaseApiController
       return Ok(events.MapViewModelList(_mapper));
    }
 
-   [HttpGet("categories")]
-   public async Task<ActionResult<IEnumerable<CategoryViewModel>>> Categories()
-   {
-      var categories = await GetEventCategoriesAsync();
-
-      return categories.GetOrdered().MapViewModelList(_mapper);
-   }
-
-
-
    [HttpGet("create")]
-   public ActionResult<EventCreateForm> Create()
+   public async Task<ActionResult> Create(string? calendar)
    {
-      return new EventCreateForm();
+      Calendar? selectedCalendar = string.IsNullOrEmpty(calendar) ? null 
+                                    : await _calendarsService.FindByKeyAsync(calendar);
+     
+      if (selectedCalendar == null) return Ok(new EventCreateForm());
+      if(selectedCalendar.Key.EqualTo(CalendarTypes.EC))
+      {
+         return Ok(new EcEventForm());
+      }
+      return Ok(new EventCreateForm());
+      
    }
 
    [HttpPost]
@@ -94,7 +86,7 @@ public class EventsController : BaseApiController
       bool valid = entity.IsValid(allowNullStartDate, allowNullEndDate);
       if(!valid) 
       {
-         ModelState.AddModelError("endDate", "§È¥¡ø˘ª~");
+          ModelState.AddModelError("endDate", "Êó•ÊúüÈåØË™§");
          return BadRequest(ModelState);
 
       }
@@ -121,16 +113,16 @@ public class EventsController : BaseApiController
 
    async Task ValidateRequestAsync(BaseEventForm model)
    {
-      if(String.IsNullOrEmpty(model.Title)) ModelState.AddModelError("title", "•≤∂∑∂Òºgº–√D");
-      if(!model.StartDate.HasValue) ModelState.AddModelError("startDate", "•≤∂∑∂Òºg∂}©l§È¥¡");
+      if(String.IsNullOrEmpty(model.Title)) ModelState.AddModelError("title", "ÂøÖÈ†àÂ°´ÂØ´Ê®ôÈ°å");
+      if(!model.StartDate.HasValue) ModelState.AddModelError("startDate", "ÂøÖÈ†àÂ°´ÂØ´ÈñãÂßãÊó•Êúü");
     
 
       if (!model.AllDay)
       {
-         if(!model.EndDate.HasValue) ModelState.AddModelError("endDate", "•≤∂∑∂Òºgµ≤ßÙ§È¥¡");
+         if(!model.EndDate.HasValue) ModelState.AddModelError("endDate", "ÂøÖÈ†àÂ°´ÂØ´ÁµêÊùüÊó•Êúü");
       }
 
-      if(model.CalendarIds.IsNullOrEmpty()) ModelState.AddModelError("calendarIds", "•≤∂∑øÔæ‹¶Ê®∆æ‰");
+      if(model.CalendarIds.IsNullOrEmpty()) ModelState.AddModelError("calendarIds", "ÂøÖÈ†àÈÅ∏ÊìáË°å‰∫ãÊõÜ");
 
       var calendars = await _calendarsService.FetchAsync(model.CalendarIds);
       if (calendars.Count() != model.CalendarIds.Count)
@@ -140,7 +132,7 @@ public class EventsController : BaseApiController
             var calendar = calendars.FirstOrDefault(c => c.Id == id);
             if (calendar == null)
             {
-               ModelState.AddModelError("calendarIds", $"¶Ê®∆æ‰ id: {id}§£¶s¶b");
+               ModelState.AddModelError("calendarIds", $"Ë°å‰∫ãÊõÜ id: {id}‰∏çÂ≠òÂú®");
                break;
             }
          }

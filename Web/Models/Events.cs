@@ -1,5 +1,6 @@
 using ApplicationCore.Models;
 using ApplicationCore.Views;
+using ApplicationCore.Views.Judicial;
 
 namespace Web.Models;
 public class EventFetchRequest
@@ -37,6 +38,12 @@ public abstract class BaseEventForm
    public ICollection<int> CalendarIds { get; set; } = new List<int>();
 }
 
+public class EcEventForm
+{
+   public DateTime StartDate { get; set; }
+   public DateTime EndDate { get; set; }
+   public CaseInfoViewModel  CaseInfo  { get; set; } = new CaseInfoViewModel();
+}
 public class EventCreateForm : BaseEventForm
 {
 }

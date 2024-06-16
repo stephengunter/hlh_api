@@ -47,7 +47,7 @@ try
    builder.Services.Configure<MailSettings>(Configuration.GetSection(SettingsKeys.Mail));
    builder.Services.Configure<JudSettings>(Configuration.GetSection(SettingsKeys.Judicial));
    builder.Services.Configure<Jud3Settings>(Configuration.GetSection(SettingsKeys.Jud3));
-   builder.Services.Configure<EventSettings>(Configuration.GetSection(SettingsKeys.Event));
+   
    #endregion
 
    string connectionString = Configuration.GetConnectionString("Default")!;

@@ -18,6 +18,8 @@ public class EventViewModel : EntityBaseView, IBasePostView, IBaseRecordView, IB
    public string? UpdatedBy { get; set; }
 
    public int Status { get; set; }
+
+   public bool AllDay => !EndDate.HasValue;
    public string StatusText { get; set; } = string.Empty;
    public string CreatedAtText => CreatedAt.ToDateString();
    public string LastUpdatedText => LastUpdated.ToDateString();
