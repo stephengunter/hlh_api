@@ -59,6 +59,8 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
    public DbSet<TagPost> TagPosts => Set<TagPost>();
    #endregion
 
+   public DbSet<Tasks> Tasks => Set<Tasks>();
+
    public DbSet<Event> Events => Set<Event>();
    public DbSet<LocationEvent> LocationEvents => Set<LocationEvent>();
    public DbSet<Calendar> Calendars => Set<Calendar>();

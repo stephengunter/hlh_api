@@ -15,6 +15,8 @@ public interface ICalendarsService
 
    Task<Calendar> CreateAsync(Calendar entity);
    Task UpdateAsync(Calendar entity);
+
+   Task<IEnumerable<Calendar>> FetchByEventAsync(Event eventEntity);
 }
 
 public class CalendarsService : ICalendarsService
@@ -42,5 +44,12 @@ public class CalendarsService : ICalendarsService
 		=> await _calendarsRepository.AddAsync(entity);
    public async Task UpdateAsync(Calendar entity)
 		=> await _calendarsRepository.UpdateAsync(entity);
+
+   public async Task<IEnumerable<Calendar>> FetchByEventAsync(Event eventEntity)
+   {
+      var calendarIds = _context.EventCalendars.Where(ec => ec.EventId == eventEntity.Id)
+         .Select(ec => ec.CalendarId).ToList();
+      return await FetchAsync(calendarIds);
+   }
 
 }

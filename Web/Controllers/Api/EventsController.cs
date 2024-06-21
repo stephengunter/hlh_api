@@ -106,9 +106,10 @@ public class EventsController : BaseApiController
    {
       var entity = await _eventsService.GetByIdAsync(id);
       if (entity == null) return NotFound();
-      //if (!event.Active) return NotFound();
 
-      return entity.MapViewModel(_mapper);
+      var calendars = await _calendarsService.FetchByEventAsync(entity);
+
+      return entity.MapViewModel(_mapper, calendars.ToList());
    }
 
    async Task ValidateRequestAsync(BaseEventForm model)

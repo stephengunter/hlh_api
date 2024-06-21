@@ -4,6 +4,7 @@ using ApplicationCore.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApplicationCore.Migrations
 {
     [DbContext(typeof(DefaultContext))]
-    partial class DefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20240620084348_Tasks-Deadline")]
+    partial class TasksDeadline
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -841,7 +844,7 @@ namespace ApplicationCore.Migrations
                     b.ToTable("TagPosts");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.Tasks", b =>
+            modelBuilder.Entity("ApplicationCore.Models.Tasking", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -874,9 +877,6 @@ namespace ApplicationCore.Migrations
 
                     b.Property<int?>("ParentId")
                         .HasColumnType("int");
-
-                    b.Property<string>("References")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("Removed")
                         .HasColumnType("bit");
@@ -1266,9 +1266,9 @@ namespace ApplicationCore.Migrations
                     b.Navigation("Tag");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.Tasks", b =>
+            modelBuilder.Entity("ApplicationCore.Models.Tasking", b =>
                 {
-                    b.HasOne("ApplicationCore.Models.Tasks", "Parent")
+                    b.HasOne("ApplicationCore.Models.Tasking", "Parent")
                         .WithMany("SubItems")
                         .HasForeignKey("ParentId");
 
@@ -1390,7 +1390,7 @@ namespace ApplicationCore.Migrations
                     b.Navigation("TagPosts");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.Tasks", b =>
+            modelBuilder.Entity("ApplicationCore.Models.Tasking", b =>
                 {
                     b.Navigation("SubItems");
                 });

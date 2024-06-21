@@ -17,6 +17,8 @@ public class EventViewModel : EntityBaseView, IBasePostView, IBaseRecordView, IB
    public DateTime? LastUpdated { get; set; }
    public string? UpdatedBy { get; set; }
 
+   public ICollection<CalendarViewModel>? Calendars { get; set; }
+
    public int Status { get; set; }
 
    public bool AllDay => !EndDate.HasValue;
