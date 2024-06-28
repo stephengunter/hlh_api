@@ -7,12 +7,11 @@ namespace ApplicationCore.Models;
 
 public class Tasks : EntityBase, IBaseCategory<Tasks>, IBaseRecord, IRemovable, ISortable
 {
-  
    public string UserId { get; set; } = String.Empty;
 
    public string Title { get; set; } = String.Empty;
 
-   public string Content { get; set; } = String.Empty;
+   public string? Content { get; set; }
 
    public string? References { get; set; } //Json of Reference
 

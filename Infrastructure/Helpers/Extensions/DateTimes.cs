@@ -107,7 +107,7 @@ public static class DateTimeHelpers
 		return new DateTime(year, month, day);
 	}
 
-	public static string GetDateString(DateTime dateTime)
+	public static string GetDateString(this DateTime dateTime)
 	{
 		string year = dateTime.Year.ToString();
 		string month = dateTime.Month.ToString();

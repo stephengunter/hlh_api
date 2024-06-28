@@ -1,14 +1,16 @@
 using ApplicationCore.Models;
 using ApplicationCore.Views;
 using ApplicationCore.Views.Judicial;
+using Infrastructure.Paging;
 
 namespace Web.Models;
-public class TasksFetchRequest
+public class TasksFetchRequest : PageableRequest
 {
-   public TasksFetchRequest()
+   public TasksFetchRequest(int page, int pageSize) : base(page, pageSize)
    {
       
    }
+
 }
 public class TasksIndexModel
 {
@@ -21,7 +23,7 @@ public class TasksIndexModel
    public IEnumerable<string> Actions { get; set; }
    public TasksFetchRequest Request { get; set; }
 
-   public IEnumerable<TaskViewModel> List { get; set; } = new List<TaskViewModel>();
+   public PagedList<Tasks, TaskViewModel>? PagedList { get; set; }
 
 }
 
@@ -34,6 +36,7 @@ public abstract class BaseTaskForm
 }
 public class TaskCreateForm : BaseTaskForm
 {
+   public ICollection<ReferenceCreateForm> References { get; set; } = new List<ReferenceCreateForm>();
 }
 public class TaskEditForm : BaseTaskForm
 {

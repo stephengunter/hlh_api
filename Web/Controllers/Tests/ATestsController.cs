@@ -26,9 +26,8 @@ public class ATestsController : BaseTestController
    [HttpGet]
    public async Task<ActionResult> Index()
    {
-      await CreateEvents();
       
-      return Ok();
+      return Ok(Guid.NewGuid().ToString());
    }
    [HttpGet("Categories")]
    public async Task<ActionResult> Categories()

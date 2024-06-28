@@ -6,6 +6,7 @@ public enum PostType
 {
 	Event = 0,
    Article = 1,
+   Reference = 2,
    None = -1
 }
 
