@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using Infrastructure.Helpers;
 using Infrastructure.Entities;
+using ApplicationCore.Consts;
 
 namespace ApplicationCore.Models;
 public class Article : EntityBase, IBaseRecord, IRemovable, ISortable
@@ -22,16 +23,13 @@ public class Article : EntityBase, IBaseRecord, IRemovable, ISortable
    public DateTime? LastUpdated { get; set; }
    public string? UpdatedBy { get; set; }
 
-   //public int? CategoryId { get; set; }
-   //public virtual Category? Category { get; set; }
-
    [NotMapped]
    public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
    
 
    public void LoadAttachments(IEnumerable<Attachment> attachments)
    {
-      attachments = attachments.Where(x => x.PostType == PostType.Article && x.PostId == Id);
+      attachments = attachments.Where(x => x.PostType == PostTypes.Article && x.PostId == Id);
       this.Attachments = attachments.HasItems() ? attachments.ToList() : new List<Attachment>();
    }
 }

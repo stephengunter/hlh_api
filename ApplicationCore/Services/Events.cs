@@ -3,6 +3,7 @@ using ApplicationCore.DataAccess;
 using ApplicationCore.Models;
 using ApplicationCore.Specifications;
 using Infrastructure.Helpers;
+using ApplicationCore.Consts;
 
 namespace ApplicationCore.Services;
 
@@ -26,9 +27,9 @@ public class EventsService : IEventsService
 {
 	private readonly IDefaultRepository<Event> _eventsRepository;
    private readonly IDefaultRepository<Category> _categoriesRepository;
-   private readonly IDefaultRepository<CategoryPost> _categoryPostRepository;
-   private readonly PostType _type;
+   private readonly IDefaultRepository<CategoryPost> _categoryPostRepository;   
    private readonly DefaultContext _context;
+
    public EventsService(IDefaultRepository<Event> eventsRepository, IDefaultRepository<Category> categoriesRepository,
       IDefaultRepository<CategoryPost> categoryPostRepository, DefaultContext context)
 	{
@@ -36,23 +37,22 @@ public class EventsService : IEventsService
       _categoriesRepository = categoriesRepository;
       _categoryPostRepository = categoryPostRepository;
       _context = context;
-      _type = PostType.Event;
    }
    public async Task<IEnumerable<Event>> FetchAllAsync()
       => await _eventsRepository.ListAsync();
 
    public async Task<IEnumerable<Category>> FetchCategoriesAsync()
    {
-      var root = await _categoriesRepository.FirstOrDefaultAsync(new CategoriesSpecification(PostType.Event, PostType.Event.ToString() , 0));      
+      var root = await _categoriesRepository.FirstOrDefaultAsync(new CategoriesSpecification(PostTypes.Event, PostTypes.Event , 0));      
       return   await _categoriesRepository.ListAsync(new CategoriesSpecification(root!));
    }
      
 
    public async Task<IEnumerable<Category>> FetchCategoriesAsync(IList<string> keys)
-      => await _categoriesRepository.ListAsync(new CategoriesSpecification(_type, keys));
+      => await _categoriesRepository.ListAsync(new CategoriesSpecification(PostTypes.Event, keys));
 
    async Task<IEnumerable<CategoryPost>> FetchCategoryPostAsync(Category category)
-      => await _categoryPostRepository.ListAsync(new CategoryPostsSpecification(category, _type));
+      => await _categoryPostRepository.ListAsync(new CategoryPostsSpecification(category, PostTypes.Event));
    
    public async Task<IEnumerable<Event>> FetchAsync(Calendar calendar, DateTime start, DateTime end)
    {
@@ -103,7 +103,7 @@ public class EventsService : IEventsService
    }
    void AddCategoryPosts(Event entity, ICollection<Category> categories)
    {
-      var categoryPosts = categories.Select(category => new CategoryPost { PostType = PostType.Event, CategoryId = category.Id, PostId = entity.Id });
+      var categoryPosts = categories.Select(category => new CategoryPost { PostType = PostTypes.Event, CategoryId = category.Id, PostId = entity.Id });
       _context.CategoryPosts.AddRange(categoryPosts);
       _context.SaveChanges();
    }

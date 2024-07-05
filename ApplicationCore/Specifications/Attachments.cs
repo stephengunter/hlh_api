@@ -8,7 +8,7 @@ public class AttachmentsSpecification : Specification<Attachment>
 	{
 		Query.Where(item => !item.Removed);
 	}
-	public AttachmentsSpecification(IList<int> ids)
+	public AttachmentsSpecification(ICollection<int> ids)
 	{
 		Query.Where(item => !item.Removed && ids.Contains(item.Id));
 	}
@@ -16,20 +16,22 @@ public class AttachmentsSpecification : Specification<Attachment>
 
 public class AttachmentsByTypesSpecification : Specification<Attachment>
 {
-	public AttachmentsByTypesSpecification(PostType postType)
+	public AttachmentsByTypesSpecification(string postType)
 	{
-		Query.Where(item => !item.Removed && item.PostType == postType);
+		Query.Where(item => !item.Removed && item.PostType.ToLower() == postType.ToLower());
 	}
-	public AttachmentsByTypesSpecification(PostType postType, int postId)
+	public AttachmentsByTypesSpecification(string postType, int postId)
 	{
-		Query.Where(item => !item.Removed && item.PostType == postType && item.PostId == postId);
+		Query.Where(item => !item.Removed && item.PostType.ToLower() == postType.ToLower() && item.PostId == postId);
 	}
-	public AttachmentsByTypesSpecification(PostType postType, IList<int> postIds)
+	public AttachmentsByTypesSpecification(string postType, IList<int> postIds)
 	{
-		Query.Where(item => !item.Removed && item.PostType == postType && postIds.Contains(item.PostId));
+		Query.Where(item => !item.Removed && item.PostType.ToLower() == postType.ToLower() && postIds.Contains(item.PostId));
 	}
-	public AttachmentsByTypesSpecification(ICollection<PostType> postTypes)
+	public AttachmentsByTypesSpecification(ICollection<string> postTypes)
 	{
-		Query.Where(item => !item.Removed && postTypes.Contains(item.PostType));
+		var types = postTypes.Select(x => x.ToLower());
+
+      Query.Where(item => !item.Removed && types.Contains(item.PostType.ToLower()));
 	}
 }

@@ -124,8 +124,8 @@ public static class SeedData
    {
       var rootCategories = new List<Category>
       {
-         new Category() { Title = "", Key = PostType.Event.ToString(), PostType = PostType.Event },
-         new Category() { Title = "", Key = PostType.Article.ToString(), PostType = PostType.Article }
+         new Category() { Title = "", Key = PostTypes.Event, PostType = PostTypes.Event },
+         new Category() { Title = "", Key = PostTypes.Article, PostType = PostTypes.Article }
       };
       foreach (var item in rootCategories) await AddCategoryIfNotExist(context, item);
       context.SaveChanges();
@@ -134,13 +134,13 @@ public static class SeedData
    }
    static async Task SeedEventCategories(DefaultContext context)
    {
-      var root = context.Categories.FirstOrDefault(c => c.Key == PostType.Event.ToString() && c.PostType == PostType.Event);
+      var root = context.Categories.FirstOrDefault(c => c.Key == PostTypes.Event && c.PostType == PostTypes.Event);
       var categories = new List<Category>
       {
-         new Category() { Title = "教育訓練", Key = "ED", ParentId = root!.Id, PostType = PostType.Event },
-         new Category() { Title = "遠距詢問", Key = "FD", ParentId = root.Id , PostType = PostType.Event },
-         new Category() { Title = "雙向詢問", Key = "DW", ParentId = root.Id , PostType = PostType.Event },
-         new Category() { Title = "U會議詢問", Key = "UM", ParentId = root.Id , PostType = PostType.Event }
+         new Category() { Title = "教育訓練", Key = "ED", ParentId = root!.Id, PostType = PostTypes.Event },
+         new Category() { Title = "遠距詢問", Key = "FD", ParentId = root.Id , PostType = PostTypes.Event },
+         new Category() { Title = "雙向詢問", Key = "DW", ParentId = root.Id , PostType = PostTypes.Event },
+         new Category() { Title = "U會議詢問", Key = "UM", ParentId = root.Id , PostType = PostTypes.Event }
       };
       foreach (var item in categories) await AddCategoryIfNotExist(context, item);
       context.SaveChanges();

@@ -71,31 +71,6 @@ public abstract class BaseApiController : BaseController
    
 }
 
-//public class BaseApiAttachemtController : BaseApiController
-//{
-//   private readonly AttachmentSettings _attachmentSettings;
-//   private readonly IFileStoragesService _fileStoragesService;
-
-//   public BaseApiAttachemtController(IOptions<AttachmentSettings> attachmentSettings, ITaskService taskService,
-//      IFileStoragesService fileStoragesService, IMapper mapper)
-//   {
-//      _attachmentSettings = attachmentSettings.Value;
-//      _fileStoragesService = fileStoragesService;
-//      _taskService = taskService;
-//      _mapper = mapper;
-
-//      if (String.IsNullOrEmpty(_attachmentSettings.Host))
-//      {
-//         _fileStoragesService = new LocalStoragesService(_attachmentSettings.Directory);
-//      }
-//      else
-//      {
-//         _fileStoragesService = new FtpStoragesService(_attachmentSettings.Host, _attachmentSettings.UserName,
-//         _attachmentSettings.Password, _attachmentSettings.Directory);
-//      }
-//   }
-//}
-
 [EnableCors("Admin")]
 [Route("admin/[controller]")]
 [Authorize(Policy = "Admin")]

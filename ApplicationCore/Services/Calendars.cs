@@ -22,7 +22,7 @@ public interface ICalendarsService
 public class CalendarsService : ICalendarsService
 {
    private readonly IDefaultRepository<Calendar> _calendarsRepository;
-   private readonly PostType _type;
+   //private readonly PostType _type;
    private readonly DefaultContext _context;
    public CalendarsService(IDefaultRepository<Calendar> calendarsRepository, DefaultContext context)      
 	{

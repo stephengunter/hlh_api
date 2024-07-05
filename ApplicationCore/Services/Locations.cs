@@ -43,9 +43,9 @@ public class LocationsService : ILocationsService
 		=> await _locationsRepository.AddAsync(location);
 
 	public async Task UpdateAsync(Location location)
-	=> await _locationsRepository.UpdateAsync(location);
+	   => await _locationsRepository.UpdateAsync(location);
 
    public async Task UpdateRangeAsync(IEnumerable<Location> locations)
-   => await _locationsRepository.UpdateRangeAsync(locations);
+      => await _locationsRepository.UpdateRangeAsync(locations);
 
 }

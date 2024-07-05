@@ -11,6 +11,7 @@ public static class TaskHelpers
    public static TaskViewModel MapViewModel(this Tasks entity, IMapper mapper)
    {
       var model = mapper.Map<TaskViewModel>(entity);
+      if(entity.References.HasItems()) model.References = entity.References.MapViewModelList(mapper);
       return model;
    }
 

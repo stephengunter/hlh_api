@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Infrastructure.Helpers;
 using Infrastructure.Entities;
 using System.ComponentModel.DataAnnotations;
+using ApplicationCore.Consts;
 
 namespace ApplicationCore.Models;
 public class Event : EntityBase, IBasePost, IBaseContract, IBaseRecord, IRemovable
@@ -31,7 +32,7 @@ public class Event : EntityBase, IBasePost, IBaseContract, IBaseRecord, IRemovab
 
    public void LoadAttachments(IEnumerable<Attachment> attachments)
    {
-      attachments = attachments.Where(x => x.PostType == PostType.Event && x.PostId == Id);
+      attachments = attachments.Where(x => x.PostType == PostTypes.Event && x.PostId == Id);
       this.Attachments = attachments.HasItems() ? attachments.ToList() : new List<Attachment>();
    }
 }

@@ -33,6 +33,7 @@ public abstract class BaseTaskForm
    public string? Content { get; set; }
    public DateTime? DeadLine { get; set; }
    public int? ParentId { get; set; }
+
 }
 public class TaskCreateForm : BaseTaskForm
 {
@@ -40,5 +41,5 @@ public class TaskCreateForm : BaseTaskForm
 }
 public class TaskEditForm : BaseTaskForm
 {
-   
+   public ICollection<ReferenceEditForm> References { get; set; } = new List<ReferenceEditForm>();
 }

@@ -1,8 +1,7 @@
-﻿using Infrastructure.Entities;
+﻿using ApplicationCore.Views;
+using Infrastructure.Entities;
 using Infrastructure.Helpers;
 using Infrastructure.Views;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ApplicationCore.Models;
 
@@ -25,7 +24,7 @@ public class TaskViewModel : EntityBaseView, IBaseCategoryView<TaskViewModel>, I
    public bool IsRootItem { get; set; }
 
    public ICollection<TaskViewModel>? SubItems { get; set; }
-   [NotMapped]
+  
    public ICollection<int>? SubIds { get; set; }
 
    public string DeadLineText => DeadLine.ToDateString();
@@ -42,4 +41,6 @@ public class TaskViewModel : EntityBaseView, IBaseCategoryView<TaskViewModel>, I
    public bool Removed { get; set; }
    public int Order { get; set; }
    public bool Active { get; set; }
+
+   public ICollection<ReferenceViewModel> References { get; set; } = new List<ReferenceViewModel>();
 }

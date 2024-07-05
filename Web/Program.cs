@@ -42,7 +42,8 @@ try
    builder.Services.Configure<DbSettings>(Configuration.GetSection(SettingsKeys.Db));
    builder.Services.Configure<AppSettings>(Configuration.GetSection(SettingsKeys.App));
 	builder.Services.Configure<AdminSettings>(Configuration.GetSection(SettingsKeys.Admin));
-	builder.Services.Configure<AuthSettings>(Configuration.GetSection(SettingsKeys.Auth));
+   builder.Services.Configure<AttachmentSettings>(Configuration.GetSection(SettingsKeys.Attachment));
+   builder.Services.Configure<AuthSettings>(Configuration.GetSection(SettingsKeys.Auth));
    builder.Services.Configure<CompanySettings>(Configuration.GetSection(SettingsKeys.Company));
    builder.Services.Configure<MailSettings>(Configuration.GetSection(SettingsKeys.Mail));
    builder.Services.Configure<JudSettings>(Configuration.GetSection(SettingsKeys.Judicial));

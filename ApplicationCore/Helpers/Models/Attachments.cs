@@ -4,6 +4,9 @@ using ApplicationCore.Views;
 using AutoMapper;
 using Infrastructure.Paging;
 using System;
+using Ardalis.Specification;
+using Infrastructure.Views;
+using Infrastructure.Consts;
 
 namespace ApplicationCore.Helpers;
 public static class AttachmentsHelpers
@@ -11,7 +14,14 @@ public static class AttachmentsHelpers
    public static AttachmentViewModel MapViewModel(this Attachment attachment, IMapper mapper)
    {
       var model = mapper.Map<AttachmentViewModel>(attachment);
-      
+      model.FileType = attachment.Ext.GetFileType().ToString();
+      return model;
+   }
+
+   public static AttachmentViewModel MapViewModel(this Attachment attachment, IMapper mapper, byte[] filebytes)
+   {
+      var model = MapViewModel(attachment, mapper);
+      model.FileView = new BaseFileView(attachment.FileName, filebytes);
       return model;
    }
 

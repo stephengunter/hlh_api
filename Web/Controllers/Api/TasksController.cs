@@ -22,31 +22,18 @@ using Newtonsoft.Json;
 namespace Web.Controllers.Api;
 public class TasksController : BaseApiController
 {
-   private readonly AttachmentSettings _attachmentSettings;
    private readonly ITaskService _taskService;
-   private readonly IFileStoragesService _fileStoragesService;
+   private readonly IReferenceService _referenceService;
    private readonly IAttachmentService _attachmentService;
    private readonly IMapper _mapper;
 
-   public TasksController(IOptions<AttachmentSettings> attachmentSettings, ITaskService taskService, IAttachmentService attachmentService,
-      IMapper mapper)
+   public TasksController(ITaskService taskService, IReferenceService referenceService,
+      IAttachmentService attachmentService, IMapper mapper)
    {
-      _attachmentSettings = attachmentSettings.Value;
-      _attachmentService = attachmentService;
       _taskService = taskService;
+      _referenceService = referenceService;
+      _attachmentService = attachmentService;
       _mapper = mapper;
-
-      this.InitFileStoragesService(_fileStoragesService, _attachmentSettings);
-
-      //if (String.IsNullOrEmpty(_attachmentSettings.Host))
-      //{
-      //   _fileStoragesService = new LocalStoragesService(_attachmentSettings.Directory);
-      //}
-      //else
-      //{
-      //   _fileStoragesService = new FtpStoragesService(_attachmentSettings.Host, _attachmentSettings.UserName,
-      //   _attachmentSettings.Password, _attachmentSettings.Directory);
-      //}
    }
    [HttpGet]
    public async Task<ActionResult<TasksIndexModel>> Fetch(int page = 1, int pageSize = 10)
@@ -79,29 +66,6 @@ public class TasksController : BaseApiController
       model.SetValuesTo(entity);
       entity.SetCreated(User.Id());
 
-      var references = new List<Reference>();
-
-      foreach (var referenceForm in model.References)
-      {
-         var reference = new Reference() { Title = referenceForm.Title };
-         if (referenceForm.File != null)
-         {
-            var attchment = this.SaveAttamentFile(referenceForm.File, _fileStoragesService);
-            attchment.PostType = PostType.Reference;
-            attchment.SetCreated(User.Id());
-            attchment = await _attachmentService.CreateAsync(attchment);
-
-            reference.AttachmentId = attchment.Id;
-         }
-         else 
-         {
-            reference.Url = referenceForm.Url!;
-         }
-         references.Add(reference);
-      }
-      
-      if (references.HasItems()) entity.References = JsonConvert.SerializeObject(references);
-
       entity = await _taskService.CreateAsync(entity);
 
       return Ok(entity.MapViewModel(_mapper));
@@ -114,7 +78,20 @@ public class TasksController : BaseApiController
       var entity = await _taskService.GetByIdAsync(id);
       if (entity == null) return NotFound();
 
-
+      var refenerces = await _referenceService.FetchAsync(entity);
+      if (refenerces.HasItems())
+      {
+         foreach (var refenerce in refenerces)
+         {
+            if (refenerce.AttachmentId.HasValue)
+            {
+               var attachment = await _attachmentService.GetByIdAsync(refenerce.AttachmentId.Value);
+               refenerce.Attachment = attachment;
+            }
+         }
+         entity.LoadReferences(refenerces);
+      }
+     
       return entity.MapViewModel(_mapper);
    }
    [HttpGet("edit/{id}")]
@@ -124,7 +101,19 @@ public class TasksController : BaseApiController
       if (entity == null) return NotFound();
 
       var model = new TaskEditForm();
-      entity.SetValuesTo(model);
+      string excepts = "References";
+      entity.SetValuesTo(model, excepts);
+
+      var refenerces = await _referenceService.FetchAsync(entity);
+      if (refenerces.HasItems())
+      {
+         foreach (var refenerce in refenerces)
+         {
+            var refenerceModel = new ReferenceEditForm();
+            refenerce.SetValuesTo(refenerceModel);
+            model.References.Add(refenerceModel);
+         }
+      }
 
       return model;
    }

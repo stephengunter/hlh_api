@@ -1,4 +1,5 @@
-﻿using Infrastructure.Entities;
+﻿using ApplicationCore.Consts;
+using Infrastructure.Entities;
 using Infrastructure.Helpers;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -12,8 +13,6 @@ public class Tasks : EntityBase, IBaseCategory<Tasks>, IBaseRecord, IRemovable, 
    public string Title { get; set; } = String.Empty;
 
    public string? Content { get; set; }
-
-   public string? References { get; set; } //Json of Reference
 
    public DateTime? DeadLine { get; set; }
 
@@ -41,4 +40,15 @@ public class Tasks : EntityBase, IBaseCategory<Tasks>, IBaseRecord, IRemovable, 
    public bool Active => ISortableHelpers.IsActive(this);
 
    public void LoadSubItems(IEnumerable<IBaseCategory<Tasks>> tasks) => BaseCategoriesHelpers.LoadSubItems(this, tasks);
+
+
+   [NotMapped] 
+   public virtual ICollection<Reference> References { get; set; } = new List<Reference>();
+
+
+   public void LoadReferences(IEnumerable<Reference> references)
+   {
+      references = references.Where(x => x.PostType.ToLower() == PostTypes.Tasks.ToLower() && x.PostId == Id);
+      this.References = references.HasItems() ? references.ToList() : new List<Reference>();
+   }
 }

@@ -5,8 +5,8 @@ using CategoryPost = ApplicationCore.Models.CategoryPost;
 namespace ApplicationCore.Specifications;
 public class CategoryPostsSpecification : Specification<CategoryPost>
 {
-	public CategoryPostsSpecification(Category category, PostType type)
+	public CategoryPostsSpecification(Category category, string postType)
 	{
-		Query.Where(item => item.CategoryId == category.Id && item.PostType == type);
+		Query.Where(item => item.CategoryId == category.Id && item.PostType.ToLower() == postType.ToLower());
 	}
 }
