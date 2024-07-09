@@ -95,27 +95,26 @@ public class TasksController : BaseApiController
       return entity.MapViewModel(_mapper);
    }
    [HttpGet("edit/{id}")]
-   public async Task<ActionResult<TaskEditForm>> Edit(int id)
+   public async Task<ActionResult<TaskViewModel>> Edit(int id)
    {
       var entity = await _taskService.GetByIdAsync(id);
       if (entity == null) return NotFound();
-
-      var model = new TaskEditForm();
-      string excepts = "References";
-      entity.SetValuesTo(model, excepts);
 
       var refenerces = await _referenceService.FetchAsync(entity);
       if (refenerces.HasItems())
       {
          foreach (var refenerce in refenerces)
          {
-            var refenerceModel = new ReferenceEditForm();
-            refenerce.SetValuesTo(refenerceModel);
-            model.References.Add(refenerceModel);
+            if (refenerce.AttachmentId.HasValue)
+            {
+               var attachment = await _attachmentService.GetByIdAsync(refenerce.AttachmentId.Value);
+               refenerce.Attachment = attachment;
+            }
          }
+         entity.LoadReferences(refenerces);
       }
 
-      return model;
+      return entity.MapViewModel(_mapper);
    }
 
    [HttpPut("{id}")]

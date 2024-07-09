@@ -37,9 +37,9 @@ public abstract class BaseTaskForm
 }
 public class TaskCreateForm : BaseTaskForm
 {
-   public ICollection<ReferenceCreateForm> References { get; set; } = new List<ReferenceCreateForm>();
+   
 }
 public class TaskEditForm : BaseTaskForm
 {
-   public ICollection<ReferenceEditForm> References { get; set; } = new List<ReferenceEditForm>();
+   
 }

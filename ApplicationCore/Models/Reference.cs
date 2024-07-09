@@ -8,7 +8,6 @@ namespace ApplicationCore.Models;
 
 public class Reference : EntityBase, IBaseRecord, IRemovable, ISortable
 {
-
    public string PostType { get; set; } = String.Empty;
    public int PostId { get; set; }
 
