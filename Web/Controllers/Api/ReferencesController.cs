@@ -41,6 +41,42 @@ public class ReferencesController : BaseApiController
 
       entity = await _referenceService.CreateAsync(entity);
 
+      await SyncAttachments(entity);
+
+      return entity.MapViewModel(_mapper);
+   }
+
+
+
+   [HttpGet("{id}")]
+   public async Task<ActionResult> Get(int id)
+   {
+      var entity = await _referenceService.GetByIdAsync(id);
+      if (entity == null) return NotFound();
+
+      var model = entity.MapViewModel(_mapper);
+      return Ok(model);
+   }
+
+
+   [HttpPut("{id}")]
+   public async Task<ActionResult> Update(int id, [FromBody] ReferenceEditForm model)
+   {
+      var entity = await _referenceService.GetByIdAsync(id);
+      if (entity == null) return NotFound();
+
+      model.SetValuesTo(entity);
+      entity.SetUpdated(User.Id());
+
+      await _referenceService.UpdateAsync(entity);
+
+      await SyncAttachments(entity);
+
+      return NoContent();
+   }
+
+   async Task SyncAttachments(Reference entity)
+   {
       if (entity.AttachmentId.HasValue && entity.AttachmentId.Value > 0)
       {
          var attachment = await _attachmentService.GetByIdAsync(entity.AttachmentId.Value);
@@ -57,30 +93,14 @@ public class ReferencesController : BaseApiController
       }
 
       if (attachments.HasItems())
-
       {
-         foreach ( var item in attachments) 
+         foreach (var item in attachments)
          {
             item.Removed = true;
             item.SetUpdated(User.Id());
          }
-         await _attachmentService.UpdateRangeAsync(attachments);         
+         await _attachmentService.UpdateRangeAsync(attachments);
       }
-         
-
-      return entity.MapViewModel(_mapper);
-   }
-
-
-
-   [HttpGet("{id}")]
-   public async Task<ActionResult> Get(int id)
-   {
-      var entity = await _referenceService.GetByIdAsync(id);
-      if (entity == null) return NotFound();
-
-      var model = entity.MapViewModel(_mapper);
-      return Ok(model);
    }
 
 }
