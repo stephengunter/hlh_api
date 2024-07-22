@@ -75,6 +75,37 @@ public class ReferencesController : BaseApiController
       return NoContent();
    }
 
+   [HttpDelete("{id}")]
+   public async Task<IActionResult> Remove(string id)
+   {
+      var ids = id.SplitToIds();
+      if (ids.IsNullOrEmpty())
+      {
+         ModelState.AddModelError("id", "¿ù»~ªºid");
+         return BadRequest(ModelState);
+      }
+
+      foreach (int entityId in ids)
+      {
+         var entity = await _referenceService.GetByIdAsync(entityId);
+         if (entity == null)
+         {
+            ModelState.AddModelError("id", $"¿ù»~ªºid: {entityId}");
+            return BadRequest(ModelState);
+         }
+
+         entity.Removed = true;
+         entity.Order = -1;
+         entity.SetUpdated(User.Id());
+         await _referenceService.UpdateAsync(entity);
+
+         await SyncAttachments(entity);
+      }
+
+      
+      return NoContent();
+   }
+
    async Task SyncAttachments(Reference entity)
    {
       if (entity.AttachmentId.HasValue && entity.AttachmentId.Value > 0)
@@ -82,7 +113,8 @@ public class ReferencesController : BaseApiController
          var attachment = await _attachmentService.GetByIdAsync(entity.AttachmentId.Value);
          attachment!.PostType = PostTypes.Reference;
          attachment.PostId = entity.Id;
-         attachment.Removed = false;
+         attachment.Removed = entity.Removed;
+         attachment.SetUpdated(User.Id());
          await _attachmentService.UpdateAsync(attachment);
       }
 

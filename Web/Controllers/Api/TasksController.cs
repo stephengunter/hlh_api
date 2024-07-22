@@ -18,6 +18,7 @@ using Azure.Core;
 using ApplicationCore.Services.Files;
 using Web.Helpers;
 using Newtonsoft.Json;
+using Ardalis.Specification;
 
 namespace Web.Controllers.Api;
 public class TasksController : BaseApiController
@@ -64,6 +65,7 @@ public class TasksController : BaseApiController
 
       var entity = new Tasks();
       model.SetValuesTo(entity);
+     
       entity.SetCreated(User.Id());
 
       entity = await _taskService.CreateAsync(entity);
@@ -78,6 +80,22 @@ public class TasksController : BaseApiController
       var entity = await _taskService.GetByIdAsync(id);
       if (entity == null) return NotFound();
 
+      await LoadLoadReferencesAsync(entity);
+
+      var subTasks = await _taskService.FetchByParentAsync(entity);
+      if (subTasks.HasItems())
+      {
+         foreach (var subTask in subTasks)
+         {
+            await LoadLoadReferencesAsync(subTask);
+         }
+      }
+
+      return entity.MapViewModel(_mapper);
+   }
+
+   async Task LoadLoadReferencesAsync(Tasks entity)
+   {
       var refenerces = await _referenceService.FetchAsync(entity);
       if (refenerces.HasItems())
       {
@@ -91,9 +109,8 @@ public class TasksController : BaseApiController
          }
          entity.LoadReferences(refenerces);
       }
-     
-      return entity.MapViewModel(_mapper);
    }
+
    [HttpGet("edit/{id}")]
    public async Task<ActionResult<TaskViewModel>> Edit(int id)
    {
@@ -137,6 +154,15 @@ public class TasksController : BaseApiController
    async Task ValidateRequestAsync(BaseTaskForm model)
    {
       if(String.IsNullOrEmpty(model.Title)) ModelState.AddModelError("title", "必須填寫標題");
+      if (model.ParentId.HasValue && model.ParentId.Value > 0)
+      {
+         var parent = await _taskService.GetByIdAsync(model.ParentId.Value);
+         if (parent == null)
+         {
+            ModelState.AddModelError("parentId", $"不存在的 parentId : {model.ParentId.Value}");
+         }
+      }
+      else model.ParentId = null;
 
    }
 

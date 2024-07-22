@@ -24,7 +24,7 @@ public class Tasks : EntityBase, IBaseCategory<Tasks>, IBaseRecord, IRemovable, 
 
    public bool IsRootItem => ParentId is null;
 
-   public ICollection<Tasks>? SubItems { get; set; }
+   public ICollection<Tasks>? SubItems { get; set; } = new List<Tasks>();
    [NotMapped]
    public ICollection<int>? SubIds { get; set; }
 

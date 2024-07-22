@@ -9,6 +9,7 @@ public interface ITaskService
 {
    Task<IEnumerable<Tasks>> FindRootAsync();
    Task<IEnumerable<Tasks>> FetchAllAsync();
+   Task<IEnumerable<Tasks>> FetchByParentAsync(Tasks parent);
    Task<Tasks?> GetByIdAsync(int id);
 
    Task<Tasks> CreateAsync(Tasks task);
@@ -28,6 +29,9 @@ public class TaskService : ITaskService
 
    public async Task<IEnumerable<Tasks>> FetchAllAsync()
       => await _taskRepository.ListAsync(new TaskSpecification());
+
+   public async Task<IEnumerable<Tasks>> FetchByParentAsync(Tasks parent)
+      => await _taskRepository.ListAsync(new TaskSpecification(parent));
 
    public async Task<Tasks?> GetByIdAsync(int id)
       => await _taskRepository.GetByIdAsync(id);

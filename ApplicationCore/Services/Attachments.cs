@@ -1,7 +1,9 @@
 ﻿using ApplicationCore.DataAccess;
 using ApplicationCore.Models;
 using ApplicationCore.Specifications;
+using Ardalis.Specification;
 using Infrastructure.Entities;
+using Infrastructure.Helpers;
 
 namespace ApplicationCore.Services;
 
@@ -16,6 +18,8 @@ public interface IAttachmentService
    Task<Attachment> CreateAsync(Attachment entity);
 	Task UpdateAsync(Attachment entity);
    Task UpdateRangeAsync(IEnumerable<Attachment> attachments);
+   Task RemoveAsync(Attachment entity, string userId);
+   Task RemoveRangeAsync(IEnumerable<Attachment> attachments, string userId);
 }
 
 public class AttachmentService : IAttachmentService
@@ -49,5 +53,22 @@ public class AttachmentService : IAttachmentService
    
    public async Task UpdateRangeAsync(IEnumerable<Attachment> attachments)
       => await _attachmentRepository.UpdateRangeAsync(attachments);
+
+   public async Task RemoveAsync(Attachment entity, string userId)
+   {
+      entity.Removed = true;
+      entity.SetUpdated(userId);
+      await _attachmentRepository.UpdateAsync(entity);
+   }
+
+   public async Task RemoveRangeAsync(IEnumerable<Attachment> attachments, string userId)
+   {
+      foreach (var entity in attachments)
+      {
+         entity.Removed = true;
+         entity.SetUpdated(userId);
+      }
+      await _attachmentRepository.UpdateRangeAsync(attachments);
+   }
 
 }

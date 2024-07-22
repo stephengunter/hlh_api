@@ -12,6 +12,9 @@ public static class TaskHelpers
    {
       var model = mapper.Map<TaskViewModel>(entity);
       if(entity.References.HasItems()) model.References = entity.References.MapViewModelList(mapper);
+
+      model.SubItems = entity.SubItems.Select(x => x.MapViewModel(mapper)).ToList();
+
       return model;
    }
 

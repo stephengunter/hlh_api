@@ -55,6 +55,7 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
    public DbSet<Article> Articles => Set<Article>();
    public DbSet<Attachment> Attachments => Set<Attachment>();
    public DbSet<Reference> References => Set<Reference>();
+   public DbSet<Item> Items => Set<Item>();
 
    public DbSet<Tag> Tags => Set<Tag>();
    public DbSet<TagPost> TagPosts => Set<TagPost>();
