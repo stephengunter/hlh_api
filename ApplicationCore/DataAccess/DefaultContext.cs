@@ -31,6 +31,7 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
          }
       }
    }
+   public DbSet<TelName> TelNames => Set<TelName>();
    public DbSet<ModifyRecord> ModifyRecords => Set<ModifyRecord>();
    public DbSet<Profiles> Profiles => Set<Profiles>();
    public DbSet<Department> Departments => Set<Department>();

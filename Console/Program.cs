@@ -10,7 +10,6 @@ using System.Text;
 
 namespace IKVue
 {
-  
    class Program
    {
       static string TEMPLATE_NAME = "article";

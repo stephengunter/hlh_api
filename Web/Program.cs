@@ -132,7 +132,8 @@ try
    app.UseAuthorization();
 
 	app.MapControllers();
-	app.Run();
+   
+   app.Run();
 }
 catch (Exception ex)
 {
