@@ -1,11 +1,10 @@
 using ApplicationCore.DataAccess;
 using ApplicationCore.Migrations;
 using ApplicationCore.Models;
+using Ardalis.Specification;
 using Infrastructure.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using System.Globalization;
 using System.Text;
 
 namespace Web.Controllers.Tests;
@@ -17,17 +16,22 @@ public class ATestsController : BaseTestController
    {
       _defaultContext = defaultContext;
    }
-   [HttpGet("locations")]
-   public async Task<ActionResult> Locations()
+   [HttpGet]
+   public async Task<ActionResult> Index()
+   {
+      return Ok();
+   }
+
+   async Task ImportTelNames()
    {
       string filePath = @"C:/temp/tels.csv";
       var records = ReadCsvFile(filePath);
-      foreach (var record in records) 
+      foreach (var record in records)
       {
          record.Tel = record.Tel.Replace('_', ',');
          await AddTelNameIfNotExist(_defaultContext, record);
       }
-      return Ok(records);
+      _defaultContext.SaveChanges();
    }
 
    async Task AddTelNameIfNotExist(DefaultContext context, TelName record)
@@ -41,7 +45,7 @@ public class ATestsController : BaseTestController
       if (exist == null) context.TelNames.Add(record);
       else 
       {
-         // update existing entity
+         record.SetValuesTo(exist);
          context.TelNames.Update(exist);
       }
    }
