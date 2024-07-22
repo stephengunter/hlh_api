@@ -59,9 +59,11 @@ public static class SeedData
 			}
 		}
       await SeedCategories(context);
+      await SeedCalendars(context);
       await SeedDepartments(context);
       await SeedJobTitles(context);
 		await SeedLocations(context);
+      await SeedCourts(context);
       Console.WriteLine("Done seeding database.");
 	}
 
@@ -122,24 +124,25 @@ public static class SeedData
    {
       var rootCategories = new List<Category>
       {
-         new Category() { Title = "", Key = PostType.Event.ToString(), PostType = PostType.Event },
-         new Category() { Title = "", Key = PostType.Article.ToString(), PostType = PostType.Article }
+         new Category() { Title = "", Key = PostTypes.Event, PostType = PostTypes.Event },
+         new Category() { Title = "", Key = PostTypes.Article, PostType = PostTypes.Article }
       };
       foreach (var item in rootCategories) await AddCategoryIfNotExist(context, item);
       context.SaveChanges();
 
-      var eventRoot = context.Categories.FirstOrDefault(item => item.PostType == PostType.Event  && item.Key == PostType.Event.ToString());
-      var calendar = new Category { ParentId = eventRoot!.Id, Title = "行事曆", Key = "calendar".ToUpper(), PostType = PostType.Event };
-      await AddCategoryIfNotExist(context, calendar);
-      context.SaveChanges();
-
-      calendar = context.Categories.FirstOrDefault(item => item.PostType == PostType.Event && item.Key == "calendar".ToUpper());
-      var eventCategories = new List<Category>
+      await SeedEventCategories(context);
+   }
+   static async Task SeedEventCategories(DefaultContext context)
+   {
+      var root = context.Categories.FirstOrDefault(c => c.Key == PostTypes.Event && c.PostType == PostTypes.Event);
+      var categories = new List<Category>
       {
-         new Category() { ParentId = calendar!.Id, Title = "全院行事曆", Key = "ALL", PostType = PostType.Event },
-         new Category() { ParentId = calendar!.Id, Title = "資訊室行事曆", Key = "IT", PostType = PostType.Event }
+         new Category() { Title = "教育訓練", Key = "ED", ParentId = root!.Id, PostType = PostTypes.Event },
+         new Category() { Title = "遠距詢問", Key = "FD", ParentId = root.Id , PostType = PostTypes.Event },
+         new Category() { Title = "雙向詢問", Key = "DW", ParentId = root.Id , PostType = PostTypes.Event },
+         new Category() { Title = "U會議詢問", Key = "UM", ParentId = root.Id , PostType = PostTypes.Event }
       };
-      foreach (var item in eventCategories) await AddCategoryIfNotExist(context, item);
+      foreach (var item in categories) await AddCategoryIfNotExist(context, item);
       context.SaveChanges();
    }
    static async Task AddCategoryIfNotExist(DefaultContext context, Category category)
@@ -149,9 +152,36 @@ public static class SeedData
          context.Categories.Add(category);
          return;
       }
-      var exist = await context.Categories.FirstOrDefaultAsync(x => x.Key == category.Key);
+      var exist = await context.Categories.FirstOrDefaultAsync(x => x.Key == category.Key && x.ParentId == category.ParentId);
       if (exist == null) context.Categories.Add(category);
+      else 
+      {
+         exist.PostType = category.PostType;
+      }
    }
+   static async Task SeedCalendars(DefaultContext context)
+   {
+      var calendars = new List<Calendar>
+      {
+         new Calendar() { Title = "全院行事曆" , Key = CalendarTypes.HLH },
+         new Calendar() { Title = "資訊室行事曆" , Key = "IT" },
+         new Calendar() { Title = "延伸法庭行事曆" , Key = CalendarTypes.EC }
+      };
+      foreach (var item in calendars) await AddCalendarIfNotExist(context, item);
+      context.SaveChanges();
+   }
+   static async Task AddCalendarIfNotExist(DefaultContext context, Calendar calendar)
+   {
+      var dbset = context.Calendars;
+      if (dbset.Count() == 0)
+      {
+         dbset.Add(calendar);
+         return;
+      }
+      var exist = await dbset.FirstOrDefaultAsync(x => x.Key == calendar.Key);
+      if (exist == null) dbset.Add(calendar);
+   }
+
 
    static async Task SeedDepartments(DefaultContext context)
    {
@@ -165,13 +195,14 @@ public static class SeedData
    }
    static async Task AddDepartmentIfNotExist(DefaultContext context, Department department)
    {
-		if (context.Departments.Count() == 0) 
+      var dbset = context.Departments;
+      if (dbset.Count() == 0) 
 		{
-         context.Departments.Add(department);
+         dbset.Add(department);
          return;
       }
-		var exist = await context.Departments.FirstOrDefaultAsync(x => x.Key == department.Key);
-		if (exist == null) context.Departments.Add(department);
+		var exist = await dbset.FirstOrDefaultAsync(x => x.Key == department.Key);
+		if (exist == null) dbset.Add(department);
    }
    static async Task SeedLocations(DefaultContext context)
    {
@@ -179,19 +210,21 @@ public static class SeedData
       {
          new Location() { Title = "行政大樓", Key = "AB" },
          new Location() { Title = "法庭大樓", Key = "CB" },
+         new Location() { Title = "台東庭", Key = "TD" },
       };
       foreach (var item in locations) await AddLocationIfNotExist(context, item);
       context.SaveChanges();
    }
    static async Task AddLocationIfNotExist(DefaultContext context, Location location)
    {
-      if (context.Locations.Count() == 0)
+      var dbset = context.Locations;
+      if (dbset.Count() == 0)
       {
-         context.Locations.Add(location);
+         dbset.Add(location);
          return;
       }
-      var exist = await context.Locations.FirstOrDefaultAsync(x => x.Title == location.Title);
-      if (exist == null) context.Locations.Add(location);
+      var exist = await dbset.FirstOrDefaultAsync(x => x.Title == location.Title);
+      if (exist == null) dbset.Add(location);
    }
    static async Task SeedJobTitles(DefaultContext context)
    {
@@ -212,13 +245,53 @@ public static class SeedData
    }
    static async Task AddJobTitleIfNotExist(DefaultContext context, JobTitle jobTitle)
    {
-      if (context.JobTitles.Count() == 0)
+      var dbset = context.JobTitles;
+      if (dbset.Count() == 0)
       {
-         context.JobTitles.Add(jobTitle);
+         dbset.Add(jobTitle);
          return;
       }
-      var exist = await context.JobTitles.FirstOrDefaultAsync(x => x.Title == jobTitle.Title);
-		if (exist == null) context.JobTitles.Add(jobTitle);
+      var exist = await dbset.FirstOrDefaultAsync(x => x.Title == jobTitle.Title);
+		if (exist == null) dbset.Add(jobTitle);
 		else exist.Order = jobTitle.Order;
+   }
+   static async Task SeedCourts(DefaultContext context)
+   {
+      //遠距詢問FD, 雙向詢問DW, U會議詢問UM
+      var courts = new List<Court>
+      {
+         new Court() { Title = "第一法庭", Key = "C1", Utils = "DW,UM", Order = 0 },
+         new Court() { Title = "第二法庭", Key = "C2", Utils = "DW,UM", Order = 1 },
+         new Court() { Title = "第三法庭", Key = "C3", Utils = "FD,DW,UM", Order = 2 },
+         new Court() { Title = "第四法庭", Key = "C4", Utils = "FD,DW,UM", Order = 3 },
+
+         new Court() { Title = "台東第四法庭", Key = "TDC4", Utils = "FD,DW,UM", Order = 4 },
+         new Court() { Title = "台東第五法庭", Key = "TDC5", Utils = "FD,DW,UM", Order = 5 },
+         new Court() { Title = "台東第二法庭", Key = "TDC2", Utils = "FD,DW,UM", Order = 6 },
+      };
+      foreach (var item in courts)
+      {
+         var location = context.Locations.FirstOrDefault(x => x.Key == item.Key);
+         item.LocationId = location!.Id;
+         await AddCourtIfNotExist(context, item);
+      } 
+      context.SaveChanges();
+   }
+   static async Task AddCourtIfNotExist(DefaultContext context, Court court)
+   {
+      var dbset = context.Courts;
+      if (dbset.Count() == 0)
+      {
+         dbset.Add(court);
+         return;
+      }
+      var exist = await dbset.FirstOrDefaultAsync(x => x.Key == court.Key);
+      if (exist == null) dbset.Add(court);
+      else
+      {
+         exist.Title = court.Title;
+         exist.Utils = court.Utils;
+         exist.Order = court.Order;
+      }
    }
 }

@@ -17,12 +17,15 @@ public class EventViewModel : EntityBaseView, IBasePostView, IBaseRecordView, IB
    public DateTime? LastUpdated { get; set; }
    public string? UpdatedBy { get; set; }
 
-   public int? CategoryId { get; set; }
-   public string? CategoryTitle { get; set; }
+   public ICollection<CalendarViewModel>? Calendars { get; set; }
 
    public int Status { get; set; }
-   public string StatusText { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+   public bool AllDay => !EndDate.HasValue;
+   public string StatusText { get; set; } = string.Empty;
    public string CreatedAtText => CreatedAt.ToDateString();
    public string LastUpdatedText => LastUpdated.ToDateString();
+   public string StartDateText => StartDate.ToDateTimeString();
+   public string EndDateText => EndDate.ToDateTimeString();
 }
 

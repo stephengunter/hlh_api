@@ -152,9 +152,6 @@ public class DepartmentsController : BaseAdminController
       ValidateRequest(request, _adminSettings);
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
-      var path = GetTempPath(_environment, DateTime.Today.ToDateNumber().ToString());
-      if (!Directory.Exists(path)) Directory.CreateDirectory(path);
-
       var allDepartments = await _departmentsService.FetchAllAsync();
       foreach (var department in allDepartments)
       {

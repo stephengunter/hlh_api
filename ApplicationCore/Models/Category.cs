@@ -7,7 +7,7 @@ namespace ApplicationCore.Models;
 
 public class Category : EntityBase, IBaseCategory<Category>, IRemovable, ISortable
 {
-   public PostType PostType { get; set; } = PostType.None;
+   public string PostType { get; set; } = String.Empty;
    public string Key { get; set; } = String.Empty;
    public string Title { get; set; } = String.Empty;
 
@@ -42,5 +42,5 @@ public class CategoryPost : EntityBase
 
    public int PostId { get; set; }
 
-   public PostType PostType { get; set; }
+   public string PostType { get; set; } = String.Empty;
 }

@@ -4,14 +4,20 @@ namespace Infrastructure.Helpers;
 
 public static class ObjectsHelpers
 {
-   public static void SetValuesTo(this object source, object dest)
+	public static void SetValuesTo(this object source, object dest, string excepts = "")
    {
+		var exceptsNames = excepts.SplitToList();
+
       var sourceProperties = source.GetType().GetProperties();
       var destProperties = dest.GetType().GetProperties();
 
       foreach (var sourceProperty in sourceProperties)
       {
+			var isExcept = (exceptsNames.FirstOrDefault(x => sourceProperty.Name.EqualTo(x)) != null);
+			if (isExcept) continue;
+
          var destProperty = destProperties.FirstOrDefault(p => p.Name == sourceProperty.Name);
+
          if (destProperty != null && destProperty.CanWrite)
          {
             var value = sourceProperty.GetValue(source);

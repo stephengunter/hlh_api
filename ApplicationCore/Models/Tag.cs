@@ -41,5 +41,5 @@ public class TagPost : EntityBase
 
    public int PostId { get; set; }
 
-   public PostType PostType { get; set; }
+   public string PostType { get; set; } = String.Empty;
 }

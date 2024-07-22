@@ -9,6 +9,7 @@ namespace ApplicationCore.Services.Files;
 
 public interface IFileStoragesService : IDisposable
 {
+   string Host { get; }
    string Create(IFormFile file, string folderPath, string fileName);
    byte[] GetBytes(string folderPath, string fileName);
    // move the uploaded file
@@ -24,6 +25,7 @@ public class FtpStoragesService : IFileStoragesService
    {
       _client = new FtpClient(host, username, pw);
       _root_directory = directory;
+      Host = host;
       try
       {
          _client.Connect();
@@ -41,6 +43,9 @@ public class FtpStoragesService : IFileStoragesService
          throw new Exception($"FTP Connection Error: {ex.Message}");
       }
    }
+
+   public string Host { get; private set; }
+
    string GetFolderPath(string folderPath) => CombinePath(_root_directory, folderPath);
    string CombinePath(string path1, string path2) => Path.Combine(path1, path2).Replace('\\', '/');
 
@@ -144,7 +149,10 @@ public class LocalStoragesService : IFileStoragesService
    public LocalStoragesService(string directory)
    {
       _root_directory = directory;
+      Host = "";
    }
+
+   public string Host { get; private set; }
 
    string GetFolderPath(string folderPath) => Path.Combine(_root_directory, folderPath);
    public string Create(IFormFile file, string folderPath, string fileName)

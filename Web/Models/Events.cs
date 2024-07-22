@@ -1,29 +1,8 @@
 using ApplicationCore.Models;
 using ApplicationCore.Views;
+using ApplicationCore.Views.Judicial;
 
 namespace Web.Models;
-public class CanlendarRequest
-{
-   public CanlendarRequest(Category category, int year, int month)
-   {
-      Category = category;
-      Year = year;
-      Month = month;
-   }
-   public int Year { get; set; }
-   public int Month { get; set; }
-   public string Key => Category.Key;
-   public Category Category { get; set; }
-}
-public class CanlendarResponse
-{
-   public CanlendarResponse(CanlendarRequest request)
-   {
-      Request = request;
-   }
-   public CanlendarRequest Request { get; set; }
-   public IEnumerable<EventViewModel> List { get; set; } = new List<EventViewModel>();
-}
 public class EventFetchRequest
 {
    public EventFetchRequest(Category category)
@@ -48,16 +27,27 @@ public class EventsIndexModel
    public IEnumerable<EventViewModel> List { get; set; } = new List<EventViewModel>();
 
 }
-public class EventCreateForm
+
+public abstract class BaseEventForm
 {
    public string Title { get; set; } = String.Empty;
    public string? Content { get; set; }
    public DateTime? StartDate { get; set; }
    public DateTime? EndDate { get; set; }
-
-   public int CategoryId { get; set; }
+   public bool AllDay { get; set; }
+   public ICollection<int> CalendarIds { get; set; } = new List<int>();
 }
-public class EventEditForm : EventCreateForm
+
+public class EcEventForm
+{
+   public DateTime StartDate { get; set; }
+   public DateTime EndDate { get; set; }
+   public CaseInfoViewModel  CaseInfo  { get; set; } = new CaseInfoViewModel();
+}
+public class EventCreateForm : BaseEventForm
+{
+}
+public class EventEditForm : BaseEventForm
 {
    
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Infrastructure.Consts;
+using System;
 
 namespace Infrastructure.Helpers;
 public static class FilesHelpers
@@ -17,5 +18,17 @@ public static class FilesHelpers
       }
       return fileName;
 
+   }
+
+   public static FileTypes GetFileType(this string ext)
+   {
+      return ext.ToLower() switch
+      {
+         ".jpg" or ".jpeg" or ".png" or ".gif" => FileTypes.Image,
+         ".pdf" => FileTypes.Pdf,
+         ".doc" or ".docx" => FileTypes.Word,
+         ".xls" or ".xlsx" => FileTypes.Excel,
+         _ => FileTypes.UnKnown
+      };
    }
 }

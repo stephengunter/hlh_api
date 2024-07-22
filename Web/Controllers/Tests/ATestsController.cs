@@ -17,8 +17,8 @@ public class ATestsController : BaseTestController
    {
       _defaultContext = defaultContext;
    }
-   [HttpGet]
-   public async Task<ActionResult> Index()
+   [HttpGet("locations")]
+   public async Task<ActionResult> Locations()
    {
       string filePath = @"C:/temp/tels.csv";
       var records = ReadCsvFile(filePath);
@@ -74,6 +74,7 @@ public class ATestsController : BaseTestController
 
       return records;
    }
+
 
 
    [HttpGet("ex")]

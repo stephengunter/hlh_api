@@ -7,6 +7,10 @@ using Microsoft.AspNetCore.Authorization;
 using ApplicationCore.Authorization;
 using ApplicationCore.Exceptions;
 using Infrastructure.Helpers;
+using ApplicationCore.Services.Files;
+using ApplicationCore.Services;
+using AutoMapper;
+using Microsoft.Extensions.Options;
 
 namespace Web.Controllers;
 

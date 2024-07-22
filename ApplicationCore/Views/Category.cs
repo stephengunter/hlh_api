@@ -6,7 +6,7 @@ namespace ApplicationCore.Views;
 
 public class CategoryViewModel : EntityBaseView, IBaseCategoryView<CategoryViewModel>
 {
-   public PostType PostType { get; set; } = PostType.None;
+   public string PostType { get; set; } = String.Empty;
    public string Key { get; set; } = String.Empty;
    public string Title { get; set; } = String.Empty;
    public CategoryViewModel? Parent { get; set; }

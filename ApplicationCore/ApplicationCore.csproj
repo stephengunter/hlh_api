@@ -1,5 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  <ItemGroup>
+    <!--<Compile Remove="Migrations\**" />-->
+    <Compile Remove="PostgreSqlMigrations\**" />
+    <EmbeddedResource Remove="PostgreSqlMigrations\**" />
+    <None Remove="PostgreSqlMigrations\**" />
+</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
   </ItemGroup>

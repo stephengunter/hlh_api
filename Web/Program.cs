@@ -42,16 +42,18 @@ try
    builder.Services.Configure<DbSettings>(Configuration.GetSection(SettingsKeys.Db));
    builder.Services.Configure<AppSettings>(Configuration.GetSection(SettingsKeys.App));
 	builder.Services.Configure<AdminSettings>(Configuration.GetSection(SettingsKeys.Admin));
-	builder.Services.Configure<AuthSettings>(Configuration.GetSection(SettingsKeys.Auth));
+   builder.Services.Configure<AttachmentSettings>(Configuration.GetSection(SettingsKeys.Attachment));
+   builder.Services.Configure<AuthSettings>(Configuration.GetSection(SettingsKeys.Auth));
    builder.Services.Configure<CompanySettings>(Configuration.GetSection(SettingsKeys.Company));
    builder.Services.Configure<MailSettings>(Configuration.GetSection(SettingsKeys.Mail));
    builder.Services.Configure<JudSettings>(Configuration.GetSection(SettingsKeys.Judicial));
    builder.Services.Configure<Jud3Settings>(Configuration.GetSection(SettingsKeys.Jud3));
-   builder.Services.Configure<EventSettings>(Configuration.GetSection(SettingsKeys.Event));
+   
    #endregion
 
    string connectionString = Configuration.GetConnectionString("Default")!;
-   if (Configuration[$"{SettingsKeys.Db}:Provider"].EqualTo(DbProvider.PostgreSql))
+	bool usePostgreSql = Configuration[$"{SettingsKeys.Db}:Provider"].EqualTo(DbProvider.PostgreSql);
+   if (usePostgreSql)
 	{
       builder.Services.AddDbContext<DefaultContext>(options =>
                   options.UseNpgsql(connectionString));
@@ -93,9 +95,14 @@ try
    QuestPDF.Settings.License = LicenseType.Community;
 
    var app = builder.Build();
-	AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+	if (usePostgreSql) 
+	{
+      AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+   }
+   app.UseDefaultFiles();
+   app.UseStaticFiles();
 
-	app.UseSerilogRequestLogging(); 
+   app.UseSerilogRequestLogging(); 
 
 	if (app.Environment.IsDevelopment())
 	{
@@ -123,8 +130,7 @@ try
 	{
 		app.UseHttpsRedirection();
 	}
-   //app.UseStaticFiles();
-   //app.UseRouting();
+   
    
 
    app.UseCors();
@@ -132,7 +138,7 @@ try
    app.UseAuthorization();
 
 	app.MapControllers();
-   
+   app.MapFallbackToFile("/index.html");
    app.Run();
 }
 catch (Exception ex)

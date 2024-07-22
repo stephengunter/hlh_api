@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ConsoleClone": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

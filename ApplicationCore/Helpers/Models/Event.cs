@@ -8,9 +8,11 @@ namespace ApplicationCore.Helpers;
 public static class EventHelpers
 {
 
-   public static EventViewModel MapViewModel(this Event entity, IMapper mapper)
+   public static EventViewModel MapViewModel(this Event entity, IMapper mapper, ICollection<Calendar>? calendars = null)
    {
       var model = mapper.Map<EventViewModel>(entity);
+      model.StatusText = entity.Status.ToText();
+      if (calendars!.HasItems()) model.Calendars = calendars.MapViewModelList(mapper);
       return model;
    }
 
@@ -39,5 +41,5 @@ public static class EventHelpers
    }
 
    public static IEnumerable<Event> GetOrdered(this IEnumerable<Event> events)
-     => events.OrderByDescending(item => item.CreatedAt);
+     => events.OrderBy(item => item.StartDate);
 }

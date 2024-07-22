@@ -5,12 +5,27 @@ namespace Infrastructure.Helpers;
 
 public static class BaseContractHelpers
 {
-   public static bool IsValid(this IBaseContract entity, bool allowNullStateDate = false, bool allowNullEndDate = true)
+   public static bool IsValid(this IBaseContract entity, bool allowNullStartDate = false, bool allowNullEndDate = true)
    {
-      if (!entity.StartDate.HasValue && !allowNullStateDate) return false;
+      if (!entity.StartDate.HasValue && !allowNullStartDate) return false;
       if (!entity.EndDate.HasValue && !allowNullEndDate) return false;
 
       return entity.Status != ContractStatus.NA;
+   }
+   public static bool HasConflict(this IBaseContract entity, IBaseContract other)
+   {
+      bool allowNullStateDate = false;
+      bool allowNullEndDate = false;
+      if (!entity.IsValid(allowNullStateDate, allowNullEndDate))
+      {
+         throw new Exception("entity IsNotValid");
+      }
+      if (!other.IsValid(allowNullStateDate, allowNullEndDate))
+      {
+         throw new Exception("other IsNotValid");
+      }
+
+      return entity.StartDate < other.EndDate && entity.EndDate > other.StartDate;
    }
 
    public static ContractStatus GetStatus(this IBaseContract entity)
