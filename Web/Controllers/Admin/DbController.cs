@@ -1,16 +1,7 @@
-using ApplicationCore.Exceptions;
-using ApplicationCore.Services;
 using ApplicationCore.Settings;
-using ApplicationCore.Views;
-using ApplicationCore.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using AutoMapper;
-using ApplicationCore.DtoMapper;
-using Web.Filters;
 using Web.Models;
-using ApplicationCore.Consts;
-using ApplicationCore.Models;
 using Infrastructure.Helpers;
 using ApplicationCore.DataAccess;
 using Microsoft.Data.SqlClient;
