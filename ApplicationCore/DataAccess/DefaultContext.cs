@@ -69,6 +69,9 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
    public DbSet<Calendar> Calendars => Set<Calendar>();
    public DbSet<EventCalendar> EventCalendars => Set<EventCalendar>();
 
+
+   public DbSet<Database> Databases => Set<Database>();
+
    public override int SaveChanges() => SaveChangesAsync().GetAwaiter().GetResult();
 
 }

@@ -13,6 +13,7 @@ using Web.Filters;
 using System.Text.Json.Serialization;
 using Infrastructure.Helpers;
 using QuestPDF.Infrastructure;
+using Infrastructure.Services;
 
 Log.Logger = new LoggerConfiguration()
 	.MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Information)
@@ -76,7 +77,15 @@ try
 
    #region AddFilters
    builder.Services.AddScoped<DevelopmentOnlyFilter>();
-   #endregion
+	#endregion
+
+	string key = Configuration[$"{SettingsKeys.App}:Key"]!;
+	if (String.IsNullOrEmpty(key))
+	{
+		throw new Exception("app key not been set.");
+	}
+
+   builder.Services.AddScoped<ICryptoService>(provider => new AesCryptoService(key));
 
    builder.Services.AddCorsPolicy(Configuration);
    builder.Services.AddJwtBearer(Configuration);   

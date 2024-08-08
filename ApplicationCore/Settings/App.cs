@@ -1,7 +1,8 @@
 ﻿namespace ApplicationCore.Settings;
 public class AppSettings
 {
-	public string? Name { get; set; }
+   public string Key { get; set; } = string.Empty;
+   public string? Name { get; set; }
 	public string? Title { get; set; }
 	public string? Email { get; set; }
 	public string? ClientUrl { get; set; }
