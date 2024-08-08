@@ -1,10 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using ApplicationCore.Consts;
+using ApplicationCore.Services.Files;
+using ApplicationCore.Settings;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConsoleClone;
 
@@ -31,10 +29,13 @@ public class Startup
 
    public ServiceCollection ConfigureServices()
    {
-      var serviceCollection = new ServiceCollection();
-      serviceCollection.AddTransient<App>();
-      // 由這邊切換一般Ping Test或Htpp Request Test
-      //serviceCollection.AddTransient<IPingTestService, PintTestByHttpRequestService>();
-      return serviceCollection;
+      var services = new ServiceCollection();
+      services.Configure<FileBackupSettings>(Configuration.GetSection(SettingsKeys.FileBackup));
+      services.AddSingleton<FileStoragesServiceFactory>();
+      services.AddTransient<App>();
+      services.AddTransient<Test>();
+
+
+      return services;
    }
 }

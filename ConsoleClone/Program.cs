@@ -12,7 +12,7 @@ class Program
       var startUp = new Startup();
       var serviceProvider = startUp.ConfigureServices().BuildServiceProvider();
       var app = serviceProvider.GetRequiredService<App>();
-      await app.Run(startUp.Configuration);
+      await app.Run();
    }
 }
 

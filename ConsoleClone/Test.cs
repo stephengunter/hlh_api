@@ -1,20 +1,48 @@
 ﻿using ApplicationCore.Services.Files;
 using ApplicationCore.Settings;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
 namespace ConsoleClone;
 
-public class App
+public class Test
 {
    private readonly IFileStoragesService _sourceFileService;
    private readonly IFileStoragesService _destinationFileService;
    private readonly FileBackupSettings _backupSettings;
-   public App(IOptions<FileBackupSettings> backupSettings, FileStoragesServiceFactory fileStoragesServiceFactory)
+   public Test(IOptions<FileBackupSettings> backupSettings, FileStoragesServiceFactory fileStoragesServiceFactory)
    {
       _backupSettings = backupSettings.Value;
       _sourceFileService = fileStoragesServiceFactory.Create(_backupSettings.Source);
       _destinationFileService = fileStoragesServiceFactory.Create(_backupSettings.Destination);
    }
+
+   public async Task RunRun()
+   {
+      string localFilePath = @"c:\\temp\\test.txt";
+      string sourceFolder = _backupSettings.Source.Directory;
+      string destFolder = _backupSettings.Destination.Directory;
+
+      _destinationFileService.CreateDirectory(destFolder);
+      
+
+      // Read the local file as a stream
+      //using (var fileStream = new FileStream(localFilePath, FileMode.Open, FileAccess.Read))
+      //{
+      //   try
+      //   {
+      //      // Call the Create method to upload the file
+      //      string uploadedFilePath = _destinationFileService.Create(fileStream, "", Path.GetFileName(localFilePath));
+
+      //      Console.WriteLine($"File uploaded successfully to: {uploadedFilePath}");
+      //   }
+      //   catch (Exception ex)
+      //   {
+      //      Console.WriteLine($"An error occurred while uploading the file: {ex.Message}");
+      //   }
+      //}
+   }
+
 
    public async Task Run()
    {
@@ -40,7 +68,7 @@ public class App
       {
          LogInfo($"An error occurred: {ex.Message}");
       }
-
+      
    }
 
    void LogInfo(string msg = "")
@@ -59,15 +87,21 @@ public class App
    void CloneDirectory(string sourceDir, string destDir)
    {
       bool overwrite = true;
+      // Create destination directory if it doesn't exist
       _destinationFileService.CreateDirectory(destDir);
 
-      var sourcePathList = _sourceFileService.GetFiles(sourceDir);     
-      foreach (string sourcePath in sourcePathList)
+      var sourceFilePathList = _sourceFileService.GetFiles(sourceDir);
+      // Get all files in the source directory
+      foreach (string sourceFilePath in sourceFilePathList)
       {
-         string filename = Path.GetFileName(sourcePath);
+         // Determine the destination file path
+         string filename = Path.GetFileName(sourceFilePath);
+         string destFilePath = Path.Combine(destDir, filename);
+
+         var destFilePathList = _destinationFileService.GetFiles(destDir);
 
          // Check if the file exists in the destination directory
-         if (_destinationFileService.FileExists(destDir, filename))
+         if (_destinationFileService.GetFiles(destDir).Contains(destFilePath))
          {
             if (_backupSettings.CheckDirty)
             {
@@ -79,25 +113,32 @@ public class App
                {
                   // Copy the file
                   var filebytes = _sourceFileService.GetBytes(sourceDir, filename);
+
                   _destinationFileService.Create(filebytes, destDir, filename, overwrite);
-                  Console.WriteLine($"Updated: {sourcePath}");
+
+                  Console.WriteLine($"Updated: {sourceFilePath}");
                }
             }
             else
             {
                // Copy the file
                var filebytes = _sourceFileService.GetBytes(sourceDir, filename);
-               _destinationFileService.Create(filebytes, destDir, filename, overwrite);
-               Console.WriteLine($"Updated: {sourcePath}");
-            }
 
+               _destinationFileService.Create(filebytes, destDir, filename, overwrite);
+
+               Console.WriteLine($"Updated: {sourceFilePath}");
+            }
+            
          }
          else
          {
             // Copy the file
+
             var filebytes = _sourceFileService.GetBytes(sourceDir, filename);
+
             _destinationFileService.Create(filebytes, destDir, filename, overwrite);
-            Console.WriteLine($"Copied: {sourcePath}");
+
+            Console.WriteLine($"Copied: {sourceFilePath}");
          }
       }
 
@@ -160,8 +201,7 @@ public class App
       int fileCount = 0;
       long totalSize = 0;
 
-      var files = storageService.GetFiles(dir);
-      foreach (string file in files)
+      foreach (string file in storageService.GetFiles(dir))
       {
          fileCount++;
          totalSize += storageService.GetFileSize(dir, file);
@@ -177,4 +217,6 @@ public class App
 
       return (fileCount, totalSize);
    }
+
+
 }
