@@ -1,9 +1,10 @@
 ﻿using ApplicationCore.Models;
+using ApplicationCore.Models.Auth;
+using ApplicationCore.Models.IT;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System.Reflection;
 using Microsoft.AspNetCore.Identity;
-using ApplicationCore.Models.Auth;
 
 namespace ApplicationCore.DataAccess;
 public class DefaultContext : IdentityDbContext<User, Role, string,
@@ -50,6 +51,13 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
    
    public DbSet<Court> Courts => Set<Court>();
 
+   #region IT
+   public DbSet<Host> Hosts => Set<Host>();
+   public DbSet<SystemApp> SystemApps => Set<SystemApp>();
+   public DbSet<CredentialInfo> CredentialInfoes => Set<CredentialInfo>();
+   public DbSet<Database> Databases => Set<Database>();
+   #endregion
+
    #region Posts	
    public DbSet<Category> Categories => Set<Category>();
    public DbSet<CategoryPost> CategoryPosts => Set<CategoryPost>();
@@ -69,8 +77,8 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
    public DbSet<Calendar> Calendars => Set<Calendar>();
    public DbSet<EventCalendar> EventCalendars => Set<EventCalendar>();
 
-
-   public DbSet<Database> Databases => Set<Database>();
+   public DbSet<DocModel> DocModels => Set<DocModel>();
+   
 
    public override int SaveChanges() => SaveChangesAsync().GetAwaiter().GetResult();
 

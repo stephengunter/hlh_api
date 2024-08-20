@@ -1,21 +1,16 @@
-using ApplicationCore.Auth;
 using ApplicationCore.Models;
 using Microsoft.Extensions.Options;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using ApplicationCore.Authorization;
 using Infrastructure.Helpers;
 using ApplicationCore.Consts;
-using System.Security.Principal;
 using ApplicationCore.Models.Auth;
-using ApplicationCore.Views.Jud;
 
 
 namespace ApplicationCore.Auth;
 public interface IJwtFactory
 {
    Task<AccessToken> GenerateEncodedTokenAsync(User user, IList<string>? roles, OAuth? oAuth = null);
-   Task<AccessToken> GenerateEncodedTokenAsync(User user, IList<string>? roles, IList<AdUserViewModel> adUsers);
 }
 
 
@@ -29,33 +24,6 @@ public class JwtFactory : IJwtFactory
       _jwtTokenHandler = jwtTokenHandler;
       _jwtOptions = jwtOptions.Value;
       ThrowIfInvalidOptions(_jwtOptions);
-   }
-   public async Task<AccessToken> GenerateEncodedTokenAsync(User user, IList<string>? roles, IList<AdUserViewModel> adUsers)
-   {
-      var dpts = adUsers.Select(ad => ad.dpt).JoinToString();
-      var claims = new List<Claim>()
-      {
-         new Claim(JwtClaimIdentifiers.Sub, user.UserName!),
-         new Claim(JwtClaimIdentifiers.Roles, roles.JoinToString()),
-         new Claim(JwtClaimIdentifiers.Id, user.Id),
-         new Claim(JwtRegisteredClaimNames.Jti, await _jwtOptions.JtiGenerator()),
-         new Claim(JwtRegisteredClaimNames.Iat, ToUnixEpochDate(_jwtOptions.IssuedAt).ToString(), ClaimValueTypes.Integer64),
-         new Claim(JwtClaimIdentifiers.Name, user.Name),
-         new Claim("ad_dpts", dpts)
-      };
-
-
-      // Create the JWT security token and encode it.
-      var jwt = new JwtSecurityToken(
-          _jwtOptions.Issuer,
-          _jwtOptions.Audience,
-          claims,
-          _jwtOptions.NotBefore,
-          _jwtOptions.Expiration,
-          _jwtOptions.SigningCredentials);
-
-      return new AccessToken(_jwtTokenHandler.WriteToken(jwt), (int)_jwtOptions.ValidFor.TotalSeconds);
-
    }
 
    public async Task<AccessToken> GenerateEncodedTokenAsync(User user, IList<string>? roles, OAuth? oAuth = null)

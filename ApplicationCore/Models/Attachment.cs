@@ -2,13 +2,6 @@
 using Infrastructure.Helpers;
 
 namespace ApplicationCore.Models;
-//public enum PostType
-//{
-//	Event = 0,
-//   Article = 1,
-//   Reference = 2,
-//   None = -1
-//}
 
 public class Attachment : EntityBase, IBaseUploadFile, IBaseRecord, IRemovable, ISortable
 {

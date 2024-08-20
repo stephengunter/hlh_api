@@ -64,6 +64,7 @@ public static class SeedData
       await SeedJobTitles(context);
 		await SeedLocations(context);
       await SeedCourts(context);
+      await SeedTags(context);
       Console.WriteLine("Done seeding database.");
 	}
 
@@ -203,6 +204,27 @@ public static class SeedData
       }
 		var exist = await dbset.FirstOrDefaultAsync(x => x.Key == department.Key);
 		if (exist == null) dbset.Add(department);
+   }
+   static async Task SeedTags(DefaultContext context)
+   {
+      var departments = context.Departments.Where(x => !x.Removed).ToList();
+      foreach (var department in departments)
+      {
+         var tag = new Tag { Key = department.Key, Title = department.Title };
+         await AddTagIfNotExist(context, tag);
+      } 
+      context.SaveChanges();
+   }
+   static async Task AddTagIfNotExist(DefaultContext context, Tag tag)
+   {
+      var dbset = context.Tags;
+      if (dbset.Count() == 0)
+      {
+         dbset.Add(tag);
+         return;
+      }
+      var exist = await dbset.FirstOrDefaultAsync(x => x.Key == tag.Key || x.Title == tag.Title);
+      if (exist == null) dbset.Add(tag);
    }
    static async Task SeedLocations(DefaultContext context)
    {

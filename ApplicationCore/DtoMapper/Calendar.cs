@@ -4,12 +4,12 @@ using AutoMapper;
 
 namespace ApplicationCore.DtoMapper;
 
-public class DatabaseMappingProfile : Profile
+public class CalendarMappingProfile : Profile
 {
-	public DatabaseMappingProfile()
-	{
-		CreateMap<Database, DatabaseViewModel>();
+   public CalendarMappingProfile()
+   {
+      CreateMap<Calendar, CalendarViewModel>();
 
-		CreateMap<DatabaseViewModel, Database>();
-	}
+      CreateMap<CalendarViewModel, Calendar>();
+   }
 }

@@ -1,18 +1,14 @@
 ﻿using Ardalis.Specification;
 using ApplicationCore.Models;
-using Infrastructure.Helpers;
 
 namespace ApplicationCore.Specifications;
 public class TagSpecification : Specification<Tag>
 {
-	public TagSpecification()
+   public TagSpecification(string title, bool allmatch = false)
 	{
-		Query.Where(item => !item.Removed);
-	}
-   public TagSpecification(string title)
-	{
-      Query.Where(item => !item.Removed && item.Title.ToLower() == title.ToLower());
-	}
+      if(allmatch) Query.Where(item => item.Title.ToLower() == title.ToLower());
+      else Query.Where(item => item.Title.ToLower().Contains(title.ToLower()));
+   }
 
 }
 

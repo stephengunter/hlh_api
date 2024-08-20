@@ -23,8 +23,8 @@ public static class CorsDI
          options.AddPolicy("Api",
          builder =>
          {
-				builder.WithOrigins(clientUrl)
-						.AllowAnyHeader()
+            builder.WithOrigins(clientUrl, adminUrl)
+                 .AllowAnyHeader()
 						.AllowAnyMethod();//.AllowCredentials();
          });
 

@@ -15,35 +15,74 @@ using System.Security.Cryptography;
 using System.Text;
 using Infrastructure.Services;
 using QuestPDF.Helpers;
+using System.IO;
+using MiniExcelLibs;
+using Microsoft.EntityFrameworkCore;
 namespace Web.Controllers.Tests;
 
 public class AATestsController : BaseTestController
 {
-   private readonly ICryptoService _cryptoService;
-   public AATestsController(ICryptoService cryptoService)
+   private readonly DefaultContext _defaultContext;
+   public AATestsController(DefaultContext defaultContext)
    {
-      _cryptoService = cryptoService;
-     
+      _defaultContext = defaultContext;
    }
    [HttpGet]
    public async Task<ActionResult> Index()
    {
-      //var strList = new List<string>();
-      //var lens = new List<int>() { 6, 8, 10, 12, 16, 20, 24, 28, 32, 36, 40, 48, 60, 64, 80, 85, 91, 96 };
-      //for (int i = 0; i < 100; i++)
-      //{
-      //   strList.Add(RandomHelper.GenerateRandomString(lens.GetRandomItem()));
-      //}
-      //foreach (var str in strList) 
-      //{ 
-      //   var enc = _cryptoService.Encrypt(str);
-      //   var dec = _cryptoService.Decrypt(enc);
-      //   if (dec.Equals(str)) Console.WriteLine($"{enc} , {dec}");
-      //   else throw new Exception("not equal");
-      //}
+      string path = @"C:\temp\hlh22.csv";
+      var records = ReadCsvFile(path);
+      foreach (var record in records)
+      {
+         var ets = record.Person;
+         Console.WriteLine(ets);
+         await AddDocModelIfNotExist(_defaultContext, record);
+      }
+      _defaultContext.SaveChanges();
       return Ok();
    }
 
+   List<DocModel> ReadCsvFile(string path)
+   {
+     
+      var records = new List<DocModel>();
+      //using (var reader = new StreamReader(path, Encoding.UTF8))
+      using (var reader = new StreamReader(path))
+      {
+         // Skip the header line
+         var header = reader.ReadLine();
+         while (!reader.EndOfStream)
+         {
+            var line = reader.ReadLine();
+            var values = line!.Split(',');
+
+            var record = new DocModel
+            {
+               Num = values[0].Trim(),
+               Old_Num = values[1].Trim(),
+               Old_CNum = values[2].Trim(),
+               Unit = values[3].Trim(),
+               Date = values[4].Trim(),
+               Person = values[5].Trim(),
+               Result = values[6].Trim(),
+               Title = values[7].Trim()
+            };
+
+            records.Add(record);
+         }
+      }
+      return records;
+   }
+   async Task AddDocModelIfNotExist(DefaultContext context, DocModel record)
+   {
+      var exist = await context.DocModels.FirstOrDefaultAsync(x => x.Num == record.Num);
+      if (exist == null) context.DocModels.Add(record);
+      else
+      {
+         record.SetValuesTo(exist);
+         context.DocModels.Update(exist);
+      }
+   }
    void ExportDatabaseToBacpac(string connectionString, string bacpacFilePath)
    {
       try

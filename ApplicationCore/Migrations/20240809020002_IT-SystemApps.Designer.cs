@@ -4,6 +4,7 @@ using ApplicationCore.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApplicationCore.Migrations
 {
     [DbContext(typeof(DefaultContext))]
-    partial class DefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20240809020002_IT-SystemApps")]
+    partial class ITSystemApps
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -431,54 +434,6 @@ namespace ApplicationCore.Migrations
                     b.HasIndex("ParentId");
 
                     b.ToTable("Departments");
-                });
-
-            modelBuilder.Entity("ApplicationCore.Models.DocModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Date")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Flag")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Num")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Old_CNum")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Old_Num")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Person")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Result")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Unit")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DocModels");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Event", b =>
@@ -1122,6 +1077,18 @@ namespace ApplicationCore.Migrations
                     b.Property<DateTime?>("LastUpdated")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Removed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SubIds")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -1130,6 +1097,8 @@ namespace ApplicationCore.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
 
                     b.ToTable("Tags");
                 });
@@ -1142,11 +1111,10 @@ namespace ApplicationCore.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("EntityId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("EntityType")
+                    b.Property<string>("PostType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -1605,6 +1573,15 @@ namespace ApplicationCore.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("ApplicationCore.Models.Tag", b =>
+                {
+                    b.HasOne("ApplicationCore.Models.Tag", "Parent")
+                        .WithMany("SubItems")
+                        .HasForeignKey("ParentId");
+
+                    b.Navigation("Parent");
+                });
+
             modelBuilder.Entity("ApplicationCore.Models.TagPost", b =>
                 {
                     b.HasOne("ApplicationCore.Models.Tag", "Tag")
@@ -1735,6 +1712,8 @@ namespace ApplicationCore.Migrations
 
             modelBuilder.Entity("ApplicationCore.Models.Tag", b =>
                 {
+                    b.Navigation("SubItems");
+
                     b.Navigation("TagPosts");
                 });
 

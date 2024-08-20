@@ -31,16 +31,11 @@ public class TagsController : BaseAdminController
       _mapper = mapper;
    }
    [HttpGet]
-   public async Task<ActionResult<PagedList<Tag, TagViewModel>>> Index(bool active, int page = 1, int pageSize = 10)
+   public async Task<ActionResult<PagedList<Tag, TagViewModel>>> Index(string keyword, int page = 1, int pageSize = 10)
    {
-      var tags = await _tagsService.FetchAllAsync();
+      var tags = await _tagsService.FetchAsync(keyword);
 
-      if (tags.HasItems())
-      {
-         tags = tags.Where(x => x.Active == active);
-
-         tags = tags.GetOrdered().ToList();
-      }
+      if (tags.HasItems()) tags = tags.GetOrdered().ToList();
       return tags.GetPagedList(_mapper, page, pageSize);
    }
 
@@ -63,7 +58,6 @@ public class TagsController : BaseAdminController
       }
 
       var tag = model.MapEntity(_mapper, User.Id());
-      tag.Order = model.Active ? 0 : -1;
 
       tag = await _tagsService.CreateAsync(tag);
 
@@ -105,14 +99,12 @@ public class TagsController : BaseAdminController
    }
 
    [HttpDelete("{id}")]
-   public async Task<IActionResult> Remove(int id)
+   public async Task<IActionResult> Delete(int id)
    {
       var tag = await _tagsService.GetByIdAsync(id);
       if (tag == null) return NotFound();
 
-      tag.Removed = true;
-      tag.Order = -1;
-      await _tagsService.UpdateAsync(tag);
+      await _tagsService.DeleteAsync(tag);
 
       return NoContent();
    }
