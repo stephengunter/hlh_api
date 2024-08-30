@@ -82,7 +82,7 @@ public static class DateTimeHelpers
 
 	public static DateTime? ToDatetimeOrNull(this string str)
 	{
-		if (String.IsNullOrEmpty(str)) return null;
+		if (string.IsNullOrEmpty(str)) return null;
 
 		DateTime dateValue;
 		if (DateTime.TryParse(str, out dateValue)) return dateValue;
@@ -96,7 +96,23 @@ public static class DateTimeHelpers
 		return defaultValue;
 
 	}
-	public static DateTime ToDatetime(this int val)
+   public static int ToDateNumber(this string str)
+   {
+      // Remove the slashes
+      string cleanedDate = str.Replace("/", "");
+
+      // Try to parse the cleaned string to an integer
+      if (int.TryParse(cleanedDate, out int result))
+      {
+         return result;
+      }
+      else
+      {
+         return 0; // Return 0 if parsing fails
+      }
+
+   }
+   public static DateTime ToDatetime(this int val)
 	{
 		var strVal = val.ToString();
 
