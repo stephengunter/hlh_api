@@ -11,6 +11,7 @@ public class Database : EntityBase, IBaseRecord, IRemovable, ISortable
    public string Title { get; set; } = String.Empty;
    public string Key { get; set; } = String.Empty;
    public string Provider { get; set; } = string.Empty;
+   public string Ps { get; set; } = string.Empty;
    public int HostId { get; set; }
    public virtual required Host Host { get; set; }
 

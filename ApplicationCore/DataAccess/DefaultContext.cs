@@ -1,6 +1,7 @@
 ﻿using ApplicationCore.Models;
 using ApplicationCore.Models.Auth;
 using ApplicationCore.Models.IT;
+using ApplicationCore.Models.Keyin;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System.Reflection;
@@ -32,6 +33,7 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
          }
       }
    }
+   public DbSet<Branch> Branches => Set<Branch>();
    public DbSet<TelName> TelNames => Set<TelName>();
    public DbSet<ModifyRecord> ModifyRecords => Set<ModifyRecord>();
    public DbSet<Profiles> Profiles => Set<Profiles>();
@@ -58,6 +60,12 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
    public DbSet<Database> Databases => Set<Database>();
    #endregion
 
+   #region Keyin
+   public DbSet<KeyinPerson> KeyinPersons => Set<KeyinPerson>();
+   public DbSet<BranchRecord> KeyinBranchRecords => Set<BranchRecord>();
+   public DbSet<PersonRecord> KeyinPersonRecord => Set<PersonRecord>();
+   #endregion
+
    #region Posts	
    public DbSet<Category> Categories => Set<Category>();
    public DbSet<CategoryPost> CategoryPosts => Set<CategoryPost>();
@@ -76,9 +84,6 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
    public DbSet<LocationEvent> LocationEvents => Set<LocationEvent>();
    public DbSet<Calendar> Calendars => Set<Calendar>();
    public DbSet<EventCalendar> EventCalendars => Set<EventCalendar>();
-
-   public DbSet<DocModel> DocModels => Set<DocModel>();
-   public DbSet<UnitPerson> UnitPersons => Set<UnitPerson>();
 
    public override int SaveChanges() => SaveChangesAsync().GetAwaiter().GetResult();
 

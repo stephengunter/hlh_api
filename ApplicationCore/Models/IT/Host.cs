@@ -10,6 +10,7 @@ public class Host : EntityBase, IBaseRecord, IRemovable, ISortable
    public string IP { get; set; } = String.Empty;
    public string Title { get; set; } = String.Empty;
    public string Key { get; set; } = String.Empty;
+   public string Ps { get; set; } = string.Empty;
    public bool Removed { get; set; }
    public int Order { get; set; }
    public bool Active => ISortableHelpers.IsActive(this);

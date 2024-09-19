@@ -4,6 +4,7 @@ using ApplicationCore.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApplicationCore.Migrations
 {
     [DbContext(typeof(DefaultContext))]
-    partial class DefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20240910061523_Keyins-BranchId")]
+    partial class KeyinsBranchId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -460,6 +463,72 @@ namespace ApplicationCore.Migrations
                     b.ToTable("Departments");
                 });
 
+            modelBuilder.Entity("ApplicationCore.Models.DocModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Date")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Flag")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Keep")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Modified")
+                        .HasColumnType("int");
+
+                    b.Property<string>("NewPersonId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NewPersonName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Num")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Old_CNum")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Old_Num")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Person")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Ps")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Result")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DocModels");
+                });
+
             modelBuilder.Entity("ApplicationCore.Models.Event", b =>
                 {
                     b.Property<int>("Id")
@@ -893,53 +962,13 @@ namespace ApplicationCore.Migrations
                     b.ToTable("JobUserProfiles");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.Keyin.BranchRecord", b =>
+            modelBuilder.Entity("ApplicationCore.Models.KeyinPerson", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AbsentRate")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("BranchId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Diff")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Month")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Rank")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Score")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Year")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Keyin.BranchRecords");
-                });
-
-            modelBuilder.Entity("ApplicationCore.Models.Keyin.KeyinPerson", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Account")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("AllPass")
                         .HasColumnType("bit");
@@ -960,7 +989,7 @@ namespace ApplicationCore.Migrations
                     b.ToTable("Keyin.Persons");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.Keyin.PersonRecord", b =>
+            modelBuilder.Entity("ApplicationCore.Models.KeyinRecord", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -968,12 +997,11 @@ namespace ApplicationCore.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<double>("CorrectRate")
-                        .HasColumnType("float");
+                    b.Property<int>("BranchId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("Diff")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Count")
+                        .HasColumnType("int");
 
                     b.Property<int>("Month")
                         .HasColumnType("int");
@@ -981,19 +1009,12 @@ namespace ApplicationCore.Migrations
                     b.Property<int>("PersonId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Score")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Unit")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("Year")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Keyin.PersonRecords");
+                    b.ToTable("Keyin.Records");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Location", b =>
@@ -1339,6 +1360,43 @@ namespace ApplicationCore.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("TelNames");
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.UnitPerson", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Confirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Flag")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Ip")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Person")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Saves")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UnitPersons");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.User", b =>

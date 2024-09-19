@@ -8,7 +8,14 @@ public static class CommonHelpers
 
 		return value;
 	}
-	public static decimal ToDecimal(this string str)
+   public static double ToDouble(this string str)
+   {
+      double value;
+      if (!Double.TryParse(str, out value)) value = 0;
+
+      return value;
+   }
+   public static decimal ToDecimal(this string str)
 	{
 		decimal value;
 		if (!Decimal.TryParse(str, out value)) value = 0;

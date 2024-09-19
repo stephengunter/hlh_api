@@ -32,10 +32,10 @@ public class TagsController : BaseApiController
       _mapper = mapper;
    }
    [HttpGet]
-   public async Task<ActionResult<IEnumerable<Tag>>> Fetch(string? keyword = "")
+   public async Task<ActionResult<IEnumerable<string>>> Fetch(string? keyword = "")
    {
       var tags = await _tagsService.FetchAsync(keyword);
-      return tags.ToList();
+      return tags.Select(x => x.Title).ToList();
    }
 
 }

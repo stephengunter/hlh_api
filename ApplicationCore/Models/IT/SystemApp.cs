@@ -12,6 +12,7 @@ public class SystemApp : EntityBase, IBaseRecord, IRemovable, ISortable
    public string Key { get; set; } = string.Empty;
    public string CredentialInfoId { get; set; } = string.Empty;
    public string? HostId { get; set; }
+   public string Ps { get; set; } = string.Empty;
    public bool Removed { get; set; }
    public int Order { get; set; }
    public bool Active => ISortableHelpers.IsActive(this);

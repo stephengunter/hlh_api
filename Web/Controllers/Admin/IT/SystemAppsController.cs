@@ -7,6 +7,7 @@ using ApplicationCore.Models.IT;
 using ApplicationCore.Authorization;
 using Infrastructure.Helpers;
 using Infrastructure.Paging;
+using Web.Models;
 
 namespace Web.Controllers.Admin.IT;
 
@@ -20,6 +21,19 @@ public class SystemAppsController : BaseAdminITController
       _systemAppService = systemAppService;
       _mapper = mapper;
    }
+   [HttpGet("init")]
+   public async Task<ActionResult<SystemAppsIndexModel>> Init()
+   {
+      bool active = true;
+      int page = 1;
+      int pageSize = 25;
+      string? keyword = string.Empty;
+
+      var request = new SystemAppFetchRequest(active, page, pageSize, keyword);
+
+      return new SystemAppsIndexModel(request);
+   }
+
    [HttpGet]
    public async Task<ActionResult<PagedList<SystemApp, SystemAppViewModel>>> Index(bool active, int page = 1, int pageSize = 10)
    {
