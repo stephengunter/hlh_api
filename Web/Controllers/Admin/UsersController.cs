@@ -12,6 +12,8 @@ using Microsoft.Extensions.Options;
 using ApplicationCore.Views;
 using Microsoft.IdentityModel.Tokens;
 using ApplicationCore.Authorization;
+using System.Text.RegularExpressions;
+using System.IO;
 
 namespace Web.Controllers.Admin;
 
@@ -132,7 +134,7 @@ public class UsersController : BaseAdminController
       }
 
       var file = request.Files.FirstOrDefault();
-      if (Path.GetExtension(file!.FileName).ToLower() != ".txt")
+      if (Path.GetExtension(file!.FileName).ToLower() != ".csv")
       {
          ModelState.AddModelError("files", "檔案格式錯誤");
          return BadRequest(ModelState);
@@ -141,57 +143,72 @@ public class UsersController : BaseAdminController
       var exLines = new List<string>();
       using (var reader = new StreamReader(file.OpenReadStream(), Encoding.UTF8))
       {
-         while (reader.Peek() >= 0)
+         // Skip the header line
+         var header = reader.ReadLine();
+
+         while (!reader.EndOfStream)
          {
-            var line = await reader.ReadLineAsync();
-            if (!String.IsNullOrEmpty(line))
+            var line = reader.ReadLine();
+            var parts = line!.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 3)
             {
-               string[] parts = line.Split(new char[] { '\t' }, StringSplitOptions.RemoveEmptyEntries);
-               if (parts.Length == 3)
+               string name = parts[0].Trim();
+               string type = parts[1].Trim();
+               string title = parts[2].Trim();
+               if (type == "使用者")
                {
-                  string name = parts[0].Trim();
-                  string type = parts[1].Trim();
-                  string title = parts[2].Trim();
-                  if (type == "使用者")
+                  string pattern = @"^(.*)\((.*)\)$";
+                  var match = Regex.Match(title, pattern);
+
+                  if (match.Success)
                   {
-                     users.Add(new User
-                     {
-                        UserName = name,
-                        Name = title,
-                        Email = $"{name}@{_judSettings.Domain}",
-                        LastUpdated = DateTime.Now
-                     });
+                     string part1 = match.Groups[1].Value; // Text outside the parentheses
+                     string part2 = match.Groups[2].Value; // Text inside the parentheses
+
+                     Console.WriteLine($"Part 1: {part1}");
+                     Console.WriteLine($"Part 2: {part2}");
+
+                     //var result = new[] { part1, part2 };  // Create an array of both parts
                   }
                   else
                   {
-                     exLines.Add(line);
+                     Console.WriteLine(title);
                   }
 
+                  users.Add(new User
+                  {
+                     UserName = name,
+                     Name = title,
+                     Email = $"{name}@{_judSettings.Domain}",
+                     LastUpdated = DateTime.Now
+                  });
                }
                else
                {
                   exLines.Add(line);
                }
-            }
-            
-         }
-           
-      }
 
-      foreach (var user in users) 
-      {
-         var existingUser = await _usersService.FindByUsernameAsync(user.UserName!);
-         if (existingUser is null)
-         {
-            await _usersService.CreateAsync(user);
-         }
-         else
-         {
-            existingUser.Email = user.Email;
-            existingUser.Name = user.Name;
-            await _usersService.UpdateAsync(existingUser);
+            }
+            else
+            {
+               exLines.Add(line);
+            }
          }
       }
+      //foreach (var user in users) 
+      //{
+      //   var existingUser = await _usersService.FindByUsernameAsync(user.UserName!);
+      //   if (existingUser is null)
+      //   {
+      //      await _usersService.CreateAsync(user);
+      //   }
+      //   else
+      //   {
+      //      existingUser.Email = user.Email;
+      //      existingUser.Name = user.Name;
+      //      await _usersService.UpdateAsync(existingUser);
+      //   }
+      //}
 
       return Ok(exLines);
    }
