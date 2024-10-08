@@ -40,6 +40,7 @@ try
    #endregion
 
    #region Add Configurations
+   builder.Services.Configure<LdapSettings>(Configuration.GetSection(SettingsKeys.Ldap));
    builder.Services.Configure<DbSettings>(Configuration.GetSection(SettingsKeys.Db));
    builder.Services.Configure<AppSettings>(Configuration.GetSection(SettingsKeys.App));
 	builder.Services.Configure<AdminSettings>(Configuration.GetSection(SettingsKeys.Admin));

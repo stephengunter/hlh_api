@@ -13,9 +13,10 @@ namespace ApplicationCore.Services;
 public interface IUsersService
 {
    #region Fetch
-   Task<IEnumerable<User>> FetchByRoleAsync(Role? role, bool includeRoles = false);
+   Task<IEnumerable<User>> FetchAllAsync(bool includeRoles = false);
+   Task<IEnumerable<User>> FetchByRolesAsync(IEnumerable<Role> roles, bool includeRoles = false);
    Task<IEnumerable<User>> FetchByIdsAsync(IEnumerable<string> ids, bool includeRoles = false);
-   IEnumerable<Role> FetchRoles();
+   Task<IEnumerable<Role>> FetchRolesAsync();
 	#endregion
 
 	#region Find
@@ -70,20 +71,22 @@ public class UsersService : IUsersService
 	string BossRoleName = AppRoles.Boss.ToString();
 
    #region Fetch
-   public async Task<IEnumerable<User>> FetchByRoleAsync(Role? role, bool includeRoles = false)
-	{
-		var users = await _usersRepository.ListAsync(new UsersSpecification(includeRoles));
-		if (role is null) return users;
-
-		return FetchByRole(users, role);
-   }
+   public async Task<IEnumerable<User>> FetchAllAsync(bool includeRoles = false)
+    => await _usersRepository.ListAsync(new UsersSpecification(includeRoles));
    public async Task<IEnumerable<User>> FetchByIdsAsync(IEnumerable<string> ids, bool includeRoles = false)
       => await _usersRepository.ListAsync(new UsersSpecification(ids, includeRoles));
-   public IEnumerable<Role> FetchRoles() => _roleManager.Roles.ToList();
-	#endregion
+   public async Task<IEnumerable<Role>> FetchRolesAsync() => await _roleManager.Roles.ToListAsync();
+   public async Task<IEnumerable<User>> FetchByRolesAsync(IEnumerable<Role> roles, bool includeRoles = false)
+   {
+      var users = await _usersRepository.ListAsync(new UsersSpecification(includeRoles));
+      if (roles.IsNullOrEmpty()) return users;
 
-	#region Find
-	public async Task<User?> FindByIdAsync(string id) => await _userManager.FindByIdAsync(id);
+      return FetchByRoles(users, roles);
+   }
+   #endregion
+
+   #region Find
+   public async Task<User?> FindByIdAsync(string id) => await _userManager.FindByIdAsync(id);
 	public async Task<User?> FindByEmailAsync(string email) => await _userManager.FindByEmailAsync(email);
    public async Task<User?> FindByUsernameAsync(string username) => await _userManager.FindByNameAsync(username);
    public User? FindByPhone(string phone) => _userManager.Users.FirstOrDefault(x => x.PhoneNumber == phone);
@@ -169,10 +172,11 @@ public class UsersService : IUsersService
 	#endregion
 
 	#region Helper
-	IEnumerable<User> FetchByRole(IEnumerable<User> users, Role role)
-	{
-      var userIdsInRole = _context.UserRoles.Where(x => x.RoleId == role.Id).Select(b => b.UserId).Distinct().ToList();
-      return users.Where(user => userIdsInRole.Contains(user.Id));
+   IEnumerable<User> FetchByRoles(IEnumerable<User> users, IEnumerable<Role> roles)
+   {
+      var roleIds = roles.Select(x => x.Id);
+      var userIdsInRoles = _context.UserRoles.Where(x => roleIds.Contains(x.RoleId)).Select(b => b.UserId).Distinct().ToList();
+      return users.Where(user => userIdsInRoles.Contains(user.Id));
    }
    #endregion
 

@@ -12,6 +12,9 @@ public class ProfilesViewModel
 
    public string Name { get; set; } = String.Empty;
 
+   public int? DepartmentId { get; set; }
+   public DepartmentViewModel? Department { get; set; }
+
    public string? Ps { get; set; }
 
    public DateTime CreatedAt { get; set; } = DateTime.Now;

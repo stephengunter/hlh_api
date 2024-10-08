@@ -18,6 +18,8 @@ public class Profiles : IAggregateRoot, IBaseRecord
    public DateTime? LastUpdated { get; set; }
    public string? UpdatedBy { get; set; }
 
+   public int? DepartmentId { get; set; }
+
    [Required]
 	public virtual User? User { get; set; }
 

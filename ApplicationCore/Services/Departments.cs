@@ -18,6 +18,7 @@ public interface IDepartmentsService
    Task<IEnumerable<Department>> FetchAllAsync();
    Task<Department?> GetByIdAsync(int id);
    Task<Department?> FindByKeyAsync(string key);
+   Task<Department?> FindByTitleAsync(string title);
 
    Task<Department> CreateAsync(Department department);
 	Task UpdateAsync(Department department);
@@ -45,6 +46,9 @@ public class DepartmentsService : IDepartmentsService
 
    public async Task<Department?> FindByKeyAsync(string key)
       => await _departmentsRepository.FirstOrDefaultAsync(new DepartmentSpecification(key));
+
+   public async Task<Department?> FindByTitleAsync(string title)
+      => await _departmentsRepository.FirstOrDefaultAsync(new DepartmentTitleSpecification(title));
 
    public async Task<Department> CreateAsync(Department department)
 		=> await _departmentsRepository.AddAsync(department);

@@ -30,9 +30,10 @@ public static class UsersHelpers
 
 
    #region Views
-   public static UserViewModel MapViewModel(this User user, IMapper mapper)
+   public static UserViewModel MapViewModel(this User user, IMapper mapper, Department? department = null)
    {
       var model = mapper.Map<UserViewModel>(user);
+      if (user.Profiles != null) model.Profiles = user.Profiles.MapViewModel(mapper, department);
       if (user.UserRoles!.HasItems()) model.Roles = user.UserRoles!.Select(x => x.RoleId).JoinToString(); 
       return model;
    }

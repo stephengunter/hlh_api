@@ -5,13 +5,18 @@ using Ardalis.Specification;
 using System.Text.Json;
 using System.IO;
 using Novell.Directory.Ldap;
+using ApplicationCore.Services.Auth;
+using Microsoft.Extensions.Options;
+using ApplicationCore.Settings;
 
 namespace Web.Controllers.Tests;
 
 public class AATestsController : BaseTestController
 {
-   public AATestsController(DefaultContext defaultContext)
+   private readonly ILdapService _ldapService;
+   public AATestsController(IOptions<LdapSettings> ldapSettings)
    {
+      _ldapService = new LdapService(ldapSettings.Value);
    }
 
    
@@ -19,9 +24,11 @@ public class AATestsController : BaseTestController
    [HttpGet]
    public async Task<ActionResult> Index()
    {
-      AD();
+      string username = "stephen.chung";
+      string password = "Stephen@79";
+      var adUser = _ldapService.FetchAll();
 
-      return Ok();
+      return Ok(adUser);
    }
 
    string Test()

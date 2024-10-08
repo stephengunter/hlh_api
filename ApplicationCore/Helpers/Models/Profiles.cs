@@ -6,8 +6,12 @@ using Infrastructure.Helpers;
 namespace ApplicationCore.Helpers;
 public static class ProfilesHelpers
 {
-   public static ProfilesViewModel MapViewModel(this Profiles profiles, IMapper mapper)
-      => mapper.Map<ProfilesViewModel>(profiles);
+   public static ProfilesViewModel MapViewModel(this Profiles profiles, IMapper mapper, Department? department = null)
+   { 
+      var model = mapper.Map<ProfilesViewModel>(profiles);
+      if (department != null) model.Department = department.MapViewModel(mapper);
+      return model;
+   }
 
    
    public static Profiles MapEntity(this ProfilesViewModel model, IMapper mapper, string currentUserId, Profiles? entity = null)

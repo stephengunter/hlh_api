@@ -14,48 +14,98 @@ using Microsoft.IdentityModel.Tokens;
 using ApplicationCore.Authorization;
 using System.Text.RegularExpressions;
 using System.IO;
+using Infrastructure.Paging;
+using ApplicationCore.Services.Auth;
+using ApplicationCore;
+using ApplicationCore.Views.AD;
 
 namespace Web.Controllers.Admin;
 
 public class UsersController : BaseAdminController
 {
    private readonly IUsersService _usersService;
+   private readonly IProfilesService _profilesService;
+   private readonly ILdapService _ldapService;
+   private readonly IDepartmentsService _departmentsService;
    private readonly IMapper _mapper;
-   private readonly JudSettings _judSettings;
    private readonly AdminSettings _adminSettings;
 
-   public UsersController(IUsersService usersService, IOptions<JudSettings> judSettings,
-      IOptions<AdminSettings> adminSettings, IMapper mapper)
+   public UsersController(IUsersService usersService, IProfilesService profilesService, IOptions<LdapSettings> ldapSettings,
+      IDepartmentsService departmentsService, IOptions<AdminSettings> adminSettings, IMapper mapper)
    {
       _usersService = usersService;
-      _judSettings = judSettings.Value;
+      _profilesService = profilesService;
+      _departmentsService = departmentsService;
       _mapper = mapper;
       _adminSettings = adminSettings.Value;
+
+      _ldapService = Factories.CreateLdapService(ldapSettings.Value);
    }
-   [HttpGet("")]
-   public async Task<ActionResult<UsersAdminModel>> Index(bool active, string? role, string? keyword, int page = 1, int pageSize = 10)
+   [HttpGet("init")]
+   public async Task<ActionResult<UsersAdminModel>> Init()
    {
-      var request = new UsersAdminRequest(active, role, keyword, page, pageSize);
-      var model = new UsersAdminModel(request);
+      bool active = true;
+      int department = 0;
+      string role = "";
+      string keyword = "";
+      int page = 1;
+      int pageSize = 10;
 
-      var roles = _usersService.FetchRoles();
+      var request = new UsersAdminRequest(active, department, role, keyword, page, pageSize);
 
-      model.Roles = roles.MapViewModelList(_mapper);
+      var roles = await _usersService.FetchRolesAsync();
+      var departments = await _departmentsService.FetchAllAsync();
 
-      var selectedRole = GetRole(request, roles);
+      return new UsersAdminModel(request, roles.MapViewModelList(_mapper), departments.MapViewModelList(_mapper));
+   }
+
+   [HttpGet]
+   public async Task<ActionResult<PagedList<User, UserViewModel>>> Index(bool active, int? department, string? role, string? keyword, int page = 1, int pageSize = 10)
+   {
+      bool includeRoles = true;
+      var roleNames = new List<string>();
+      if (!string.IsNullOrEmpty(role)) roleNames = role.Split(',').ToList();
+
+      Department? selectedDepartment = null;
+      if (department.HasValue && department.Value > 0)
+      {
+         selectedDepartment = await _departmentsService.GetByIdAsync(department.Value);
+         if (selectedDepartment == null) ModelState.AddModelError("department", $"department not found. id: {department.Value}");
+      }
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
-      var users = await _usersService.FetchByRoleAsync(selectedRole);
+      IEnumerable<User> users;
+      if (roleNames.Count == 0)
+      {
+         users = await _usersService.FetchAllAsync(includeRoles);
+      }
+      else
+      {
+         var selectedRoles = new List<Role>();
+         foreach (var roleName in roleNames)
+         {
+            var selectedRole = await _usersService.FindRoleAsync(roleName);
+            if (selectedRole == null) ModelState.AddModelError("role", $"Role '{roleName}' not found.");
+            else selectedRoles.Add(selectedRole);
+         }
+         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-      users = users.Where(u => u.Active == request.Active);
+         users = await _usersService.FetchByRolesAsync(selectedRoles, includeRoles);
+      }
 
-      var keywords = request.Keyword.GetKeywords();
+      if (selectedDepartment != null)
+      {
+         var profiles = await _profilesService.FetchAsync(selectedDepartment);
+         var userIds = profiles.Select(x => x.UserId).ToList();
+         if(userIds.HasItems()) users = users.Where(u => userIds.Contains(u.Id));
+      }           
+
+      users = users.Where(u => u.Active == active);
+
+      var keywords = keyword.GetKeywords();
       if (keywords.HasItems()) users = users.FilterByKeyword(keywords);
 
-      
-      model.PagedList = users.GetPagedList(_mapper, page, pageSize);
-
-      return model;
+      return users.GetPagedList(_mapper, page, pageSize);
    }
 
    [HttpGet("create")]
@@ -114,116 +164,60 @@ public class UsersController : BaseAdminController
 
       return NoContent();
    }
-
-   [HttpGet("roles")]
-   public ActionResult<IEnumerable<RoleViewModel>> GetRoles()
-   {
-      var roles = _usersService.FetchRoles();
-      return roles.MapViewModelList(_mapper);
-   }
-   [HttpPost("import")]
-   public async Task<IActionResult> Import([FromForm] AdminFileRequest request)
+   [HttpPost("sync")]
+   public async Task<IActionResult> Sync([FromBody] AdminRequest request)
    {
       ValidateRequest(request, _adminSettings);
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
-      if (request.Files.Count < 1)
-      {
-         ModelState.AddModelError("files", "必須上傳檔案");
-         return BadRequest(ModelState);
-      }
+      var adUsers = _ldapService.FetchAll();
+      adUsers = adUsers.Where(x => !String.IsNullOrEmpty(x.Department));
+      foreach (var aduser in adUsers) 
+      { 
+         var department = await _departmentsService.FindByTitleAsync(aduser.Department);
+         if (department == null) continue;
 
-      var file = request.Files.FirstOrDefault();
-      if (Path.GetExtension(file!.FileName).ToLower() != ".csv")
-      {
-         ModelState.AddModelError("files", "檔案格式錯誤");
-         return BadRequest(ModelState);
-      }
-      var users = new List<User>();
-      var exLines = new List<string>();
-      using (var reader = new StreamReader(file.OpenReadStream(), Encoding.UTF8))
-      {
-         // Skip the header line
-         var header = reader.ReadLine();
-
-         while (!reader.EndOfStream)
+         var user = await _usersService.FindByUsernameAsync(aduser.Username);
+         if (user == null)
          {
-            var line = reader.ReadLine();
-            var parts = line!.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length == 3)
+            user = await _usersService.CreateAsync(new User
             {
-               string name = parts[0].Trim();
-               string type = parts[1].Trim();
-               string title = parts[2].Trim();
-               if (type == "使用者")
-               {
-                  string pattern = @"^(.*)\((.*)\)$";
-                  var match = Regex.Match(title, pattern);
-
-                  if (match.Success)
-                  {
-                     string part1 = match.Groups[1].Value; // Text outside the parentheses
-                     string part2 = match.Groups[2].Value; // Text inside the parentheses
-
-                     Console.WriteLine($"Part 1: {part1}");
-                     Console.WriteLine($"Part 2: {part2}");
-
-                     //var result = new[] { part1, part2 };  // Create an array of both parts
-                  }
-                  else
-                  {
-                     Console.WriteLine(title);
-                  }
-
-                  users.Add(new User
-                  {
-                     UserName = name,
-                     Name = title,
-                     Email = $"{name}@{_judSettings.Domain}",
-                     LastUpdated = DateTime.Now
-                  });
-               }
-               else
-               {
-                  exLines.Add(line);
-               }
-
-            }
-            else
-            {
-               exLines.Add(line);
-            }
+               UserName = aduser.Username,
+               Name = aduser.Username,
+               SecurityStamp = Guid.NewGuid().ToString(),
+               Active = true,
+               CreatedAt = DateTime.Now,
+               CreatedBy = User.Id()
+            });
          }
-      }
-      //foreach (var user in users) 
-      //{
-      //   var existingUser = await _usersService.FindByUsernameAsync(user.UserName!);
-      //   if (existingUser is null)
-      //   {
-      //      await _usersService.CreateAsync(user);
-      //   }
-      //   else
-      //   {
-      //      existingUser.Email = user.Email;
-      //      existingUser.Name = user.Name;
-      //      await _usersService.UpdateAsync(existingUser);
-      //   }
-      //}
 
-      return Ok(exLines);
+         var profiles = await _profilesService.FindAsync(user);
+         if (profiles == null)
+         {
+            profiles = await _profilesService.CreateAsync(new Profiles
+            {
+               UserId = user.Id,
+               Name = aduser.Title,
+               DepartmentId = department.Id,
+               CreatedAt = DateTime.Now,
+               CreatedBy = User.Id()
+            });
+         }
+         else
+         {
+            profiles.Name = aduser.Title;
+            profiles.DepartmentId = department.Id;
+            profiles.LastUpdated = DateTime.Now;
+            profiles.UpdatedBy = User.Id();
+
+            await _profilesService.UpdateAsync(profiles);
+         }
+
+      }
+
+      return Ok();
    }
 
-   Role? GetRole(UsersAdminRequest request, IEnumerable<Role> roles)
-   {
-      if (String.IsNullOrEmpty(request.Role)) return null;
-      var role = roles.FirstOrDefault(role => request.Role.EqualTo(role.Name!));
-      if (role is null)
-      {
-         ModelState.AddModelError("role", $"Role '{ request.Role }' not found.");
-         return null;
-      }
-      return role;
-   }
 
    async Task ValidateRequestAsync(UserViewModel model)
    {

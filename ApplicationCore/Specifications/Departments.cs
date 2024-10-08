@@ -23,3 +23,11 @@ public class DepartmentSpecification : Specification<Department>
    }
 }
 
+public class DepartmentTitleSpecification : Specification<Department>
+{
+   public DepartmentTitleSpecification(string title)
+   {
+      Query.Where(item => !item.Removed).Where(item => item.Title == title);
+   }
+}
+

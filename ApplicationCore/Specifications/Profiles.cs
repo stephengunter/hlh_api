@@ -8,5 +8,9 @@ public class ProfilesSpecification : Specification<Profiles>
    {
       Query.Where(p => p.UserId == user.Id);
    }
+   public ProfilesSpecification(Department department)
+   {
+      Query.Where(p => p.DepartmentId == department.Id);
+   }
 }
 
