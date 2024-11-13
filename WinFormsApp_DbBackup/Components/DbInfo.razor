@@ -1,0 +1,25 @@
+﻿@using ApplicationCore.Settings;
+
+<h4>Connection Details:</h4>
+
+@if (DbSettings == null)
+{
+   <p><em>No database information available.</em></p>
+}
+else
+{
+   <ul>
+      <li>
+         <strong>Provider:</strong> @DbSettings.Provider<br />
+         <strong>Name:</strong> @DbSettings.Name<br />
+         <strong>Host:</strong> @DbSettings.Host<br />
+         <strong>Username:</strong> @DbSettings.Username<br />
+         <strong>Title:</strong> @DbSettings.Title
+      </li>
+   </ul>
+}
+
+@code {
+   [Parameter]
+   public DbSettings? DbSettings { get; set; }
+}

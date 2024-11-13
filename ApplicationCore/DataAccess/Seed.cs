@@ -17,6 +17,8 @@ public static class SeedData
    static string RecorderRoleName = AppRoles.Recorder.ToString();
    static string ClerkRoleName = AppRoles.Clerk.ToString();
    static string FilesRoleName = AppRoles.Files.ToString();
+   static string DriverRoleName = AppRoles.Driver.ToString();
+   static string CarManagerRoleName = AppRoles.CarManager.ToString();
 
    public static async Task EnsureSeedData(IServiceProvider serviceProvider, ConfigurationManager Configuration)
 	{
@@ -37,7 +39,8 @@ public static class SeedData
 
 		var context = serviceProvider.GetRequiredService<DefaultContext>();
 	   context.Database.EnsureCreated();
-		using (var roleManager = serviceProvider.GetRequiredService<RoleManager<Role>>())
+
+      using (var roleManager = serviceProvider.GetRequiredService<RoleManager<Role>>())
 		{
 			await SeedRoles(roleManager);
 		}
@@ -68,7 +71,8 @@ public static class SeedData
       Console.WriteLine("Done seeding database.");
 	}
 
-	static async Task SeedRoles(RoleManager<Role> roleManager)
+
+   static async Task SeedRoles(RoleManager<Role> roleManager)
 	{
 		var roles = new List<Role> 
 		{ 
@@ -77,7 +81,9 @@ public static class SeedData
          new Role { Name = ITRoleName, Title = "資訊人員" },
          new Role { Name = RecorderRoleName, Title = "錄事" },
          new Role { Name = ClerkRoleName, Title = "書記官" },
-         new Role { Name = FilesRoleName, Title = "檔案管理員" }
+         new Role { Name = FilesRoleName, Title = "檔案管理員" },
+         new Role { Name = DriverRoleName, Title = "司機" },
+         new Role { Name = CarManagerRoleName, Title = "車輛管理" }
       };
 		foreach (var item in roles) await AddRoleIfNotExist(roleManager, item);
 	}

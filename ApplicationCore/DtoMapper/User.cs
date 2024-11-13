@@ -14,13 +14,4 @@ public class UserMappingProfile : Profile
 		CreateMap<UserViewModel, User>();
 	}
 }
-public class RoleMappingProfile : Profile
-{
-   public RoleMappingProfile()
-   {
-      CreateMap<Role, RoleViewModel>();
-
-      CreateMap<RoleViewModel, Role>();
-   }
-}
 

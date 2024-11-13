@@ -25,13 +25,14 @@ public class LdapService : ILdapService
    private string ATTR_CN = "cn";
    private string ATTR_DISPLAY_NAME = "displayName";
    private string ATTR_DEPARTMENT = "department";
+   private string ATTR_TITLE = "title";
    public LdapService(LdapSettings settings)
    {
       _settings = settings;
    }
 
    string AdminLdapRdn => $"{_settings.AdminUser}@{DOMAIN}";
-   List<string> AttrKeys => new List<string> { ATTR_CN, ATTR_DISPLAY_NAME, ATTR_DEPARTMENT };
+   List<string> AttrKeys => new List<string> { ATTR_CN, ATTR_DISPLAY_NAME, ATTR_DEPARTMENT, ATTR_TITLE };
 
    public AdUser? CheckAuth(string username, string password)
    {
@@ -70,13 +71,16 @@ public class LdapService : ILdapService
    AdUser ResolveAdUser(LdapEntry entry)
    {
       var attributes = entry.GetAttributeSet();
+      
       string userName = GetAttributeValue(attributes, ATTR_CN);
-      string title = GetAttributeValue(attributes, ATTR_DISPLAY_NAME);
+      string name = GetAttributeValue(attributes, ATTR_DISPLAY_NAME);
+      string title = GetAttributeValue(attributes, ATTR_TITLE);
       string dpt = GetAttributeValue(attributes, ATTR_DEPARTMENT);
 
       return new AdUser
       {
          Username = userName,
+         Name = name,
          Title = title,
          Department = dpt
       };

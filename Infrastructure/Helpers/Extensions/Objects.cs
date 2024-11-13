@@ -1,28 +1,50 @@
 using Newtonsoft.Json;
+using System.Reflection;
 
 namespace Infrastructure.Helpers;
 
 public static class ObjectsHelpers
 {
-	public static void SetValuesTo(this object source, object dest, string excepts = "")
+   public static List<string> GetStaticKeys<T>()
    {
-		var exceptsNames = excepts.SplitToList();
+      List<string> keys = new List<string>();
+      Type type = typeof(T);
 
+      // Get all public static fields of type T
+      foreach (FieldInfo field in type.GetFields(BindingFlags.Public | BindingFlags.Static))
+      {
+         keys.Add(field.Name);  // Add the field name to the list
+      }
+
+      return keys;
+   }
+	public static void SetValuesTo(this object source, object dest, ICollection<string> exceptsNames)
+	{
       var sourceProperties = source.GetType().GetProperties();
       var destProperties = dest.GetType().GetProperties();
 
       foreach (var sourceProperty in sourceProperties)
       {
-			var isExcept = (exceptsNames.FirstOrDefault(x => sourceProperty.Name.EqualTo(x)) != null);
-			if (isExcept) continue;
-
+         if (exceptsNames.HasItems())
+         {
+            var isExcept = (exceptsNames.FirstOrDefault(x => sourceProperty.Name.EqualTo(x)) != null);
+            if (isExcept) continue;
+         }
          var destProperty = destProperties.FirstOrDefault(p => p.Name == sourceProperty.Name);
-
          if (destProperty != null && destProperty.CanWrite)
          {
             var value = sourceProperty.GetValue(source);
             destProperty.SetValue(dest, value);
          }
+      }
+   }
+   public static void SetValuesTo(this object source, object dest, string excepts = "")
+   {
+      if (string.IsNullOrEmpty(excepts)) SetValuesTo(source, dest, new List<string>());
+      else
+      {
+         var exceptsNames = excepts.SplitToList();
+         SetValuesTo(source, dest, exceptsNames);
       }
    }
 

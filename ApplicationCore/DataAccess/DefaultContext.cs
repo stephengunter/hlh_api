@@ -1,11 +1,14 @@
 ﻿using ApplicationCore.Models;
 using ApplicationCore.Models.Auth;
+using ApplicationCore.Models.Cars;
 using ApplicationCore.Models.IT;
 using ApplicationCore.Models.Keyin;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System.Reflection;
 using Microsoft.AspNetCore.Identity;
+using ApplicationCore.Models.Criminals;
+using ApplicationCore.Models.Fetches;
 
 namespace ApplicationCore.DataAccess;
 public class DefaultContext : IdentityDbContext<User, Role, string,
@@ -50,8 +53,13 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
    public DbSet<AuthToken> AuthTokens => Set<AuthToken>();
    #endregion
 
-   
    public DbSet<Court> Courts => Set<Court>();
+
+   #region Cars
+   public DbSet<Car> Cars => Set<Car>();
+   public DbSet<CarType> CarTypes => Set<CarType>();
+   public DbSet<CarRent> CarRents => Set<CarRent>();
+   #endregion
 
    #region IT
    public DbSet<Host> Hosts => Set<Host>();
@@ -64,6 +72,14 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
    public DbSet<KeyinPerson> KeyinPersons => Set<KeyinPerson>();
    public DbSet<BranchRecord> KeyinBranchRecords => Set<BranchRecord>();
    public DbSet<PersonRecord> KeyinPersonRecord => Set<PersonRecord>();
+   #endregion
+
+   #region Criminal
+   public DbSet<CriminalFetchRecord> CriminalFetchRecords => Set<CriminalFetchRecord>();
+   #endregion
+   #region Fetches
+   public DbSet<FetchesRecord> FetchesRecords => Set<FetchesRecord>();
+   public DbSet<FetchesSystem> FetchesSystems => Set<FetchesSystem>();
    #endregion
 
    #region Posts	

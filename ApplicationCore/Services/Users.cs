@@ -16,15 +16,13 @@ public interface IUsersService
    Task<IEnumerable<User>> FetchAllAsync(bool includeRoles = false);
    Task<IEnumerable<User>> FetchByRolesAsync(IEnumerable<Role> roles, bool includeRoles = false);
    Task<IEnumerable<User>> FetchByIdsAsync(IEnumerable<string> ids, bool includeRoles = false);
-   Task<IEnumerable<Role>> FetchRolesAsync();
 	#endregion
 
 	#region Find
 	Task<User?> FindByIdAsync(string id);
 	Task<User?> FindByEmailAsync(string email);
    Task<User?> FindByUsernameAsync(string username);
-   User? FindByPhone(string phone);
-   Task <Role?> FindRoleAsync(string name);
+   Task<User?> FindByPhoneAsync(string phone);
    #endregion
 
    #region Get
@@ -34,13 +32,14 @@ public interface IUsersService
    #region Store
    Task<User> CreateAsync(User user);
 	Task UpdateAsync(User user);
+   Task UpdateRangeAsync(ICollection<User>  users);
+   Task AddToRoleAsync(User user, string role);
 
-	Task AddToRoleAsync(User user, string role);
+   Task SyncRolesAsync(User user, IEnumerable<string> roles);
    #endregion
 
    #region Get
    Task<IList<string>> GetRolesAsync(User user);
-	IEnumerable<Role> GetRolesByUserId(string userId);
 
    #endregion
 
@@ -54,17 +53,15 @@ public interface IUsersService
 
 public class UsersService : IUsersService
 {
-	DefaultContext _context;
+   private readonly DefaultContext _context;
 	private readonly UserManager<User> _userManager;
-	private readonly RoleManager<Role> _roleManager;
    private readonly IDefaultRepository<User> _usersRepository;
 
-   public UsersService(DefaultContext context, UserManager<User> userManager, RoleManager<Role> roleManager,
+   public UsersService(DefaultContext context, UserManager<User> userManager, 
       IDefaultRepository<User> usersRepository)
    {
 		_context = context;
 		_userManager = userManager;
-		_roleManager = roleManager;
       _usersRepository = usersRepository;
    }
 	string DevRoleName = AppRoles.Dev.ToString();
@@ -75,7 +72,6 @@ public class UsersService : IUsersService
     => await _usersRepository.ListAsync(new UsersSpecification(includeRoles));
    public async Task<IEnumerable<User>> FetchByIdsAsync(IEnumerable<string> ids, bool includeRoles = false)
       => await _usersRepository.ListAsync(new UsersSpecification(ids, includeRoles));
-   public async Task<IEnumerable<Role>> FetchRolesAsync() => await _roleManager.Roles.ToListAsync();
    public async Task<IEnumerable<User>> FetchByRolesAsync(IEnumerable<Role> roles, bool includeRoles = false)
    {
       var users = await _usersRepository.ListAsync(new UsersSpecification(includeRoles));
@@ -89,8 +85,8 @@ public class UsersService : IUsersService
    public async Task<User?> FindByIdAsync(string id) => await _userManager.FindByIdAsync(id);
 	public async Task<User?> FindByEmailAsync(string email) => await _userManager.FindByEmailAsync(email);
    public async Task<User?> FindByUsernameAsync(string username) => await _userManager.FindByNameAsync(username);
-   public User? FindByPhone(string phone) => _userManager.Users.FirstOrDefault(x => x.PhoneNumber == phone);
-   public async Task<Role?> FindRoleAsync(string name) => await _roleManager.FindByNameAsync(name);
+   public async Task<User?> FindByPhoneAsync(string phone)
+      => await _usersRepository.FirstOrDefaultAsync(new UsersFetchByPhoneSpecification(phone));
 	#endregion
 
 
@@ -133,22 +129,23 @@ public class UsersService : IUsersService
 
          throw new UpdateUserRoleException(user, role, msg);
       }
-
-		
+   }
+   public async Task UpdateRangeAsync(ICollection<User> users)
+   {
+      await _usersRepository.UpdateRangeAsync(users);
    }
 
+   public async Task SyncRolesAsync(User user, IEnumerable<string> roles)
+   {
+      var currentRoles = await GetRolesAsync(user);
+      await _userManager.RemoveFromRolesAsync(user, currentRoles);
+
+      if(roles.HasItems()) await _userManager.AddToRolesAsync(user, roles);
+   }
    #endregion
 
    #region Get
    public async Task<IList<string>> GetRolesAsync(User user) => await _userManager.GetRolesAsync(user);
-
-	public IEnumerable<Role> GetRolesByUserId(string userId)
-	{
-		var userRoles = _context.UserRoles.Where(x => x.UserId == userId);
-		var roleIds = userRoles.Select(ur => ur.RoleId);
-
-		return _roleManager.Roles.Where(r => roleIds.Contains(r.Id));
-	}
 
    #endregion
 

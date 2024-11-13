@@ -68,7 +68,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Articles");
+                    b.ToTable("Articles", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Attachment", b =>
@@ -136,7 +136,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Attachments");
+                    b.ToTable("Attachments", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Auth.AuthToken", b =>
@@ -173,7 +173,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Auth.Token");
+                    b.ToTable("Auth.Token", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Auth.OAuth", b =>
@@ -210,7 +210,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Auth.OAuth");
+                    b.ToTable("Auth.OAuth", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Auth.RefreshToken", b =>
@@ -233,7 +233,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("UserId");
 
-                    b.ToTable("Auth.RefreshToken");
+                    b.ToTable("Auth.RefreshToken", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Branch", b =>
@@ -260,7 +260,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Branches");
+                    b.ToTable("Branches", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Calendar", b =>
@@ -300,7 +300,139 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Calendars");
+                    b.ToTable("Calendars", (string)null);
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Cars.Car", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Removed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TypeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TypeId");
+
+                    b.ToTable("Cars.Cars", (string)null);
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Cars.CarRent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CarId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DriverId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PS")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Removed")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CarId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Cars.Rents", (string)null);
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Cars.CarType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Removed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Cars.Types", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Category", b =>
@@ -336,7 +468,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.CategoryPost", b =>
@@ -361,7 +493,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("CategoryPosts");
+                    b.ToTable("CategoryPosts", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Court", b =>
@@ -412,7 +544,61 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("LocationId");
 
-                    b.ToTable("Courts");
+                    b.ToTable("Courts", (string)null);
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Criminals.CriminalFetchRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DataKind")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Day")
+                        .HasColumnType("int");
+
+                    b.Property<string>("IP")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Query")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("QueryKind")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Result")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Time")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Criminal.FetchRecords", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Department", b =>
@@ -457,7 +643,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("Departments");
+                    b.ToTable("Departments", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Event", b =>
@@ -503,7 +689,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Events");
+                    b.ToTable("Events", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.EventCalendar", b =>
@@ -518,7 +704,85 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("CalendarId");
 
-                    b.ToTable("EventCalendars");
+                    b.ToTable("EventCalendars", (string)null);
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Fetches.FetchesRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CaseNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CourtType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Day")
+                        .HasColumnType("int");
+
+                    b.Property<string>("IP")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Identifier")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Ps")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("QueryKey")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SystemId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Time")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Fetches.Records", (string)null);
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Fetches.FetchesSystem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Department")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Fetches.Systems", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.IT.CredentialInfo", b =>
@@ -566,7 +830,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("IT.CredentialInfoes");
+                    b.ToTable("IT.CredentialInfoes", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.IT.Database", b =>
@@ -623,7 +887,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("HostId");
 
-                    b.ToTable("IT.Databases");
+                    b.ToTable("IT.Databases", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.IT.Host", b =>
@@ -671,7 +935,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("IT.Hosts");
+                    b.ToTable("IT.Hosts", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.IT.SystemApp", b =>
@@ -722,7 +986,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("IT.SystemApps");
+                    b.ToTable("IT.SystemApps", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Item", b =>
@@ -768,7 +1032,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Items");
+                    b.ToTable("Items", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Job", b =>
@@ -822,7 +1086,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("JobTitleId");
 
-                    b.ToTable("Jobs");
+                    b.ToTable("Jobs", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.JobTitle", b =>
@@ -842,7 +1106,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("JobTitles");
+                    b.ToTable("JobTitles", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.JobUserProfiles", b =>
@@ -890,7 +1154,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("JobUserProfiles");
+                    b.ToTable("JobUserProfiles", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Keyin.BranchRecord", b =>
@@ -926,7 +1190,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Keyin.BranchRecords");
+                    b.ToTable("Keyin.BranchRecords", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Keyin.KeyinPerson", b =>
@@ -957,7 +1221,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Keyin.Persons");
+                    b.ToTable("Keyin.Persons", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Keyin.PersonRecord", b =>
@@ -993,7 +1257,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Keyin.PersonRecords");
+                    b.ToTable("Keyin.PersonRecords", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Location", b =>
@@ -1025,7 +1289,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("Locations");
+                    b.ToTable("Locations", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.LocationEvent", b =>
@@ -1040,7 +1304,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("LocationId");
 
-                    b.ToTable("LocationEvents");
+                    b.ToTable("LocationEvents", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.ModifyRecord", b =>
@@ -1080,7 +1344,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ModifyRecords");
+                    b.ToTable("ModifyRecords", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Profiles", b =>
@@ -1113,7 +1377,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("UserId");
 
-                    b.ToTable("Profiles");
+                    b.ToTable("Profiles", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Reference", b =>
@@ -1163,7 +1427,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("References");
+                    b.ToTable("References", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Role", b =>
@@ -1228,7 +1492,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tags");
+                    b.ToTable("Tags", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.TagPost", b =>
@@ -1254,7 +1518,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("TagPosts");
+                    b.ToTable("TagPosts", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Tasks", b =>
@@ -1308,7 +1572,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("Tasks");
+                    b.ToTable("Tasks", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.TelName", b =>
@@ -1341,7 +1605,7 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TelNames");
+                    b.ToTable("TelNames", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.User", b =>
@@ -1555,6 +1819,34 @@ namespace ApplicationCore.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Cars.Car", b =>
+                {
+                    b.HasOne("ApplicationCore.Models.Cars.CarType", "Type")
+                        .WithMany("Cars")
+                        .HasForeignKey("TypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Type");
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Cars.CarRent", b =>
+                {
+                    b.HasOne("ApplicationCore.Models.Cars.Car", "Car")
+                        .WithMany()
+                        .HasForeignKey("CarId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ApplicationCore.Models.Profiles", "UserProfiles")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Car");
+
+                    b.Navigation("UserProfiles");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Category", b =>
@@ -1780,6 +2072,11 @@ namespace ApplicationCore.Migrations
             modelBuilder.Entity("ApplicationCore.Models.Calendar", b =>
                 {
                     b.Navigation("EventCalendars");
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Cars.CarType", b =>
+                {
+                    b.Navigation("Cars");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Category", b =>

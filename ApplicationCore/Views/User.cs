@@ -26,7 +26,7 @@ public class UserViewModel : IBaseRecordView
    public string LastUpdatedText => LastUpdated.ToDateString();
 
 
-   public string? Roles { get; set; }
+   public ICollection<RoleViewModel> Roles { get; set; } = new List<RoleViewModel>();
 
 	public bool HasPassword { get; set; }
 

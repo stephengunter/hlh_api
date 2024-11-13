@@ -127,7 +127,6 @@ public class AttachmentsController : BaseApiController
 
       byte[] bytes;
       try
-
       {
          bytes = _fileStoragesService.GetBytes(entity.DirectoryPath, entity.FileName);
       }

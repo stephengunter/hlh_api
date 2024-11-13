@@ -9,5 +9,6 @@ public enum OAuthProvider
 public enum AuthProvider
 {
    Jud3 = 0,
+   HLH = 1,
    Unknown = -1
 }

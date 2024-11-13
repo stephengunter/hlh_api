@@ -14,7 +14,6 @@ public static class DepartmentHelpers
    public static DepartmentViewModel MapViewModel(this Department department, IMapper mapper)
    {
       var model = mapper.Map<DepartmentViewModel>(department);
-      
       return model;
    }
 

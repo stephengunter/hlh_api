@@ -2,7 +2,6 @@
 using ApplicationCore.Models;
 using Infrastructure.Helpers;
 using AutoMapper;
-using Infrastructure.Paging;
 
 namespace ApplicationCore.Helpers;
 
@@ -26,7 +25,7 @@ public static class UsersHelpers
       => users.Where(user => keywords.Any(user.GetUserName().CaseInsensitiveContains)).ToList();
 
    public static IEnumerable<User> FilterByName(this IEnumerable<User> users, ICollection<string> keywords)
-      => users.Where(user => keywords.Any(user.Name.CaseInsensitiveContains)).ToList();
+      => users.Where(user => user.Profiles != null && keywords.Any(user.Profiles.Name.CaseInsensitiveContains)).ToList();
 
 
    #region Views
@@ -34,7 +33,7 @@ public static class UsersHelpers
    {
       var model = mapper.Map<UserViewModel>(user);
       if (user.Profiles != null) model.Profiles = user.Profiles.MapViewModel(mapper, department);
-      if (user.UserRoles!.HasItems()) model.Roles = user.UserRoles!.Select(x => x.RoleId).JoinToString(); 
+      if (user.Roles.HasItems()) model.Roles = user.Roles.Select(x => x.MapViewModel(mapper)).ToList();
       return model;
    }
    public static User MapEntity(this UserViewModel model, IMapper mapper, string currentUserId, User? entity = null)
@@ -49,17 +48,17 @@ public static class UsersHelpers
    public static User MapEntity(this UserViewModel model, IMapper mapper)
       => mapper.Map<UserViewModel, User>(model);
 
-   public static List<UserViewModel> MapViewModelList(this IEnumerable<User> users, IMapper mapper)
-      => users.Select(item => MapViewModel(item, mapper)).ToList();
+   public static List<UserViewModel> MapViewModelList(this IEnumerable<User> users, IMapper mapper, Department? department = null)
+      => users.Select(item => MapViewModel(item, mapper, department)).ToList();
 
-   public static PagedList<User, UserViewModel> GetPagedList(this IEnumerable<User> users, IMapper mapper, int page = 1, int pageSize = -1)
-   {
-      var pageList = new PagedList<User, UserViewModel>(users, page, pageSize);
+   //public static PagedList<User, UserViewModel> GetPagedList(this IEnumerable<User> users, IMapper mapper, int page = 1, int pageSize = -1)
+   //{
+   //   var pageList = new PagedList<User, UserViewModel>(users, page, pageSize);
 
-      pageList.SetViewList(pageList.List.MapViewModelList(mapper));
+   //   pageList.SetViewList(pageList.List.MapViewModelList(mapper));
 
-      return pageList;
-   }
+   //   return pageList;
+   //}
    #endregion
 
 }
@@ -69,13 +68,4 @@ public class UserEqualityComparer : IEqualityComparer<User>
    public bool Equals(User? a, User? b) => a!.Id == b!.Id;
 
    public int GetHashCode(User obj) => obj.Id.GetHashCode() ^ obj.UserName!.GetHashCode();
-}
-
-public static class RolesHelpers
-{
-   public static RoleViewModel MapViewModel(this Role role, IMapper mapper)
-      => mapper.Map<RoleViewModel>(role);
-
-   public static List<RoleViewModel> MapViewModelList(this IEnumerable<Role> roles, IMapper mapper)
-      => roles.Select(item => MapViewModel(item, mapper)).ToList();
 }

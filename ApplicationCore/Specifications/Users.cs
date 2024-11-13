@@ -21,3 +21,11 @@ public class UsersSpecification : Specification<User>
    }
 }
 
+public class UsersFetchByPhoneSpecification : Specification<User>
+{
+   public UsersFetchByPhoneSpecification(string phone, bool includeRoles = false)
+   {
+      if (includeRoles) Query.Include(user => user.Profiles).Include(user => user.UserRoles).Where(user => user.PhoneNumber == phone);
+      else Query.Include(u => u.Profiles).Where(user => user.PhoneNumber == phone);
+   }
+}

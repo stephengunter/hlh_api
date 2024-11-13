@@ -1,0 +1,20 @@
+﻿@namespace WinFormsApp_DbBackup.Components.Shared
+@inherits LayoutComponentBase
+
+<div class="main-layout">
+    <main>
+        @Body
+    </main>
+</div>
+
+<style>
+    .main-layout {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
+    main {
+        flex: 1;
+        padding: 1rem;
+    }
+</style>

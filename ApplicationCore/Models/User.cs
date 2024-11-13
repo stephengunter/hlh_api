@@ -2,11 +2,8 @@
 using Infrastructure.Entities;
 using Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
 namespace ApplicationCore.Models;
 
@@ -27,12 +24,17 @@ public class User : IdentityUser, IAggregateRoot, IBaseRecord
    public virtual ICollection<UserRole>? UserRoles { get; set; }
 
    public object GetId() => Id;
+
+   [NotMapped]
+   public ICollection<Role> Roles { get; set; } = new List<Role>();
 }
 
-public class Role : IdentityRole
+public class Role : IdentityRole, IAggregateRoot
 {
    public string Title { get; set; } = String.Empty;
    public virtual ICollection<UserRole>? UserRoles { get; set; }
+
+   public object GetId() => Id;
 }
 
 public class UserRole : IdentityUserRole<string>

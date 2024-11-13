@@ -14,7 +14,8 @@ public class LoginRequest
 	public string Username { get; set; } = String.Empty;
 
 	[Required(ErrorMessage = "必須填寫密碼")]
-	public string Password { get; set; } = String.Empty;
+   [DataType(DataType.Password)]
+   public string Password { get; set; } = String.Empty;
 }
 
 public class OAuthLoginRequest

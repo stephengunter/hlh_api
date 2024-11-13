@@ -13,5 +13,7 @@ public enum AppRoles
    IT,
    Clerk,//書記官
    Recorder,
-   Files //檔案管理
+   Files, //檔案管理
+   Driver,
+   CarManager, //車輛管理
 }

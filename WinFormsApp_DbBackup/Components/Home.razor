@@ -1,0 +1,31 @@
+﻿@using ApplicationCore.Settings;
+@using Infrastructure.Helpers;
+@using Microsoft.Extensions.Options;
+
+@inject IOptions<List<DbSettings>> DbSettingsOptions
+
+@page "/"
+<h3>Db Infoes:</h3>
+
+@if (dbSettingsList == null || !dbSettingsList.Any())
+{
+   <p><em>No database information available.</em></p>
+}
+else
+{
+   foreach (var settings in dbSettingsList)
+   {
+      <DbInfo DbSettings="@settings" />
+      
+   }
+}
+
+@code {
+   private List<DbSettings> dbSettingsList = new List<DbSettings>();
+
+   protected override async Task OnInitializedAsync()
+   {
+      dbSettingsList = DbSettingsOptions.Value;
+      
+   }
+}

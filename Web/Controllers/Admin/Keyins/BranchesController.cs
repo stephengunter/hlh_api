@@ -20,17 +20,14 @@ namespace Web.Controllers.Admin.Keyins;
 [Route("admin/keyins/[controller]")]
 public class BranchesController : BaseAdminController
 {
-   private readonly CompanySettings _companySettings;
    private readonly IMapper _mapper;
    private readonly IBranchesService _branchesService;
    private readonly IBranchRecordService _branchRecordService;
 
 
    
-   public BranchesController(IOptions<CompanySettings> companySettings, IMapper mapper, 
-      IBranchesService branchesService, IBranchRecordService branchRecordService)
+   public BranchesController(IBranchesService branchesService, IBranchRecordService branchRecordService, IMapper mapper)
    {
-      _companySettings = companySettings.Value;
       _branchesService = branchesService;
       _mapper = mapper;
       _branchRecordService = branchRecordService;
@@ -105,19 +102,6 @@ public class BranchesController : BaseAdminController
             entity.Diff = Math.Round(increaseRate, 2).ToString();
             await _branchRecordService.UpdateAsync(entity);
          }
-
-         //var nextMonth = month + 1;
-
-         //var nextRecord = await _branchRecordService.FindAsync(new Branch { Id = item.BranchId }, 
-         //                                                      nextMonth > 12 ? (year + 1) : year,
-         //                                                      nextMonth > 12 ? 1 : nextMonth
-         //                                                      );
-         //if (nextRecord != null && entity.Score != 0 && nextRecord.Score != 0)
-         //{ 
-         //   double increaseRate = ((double)(nextRecord.Score - entity.Score) / entity.Score) * 100;
-         //   nextRecord.Diff = Math.Round(increaseRate, 2).ToString();
-         //   await _branchRecordService.UpdateAsync(nextRecord);
-         //}
       }
       return Ok();
 

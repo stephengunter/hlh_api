@@ -82,12 +82,22 @@ public class BaseAdminController : BaseController
    }  
 }
 
+
 [EnableCors("Global")]
 [Route("tests/[controller]")]
 public abstract class BaseTestController : BaseController
 {
 
 }
+
+[EnableCors("Open")]
+[Route("open/[controller]")]
+public abstract class BaseOpenController : BaseController
+{
+
+}
+
+
 
 
 

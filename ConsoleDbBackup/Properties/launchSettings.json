@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "ConsoleClone": {
+      "commandName": "Project",
+      "commandLineArgs": "diff",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

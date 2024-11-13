@@ -1,0 +1,47 @@
+﻿@{
+   ViewData["Title"] = "首頁";
+   var apps = new[]
+   {
+      new { Id = "App 1", Name = "App 1", Description = "This is a description for App 1.", Icon = "apps", Link = "#" },
+      new { Id = "App 1", Name = "App 2", Description = "This is a description for App 2.", Icon = "extension", Link = "#" },
+      new { Id = "App 1", Name = "App 3", Description = "This is a description for App 3.", Icon = "favorite", Link = "#" },
+      new { Id = "App 1", Name = "App 4", Description = "This is a description for App 4.", Icon = "settings", Link = "#" }
+   };
+}
+
+<div class="container mt-4">
+
+   <div class="row">
+      @foreach (var app in apps)
+      {
+         <div class="col-md-3 mb-4">
+            <a href="@app.Link" class="text-decoration-none">
+               <div class="card h-100 shadow-sm">
+                  <div class="card-body d-flex align-items-start">
+                     <!-- Material Icon
+                     <span class="material-icons me-2" style="font-size: 32px; color: #007bff;">
+                     @app.Icon
+                     </span>
+                      -->
+                     <span class="material-icons me-2" style="font-size: 48px; color: #007bff;">
+                        @app.Icon
+                     </span>
+                     <div>
+                        <!-- Title and Description -->
+                        <h3 class="card-title mb-1 mt-1">@app.Name</h3>
+                        <!-- Description
+                        <p class="card-text text-muted">@app.Description</p>
+
+                        -->
+                     </div>
+                     <span class="stretched-link"></span>
+                  </div>
+               </div>
+            </a>
+         </div>
+      }
+   </div>
+   <form asp-action="Login" method="post" style="display: none">
+      <input id="" name="" />
+   </form>
+</div>
