@@ -32,6 +32,7 @@ class Program
    internal static void AddFile(string name)
    {
       var root = Directory.GetParent(Directory.GetCurrentDirectory());
+
       var applicationCore = Path.Combine(root!.FullName, "ApplicationCore");
       if (!Directory.Exists(applicationCore)) throw new Exception("ApplicationCore Not Found.");
 

@@ -7,6 +7,8 @@ namespace ApplicationCore.Models.IT;
 [Table("IT.CredentialInfoes")]
 public class CredentialInfo : EntityBase, IBaseRecord, IRemovable, ISortable
 {
+   public string EntityType { get; set; } = String.Empty;
+   public int EntityId { get; set; }
    public string Username { get; set; } = String.Empty;
    public string Password { get; set; } = string.Empty;
 

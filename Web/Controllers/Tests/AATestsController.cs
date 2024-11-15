@@ -10,6 +10,8 @@ using Infrastructure.Helpers;
 using ApplicationCore.Services.Fetches;
 using AutoMapper;
 using System;
+using ApplicationCore.Consts;
+using Web.Models.IT;
 
 namespace Web.Controllers.Tests;
 
@@ -29,7 +31,7 @@ public class AATestsController : BaseTestController
    public async Task<ActionResult> Index()
    {
       
-      return Ok();
+      return Ok(nameof(Article));
    }
    List<Department> ReadDepartmentsFromCsv(string filePath)
    {

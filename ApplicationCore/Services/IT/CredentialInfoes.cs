@@ -7,7 +7,7 @@ namespace ApplicationCore.Services;
 
 public interface ICredentialInfoService
 {
-   Task<IEnumerable<CredentialInfo>> FetchAsync();
+   Task<IEnumerable<CredentialInfo>> FetchAsync(Host host);
    Task<CredentialInfo?> GetByIdAsync(int id);
    Task<CredentialInfo> CreateAsync(CredentialInfo entity, string userId);
    Task UpdateAsync(CredentialInfo entity, string userId);
@@ -22,8 +22,8 @@ public class CredentialInfoService : ICredentialInfoService
 	{
       _credentialInfoRepository = credentialInfoRepository;
 	}
-   public async Task<IEnumerable<CredentialInfo>> FetchAsync()
-       => await _credentialInfoRepository.ListAsync(new CredentialInfoSpecification());
+   public async Task<IEnumerable<CredentialInfo>> FetchAsync(Host host)
+       => await _credentialInfoRepository.ListAsync(new CredentialInfoSpecification(host));
 
 
    public async Task<CredentialInfo?> GetByIdAsync(int id)

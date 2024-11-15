@@ -2,30 +2,179 @@
 @using Infrastructure.Helpers;
 @using Microsoft.Extensions.Options;
 
-@inject IOptions<List<DbSettings>> DbSettingsOptions
-
 @page "/"
-<h3>Db Infoes:</h3>
+<div class="container">
+   <div class="row">
+      <div class="col-md-6 mb-6">
+         <select class="form-select" id="yearSelect" @bind="selectedYear">
+            @foreach (var year in _yearOptions)
+            {
+               <option value="@year.Value">@year.Title</option>
+            }
+         </select>
+         <select class="form-select" id="monthSelect" @bind="selectedMonth">
+            @foreach (var month in _monthOptions)
+            {
+               <option value="@month.Value">@month.Title</option>
+            }
+         </select>
+         <select class="form-select" id="daySelect" @bind="selectedDay">
+            @foreach (var day in _dayOptions)
+            {
+               <option value="@day.Value">@day.Title</option>
+            }
+         </select>
+      </div>
 
-@if (dbSettingsList == null || !dbSettingsList.Any())
-{
-   <p><em>No database information available.</em></p>
-}
-else
-{
-   foreach (var settings in dbSettingsList)
-   {
-      <DbInfo DbSettings="@settings" />
-      
-   }
-}
-
+      <div class="col-md-6 mb-6">
+      </div>
+   </div>
+   <div class="row">
+      <div class="col-md-12 mb-12">
+         @if (_isChecked)
+         {
+            <p>DB Selected: <strong>@selectedDbName</strong></p>
+         }
+         <table class="table table-bordered">
+            <thead class="table-light">
+               <tr>
+                  <th scope="col" style="width: 75px;"></th>
+                  <th scope="col" colspan="2">請選擇一個資料庫</th>
+               </tr>
+            </thead>
+            <tbody>
+               @foreach (var dbName in _dbNames)
+               {
+                  <tr>
+                     <td>
+                        <input type="checkbox"
+                               class="form-check-input"
+                               style="display: block; margin: 0 auto;"
+                               @bind="isDbSelected" />
+                     </td>
+                     <td>@dbName</td>
+                  </tr>
+               }
+              
+            </tbody>
+         </table>
+      </div>
+   </div>
+</div>
 @code {
-   private List<DbSettings> dbSettingsList = new List<DbSettings>();
+   private bool _isChecked;
+   private bool isDbSelected = true;
+   private string selectedDbName = string.Empty;
+   private string _FOLDER = @"D:\db_backups";
+   private List<string> _dbNames = new List<string>();
+   private List<YearMonthOption> _yearOptions = new List<YearMonthOption>();
+   private List<YearMonthOption> _monthOptions = new List<YearMonthOption>();
+   private List<YearMonthOption> _dayOptions = new List<YearMonthOption>();
+
+   private bool _dbSelected;
+   bool dbSelected
+   {
+      get => _dbSelected;
+      set
+      {
+         _dbSelected = false;
+      }
+   }
+
+   private int _selectedYear;
+   int selectedYear
+   {
+      get => _selectedYear;
+      set
+      {
+         _selectedYear = value;
+         LoadDbs();
+      }
+   }
+
+   int _selectedMonth;
+   int selectedMonth
+   {
+      get => _selectedMonth;
+      set
+      {
+         _selectedMonth = value;
+         LoadDays();
+         LoadDbs();
+      }
+   }
+   private int _selectedDay;
+   int selectedDay
+   {
+      get => _selectedDay;
+      set
+      {
+         _selectedDay = value;
+         LoadDbs();
+      }
+   }
 
    protected override async Task OnInitializedAsync()
    {
-      dbSettingsList = DbSettingsOptions.Value;
-      
+      await LoadYearMonthOptionsAsync();
+      LoadDbs();
+   }
+   private void OnCheckboxChanged(string dbName)
+   {
+      // When checkbox is checked, update selectedDbName
+      if (_isChecked)
+      {
+         selectedDbName = dbName;
+      }
+      else
+      {
+         selectedDbName = string.Empty; // Clear when unchecked
+      }
+   }
+   private async Task LoadYearMonthOptionsAsync()
+   {
+      var today = DateTime.Today;
+      int year = today.Year;
+      _selectedYear = year;
+      _selectedMonth = today.Month;
+      _selectedDay = today.Day;
+
+      int month = today.Month - 1;
+      var minYear = year - 1;
+      for (int i = minYear; i <= year; i++)
+      {
+         _yearOptions.Add(new YearMonthOption { Value = i, Title = $"{i.ToString()}年" });
+      }
+
+      for (int i = 1; i <= 12; i++)
+      {
+         _monthOptions.Add(new YearMonthOption { Value = i, Title = $"{i.ToString()}月" });
+      }
+      LoadDays();
+   }
+   private void LoadDays()
+   {
+      _dayOptions = new List<YearMonthOption>();
+      int daysInMonth = DateTime.DaysInMonth(_selectedYear, _selectedMonth);
+      var days = Enumerable.Range(1, daysInMonth).ToList();
+      foreach (var day in days)
+      {
+         _dayOptions.Add(new YearMonthOption { Value = day, Title = $"{day.ToString()}日" });
+      }
+   }
+   private void LoadDbs()
+   {
+      _dbNames = new List<string>();
+      string folderPath = Path.Combine(_FOLDER, $"{selectedYear}{selectedMonth}{selectedDay}");
+      if (Directory.Exists(folderPath))
+      {
+         var names = Directory.GetDirectories(folderPath).Select(Path.GetFileName);
+         _dbNames = names.Where(s => s != null).Select(s => s!).ToList();
+      }         
+   }
+   public class YearMonthOption
+   {
+      public int Value { get; set; }
+      public string Title { get; set; } = string.Empty;
    }
 }

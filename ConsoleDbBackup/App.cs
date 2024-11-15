@@ -39,9 +39,8 @@ public class App
    {
       foreach (var dbSettings in _dbSettingsList)
       {
-        // string restoreScript = SqlRestoreScriptGenerator.GenerateRestoreScript(databaseName, fullBackupPath, diffBackupPath);
-
-
+         string sql = SqlScriptGenerator.GenerateRestoreScript(dbSettings.Name, FullBakFileName(dbSettings.Name), DiffBakFileName(dbSettings.Name));
+         File.WriteAllText(@"D:\db_backups\test.sql", sql);
       }
    }
    public async Task RunFull()

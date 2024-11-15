@@ -33,8 +33,9 @@ class Program
          var app = serviceProvider.GetRequiredService<App>();
          //if (arg == "diff") await app.RunDiff();
          //else await app.RunFull();
+         app.TestRun();
 
-         
+
 
 
          Log.Information("Application has completed successfully.");

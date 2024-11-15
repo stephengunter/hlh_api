@@ -19,5 +19,15 @@ public class Host : EntityBase, IBaseRecord, IRemovable, ISortable
    public string CreatedBy { get; set; } = string.Empty;
    public DateTime? LastUpdated { get; set; }
    public string? UpdatedBy { get; set; }
+
+   [NotMapped]
+   public virtual ICollection<CredentialInfo> CredentialInfoes { get; set; } = new List<CredentialInfo>();
+
+   
+   public void LoadCredentialInfoes(IEnumerable<CredentialInfo> credentialInfos)
+   {
+      credentialInfos = credentialInfos.Where(x => x.EntityType == nameof(Host) && x.EntityId == Id);
+      this.CredentialInfoes = credentialInfos.HasItems() ? credentialInfos.ToList() : new List<CredentialInfo>();
+   }
 }
 

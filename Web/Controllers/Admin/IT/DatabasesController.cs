@@ -7,6 +7,8 @@ using ApplicationCore.Models.IT;
 using ApplicationCore.Authorization;
 using Infrastructure.Helpers;
 using Infrastructure.Paging;
+using ApplicationCore.Consts;
+using Web.Models.IT;
 
 namespace Web.Controllers.Admin.IT;
 
@@ -19,6 +21,16 @@ public class DatabasesController : BaseAdminITController
    {
       _databaseService = databaseService;
       _mapper = mapper;
+   }
+   [HttpGet("init")]
+   public async Task<ActionResult<DatabasesIndexModel>> Init()
+   {
+      int page = 1;
+      int pageSize = 10;
+      var request = new DatabasesFetchRequest(page, pageSize);
+      var providers = new List<string>() { DbProvider.SQLServer, DbProvider.PostgreSql };
+
+      return new DatabasesIndexModel(request, providers);
    }
    [HttpGet]
    public async Task<ActionResult<PagedList<Database, DatabaseViewModel>>> Index(bool active, int page = 1, int pageSize = 10)
@@ -36,7 +48,7 @@ public class DatabasesController : BaseAdminITController
 
 
    [HttpGet("create")]
-   public ActionResult<DatabaseViewModel> Create() => new DatabaseViewModel();
+   public ActionResult<DatabaseAddForm> Create() => new DatabaseAddForm() { Provider = DbProvider.SQLServer };
 
 
    [HttpPost]
