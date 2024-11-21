@@ -1,4 +1,4 @@
-using Infrastructure.Entities;
+using Infrastructure.Views;
 
 namespace ApplicationCore.Views.Keyin;
 public class KeyinPersonView : EntityBaseView

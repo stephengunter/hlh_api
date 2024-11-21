@@ -8,6 +8,7 @@ using Infrastructure.Helpers;
 using Infrastructure.Paging;
 using ApplicationCore.Consts;
 using Web.Models.IT;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Web.Controllers.Admin.IT;
 
@@ -34,7 +35,7 @@ public class HostsController : BaseAdminITController
       return new HostsIndexModel(request, providers);
    }
    [HttpGet]
-   public async Task<ActionResult<PagedList<ApplicationCore.Models.IT.Host, HostViewModel>>> Index(bool active, int page = 1, int pageSize = 10)
+   public async Task<ActionResult<PagedList<ApplicationCore.Models.IT.Host, HostViewModel>>> Index(bool active = true, int page = 1, int pageSize = 10)
    {
       var list = await _hostService.FetchAsync();
 
@@ -55,7 +56,7 @@ public class HostsController : BaseAdminITController
    [HttpPost]
    public async Task<ActionResult<HostViewModel>> Store([FromBody] HostAddForm model)
    {
-      await ValidateRequest(model, 0);
+      await ValidateRequestAsync(model, 0);
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
       var entity = new ApplicationCore.Models.IT.Host();
@@ -94,7 +95,7 @@ public class HostsController : BaseAdminITController
       var entity = await _hostService.GetByIdAsync(id);
       if (entity == null) return NotFound();
 
-      await ValidateRequest(model, id);
+      await ValidateRequestAsync(model, id);
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
       model.SetValuesTo(entity);
@@ -115,12 +116,15 @@ public class HostsController : BaseAdminITController
       return NoContent();
    }
 
-   async Task ValidateRequest(BaseHostForm model, int id)
+   async Task ValidateRequestAsync(BaseHostForm model, int id)
    {
       var labels = new HostLabels();
-      if (String.IsNullOrEmpty(model.Title)) ModelState.AddModelError("title", ValidationMessages.Required(labels.Title));
-      if (String.IsNullOrEmpty(model.Key)) ModelState.AddModelError("key", ValidationMessages.Required(labels.Key));
-      if (String.IsNullOrEmpty(model.IP)) ModelState.AddModelError("ip", ValidationMessages.Required(labels.IP));
+      if (String.IsNullOrEmpty(model.Title)) ModelState.AddModelError(nameof(model.Title), ValidationMessages.Required(labels.Title));
+      if (String.IsNullOrEmpty(model.Key)) ModelState.AddModelError(nameof(model.Key), ValidationMessages.Required(labels.Key));
+      if (String.IsNullOrEmpty(model.IP)) ModelState.AddModelError(nameof(model.IP), ValidationMessages.Required(labels.IP));
+      if (!model.IP.IsValidIpAddress()) ModelState.AddModelError(nameof(model.IP), ValidationMessages.WrongFormatOf(labels.IP));
+
+      if (!ModelState.IsValid) return;
 
       var hosts = await _hostService.FetchAsync();
       var exist = hosts.FirstOrDefault(x => x.IP == model.IP);

@@ -12,6 +12,7 @@ using AutoMapper;
 using System;
 using ApplicationCore.Consts;
 using Web.Models.IT;
+using ApplicationCore.Models.IT;
 
 namespace Web.Controllers.Tests;
 
@@ -31,7 +32,7 @@ public class AATestsController : BaseTestController
    public async Task<ActionResult> Index()
    {
       
-      return Ok(nameof(Article));
+      return Ok(nameof(Server.Host));
    }
    List<Department> ReadDepartmentsFromCsv(string filePath)
    {

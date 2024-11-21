@@ -1,9 +1,5 @@
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
 using Infrastructure.Helpers;
-using Infrastructure.Entities;
-using Infrastructure.Interfaces;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Infrastructure.Views;
 
 namespace ApplicationCore.Views;
 public class ModifyRecordViewModel : EntityBaseView

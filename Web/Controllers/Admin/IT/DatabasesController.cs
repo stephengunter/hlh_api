@@ -9,63 +9,69 @@ using Infrastructure.Helpers;
 using Infrastructure.Paging;
 using ApplicationCore.Consts;
 using Web.Models.IT;
+using Infrastructure.Views;
+using Microsoft.Build.Execution;
 
 namespace Web.Controllers.Admin.IT;
 
 public class DatabasesController : BaseAdminITController
 {
    private readonly IDatabaseService _databaseService;
+   private readonly IServerService _serverService;
    private readonly IMapper _mapper;
      
-   public DatabasesController(IDatabaseService databaseService, IMapper mapper)
+   public DatabasesController(IDatabaseService databaseService, IServerService serverService, IMapper mapper)
    {
       _databaseService = databaseService;
+      _serverService = serverService;
       _mapper = mapper;
    }
    [HttpGet("init")]
    public async Task<ActionResult<DatabasesIndexModel>> Init()
    {
-      int page = 1;
-      int pageSize = 10;
-      var request = new DatabasesFetchRequest(page, pageSize);
-      var providers = new List<string>() { DbProvider.SQLServer, DbProvider.PostgreSql };
+      var request = new DatabasesFetchRequest();
 
-      return new DatabasesIndexModel(request, providers);
+      var servers = await FetchServersAsync();
+
+      return new DatabasesIndexModel(request, servers);
    }
-   [HttpGet]
-   public async Task<ActionResult<PagedList<Database, DatabaseViewModel>>> Index(bool active, int page = 1, int pageSize = 10)
+   async Task<ICollection<ServerViewModel>> FetchServersAsync()
    {
-      var list = await _databaseService.FetchAsync();
+      string type = ServerType.Db;
+      string include = nameof(Server.Host);
+      var list = await _serverService.FetchAsync(include);
 
+      list = list.Where(x => type.EqualTo(x.Type)).ToList();
       if (list.HasItems())
       {
-         list = list.Where(x => x.Active == active);
-
          list = list.GetOrdered().ToList();
       }
-      return list.GetPagedList(_mapper, page, pageSize);
+      return list.MapViewModelList(_mapper);
+   }
+   [HttpGet]
+   public async Task<ActionResult<ICollection<DatabaseViewModel>>> Index(int serverId = 0)
+   {
+      var list = await _databaseService.FetchAsync();
+      if (serverId > 0) list = list.Where(x => x.ServerId == serverId);
+
+      list = list.GetOrdered().ToList();
+      return list.MapViewModelList(_mapper);
    }
 
 
    [HttpGet("create")]
-   public ActionResult<DatabaseAddForm> Create() => new DatabaseAddForm() { Provider = DbProvider.SQLServer };
+   public ActionResult<DatabaseAddForm> Create() => new DatabaseAddForm();
 
 
    [HttpPost]
-   public async Task<ActionResult<DatabaseViewModel>> Store([FromBody] DatabaseViewModel model)
+   public async Task<ActionResult<DatabaseViewModel>> Store([FromBody] DatabaseAddForm model)
    {
-      ValidateRequest(model);
+      await ValidateRequestAsync(model, 0);
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
-      //var existEntity = _tagsService.FindByTitleAsync(model.Title);
-      //if (existEntity is not null)
-      //{
-      //   ModelState.AddModelError("title", "名稱重複了");
-      //   return BadRequest(ModelState);
-      //}
-
-      var entity = model.MapEntity(_mapper, User.Id());
-      entity.Order = model.Active ? 0 : -1;
+      var entity = new Database();
+      model.SetValuesTo(entity);
+      entity.SetCreated(User.Id());
 
       entity = await _databaseService.CreateAsync(entity, User.Id());
 
@@ -84,22 +90,16 @@ public class DatabasesController : BaseAdminITController
    }
 
    [HttpPut("{id}")]
-   public async Task<ActionResult> Update(int id, [FromBody] DatabaseViewModel model)
+   public async Task<ActionResult> Update(int id, [FromBody] DatabaseEditForm model)
    {
       var entity = await _databaseService.GetByIdAsync(id);
       if (entity == null) return NotFound();
 
-      ValidateRequest(model);
+      await ValidateRequestAsync(model, id);
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
-      //var existEntity = _tagsService.FindByTitleAsync(model.Title);
-      //if (existEntity is not null && existEntity.Id != id)
-      //{
-      //   ModelState.AddModelError("title", "名稱重複了");
-      //   return BadRequest(ModelState);
-      //}
-
-      entity = model.MapEntity(_mapper, User.Id(), entity);
+      model.SetValuesTo(entity);
+      entity.SetUpdated(User.Id());
 
       await _databaseService.UpdateAsync(entity, User.Id());
 
@@ -117,9 +117,15 @@ public class DatabasesController : BaseAdminITController
       return NoContent();
    }
 
-   void ValidateRequest(DatabaseViewModel model)
+   async Task ValidateRequestAsync(DatabaseBaseForm model, int id)
    {
-      if (String.IsNullOrEmpty(model.Title)) ModelState.AddModelError("title", "必須填寫名稱");
+      var labels = new DatabaseLabels();
+
+      var server = await _serverService.GetByIdAsync(model.ServerId);
+      if (server == null)
+      {
+         ModelState.AddModelError(nameof(model.ServerId), ValidationMessages.NotExist($"{labels.Server} id = {id}"));
+      }
    }
 
 

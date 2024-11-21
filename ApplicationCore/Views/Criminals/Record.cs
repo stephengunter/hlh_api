@@ -1,4 +1,4 @@
-using Infrastructure.Entities;
+using Infrastructure.Views;
 
 namespace ApplicationCore.Views.Criminals;
 public class CriminalFetchRecordView : EntityBaseView

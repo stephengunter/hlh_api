@@ -14,15 +14,17 @@ namespace Web.Controllers.Admin.IT;
 public class CredentialInfoesController : BaseAdminITController
 {
    private readonly ICredentialInfoService _credentialInfoService;
+   private readonly IServerService _serverService;
    private readonly IHostService _hostService;
    private readonly ICryptoService _cryptoService;
    private readonly IMapper _mapper;
-     
-   public CredentialInfoesController(ICredentialInfoService credentialInfoService, 
+
+   public CredentialInfoesController(ICredentialInfoService credentialInfoService, IServerService serverService,
       IHostService databaseService, ICryptoService cryptoService, IMapper mapper)
    {
       _credentialInfoService = credentialInfoService;
       _hostService = databaseService;
+      _serverService = serverService;
       _cryptoService = cryptoService;
       _mapper = mapper;
    }
@@ -34,19 +36,30 @@ public class CredentialInfoesController : BaseAdminITController
          ModelState.AddModelError("entity", ValidationMessages.Required("entity"));
          return BadRequest(ModelState);
       }
-      if (entity != nameof(ApplicationCore.Models.IT.Host))
+      if (entity.EqualTo(nameof(ApplicationCore.Models.IT.Host)))
       {
-         ModelState.AddModelError("entity", ValidationMessages.NotExist($"EntityType: {entity}"));
-         return BadRequest(ModelState);
-      } 
-      var host = await _hostService.GetByIdAsync(entityId);
-      if (host == null)
-      {
-         ModelState.AddModelError("entityId", ValidationMessages.NotExist($"EntityId: {entityId}"));
-         return BadRequest(ModelState);
+         var host = await _hostService.GetByIdAsync(entityId);
+         if (host == null)
+         {
+            ModelState.AddModelError("entityId", ValidationMessages.NotExist($"EntityId: {entityId}"));
+            return BadRequest(ModelState);
+         }
+         var list = await _credentialInfoService.FetchAsync(host);
+         return list.MapViewModelList(_mapper);
       }
-      var list = await _credentialInfoService.FetchAsync(host);
-      return list.MapViewModelList(_mapper);
+      else if (entity.EqualTo(nameof(ApplicationCore.Models.IT.Server)))
+      {
+         var server = await _serverService.GetByIdAsync(entityId);
+         if (server == null)
+         {
+            ModelState.AddModelError("entityId", ValidationMessages.NotExist($"EntityId: {entityId}"));
+            return BadRequest(ModelState);
+         }
+         var list = await _credentialInfoService.FetchAsync(server);
+         return list.MapViewModelList(_mapper);
+      }
+      ModelState.AddModelError("entity", ValidationMessages.NotExist($"Entity: {entity}"));
+      return BadRequest(ModelState);
    }
    [HttpGet("create")]
    public ActionResult<CredentialInfoAddForm> Create() => new CredentialInfoAddForm();
@@ -69,16 +82,17 @@ public class CredentialInfoesController : BaseAdminITController
    }
 
    [HttpGet("edit/{id}")]
-   public async Task<ActionResult> Edit(int id)
+   public async Task<ActionResult<CredentialInfoEditForm>> Edit(int id)
    {
       var entity = await _credentialInfoService.GetByIdAsync(id);
       if (entity == null) return NotFound();
 
-      var model = entity.MapViewModel(_mapper);
-
-      return Ok(model);
+      var model = new CredentialInfoEditForm();
+      entity.SetValuesTo(model);
+      model.Password = "**********";
+      model.CanRemove = true;
+      return model;
    }
-
    [HttpPut("{id}")]
    public async Task<ActionResult> Update(int id, [FromBody] CredentialInfoEditForm model)
    {
@@ -88,8 +102,8 @@ public class CredentialInfoesController : BaseAdminITController
       await ValidateRequest(model, id);
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
-      model.SetValuesTo(entity);
-      entity.Password = _cryptoService.Encrypt(model.Password);
+      string excepts = nameof(model.Password);
+      model.SetValuesTo(entity, excepts);
 
       await _credentialInfoService.UpdateAsync(entity, User.Id());
 
@@ -101,7 +115,7 @@ public class CredentialInfoesController : BaseAdminITController
    {
       var entity = await _credentialInfoService.GetByIdAsync(id);
       if (entity == null) return NotFound();
-     
+
       await _credentialInfoService.RemoveAsync(entity, User.Id());
 
       return NoContent();
@@ -132,12 +146,29 @@ public class CredentialInfoesController : BaseAdminITController
             }
          }
       }
+      else if (model.EntityType.EqualTo(nameof(ApplicationCore.Models.IT.Server)))
+      {
+         var server = await _hostService.GetByIdAsync(model.EntityId);
+         if (server == null)
+         {
+            ModelState.AddModelError(nameof(model.EntityId), ValidationMessages.NotExist($"EntityId: {model.EntityId}"));
+            return;
+         }
+         var list = await _credentialInfoService.FetchAsync(server);
+         if (list.HasItems())
+         {
+            var exist = list.FirstOrDefault(x => x.Username == model.Username);
+            if (exist != null && exist.Id != id)
+            {
+               ModelState.AddModelError(nameof(model.Username), ValidationMessages.Duplicate(labels.Username));
+            }
+         }
+      }
       else
       {
          ModelState.AddModelError(nameof(model.EntityType), ValidationMessages.NotExist($"EntityType: {model.EntityType}"));
       }
-      
-   }
 
+   }
 
 }

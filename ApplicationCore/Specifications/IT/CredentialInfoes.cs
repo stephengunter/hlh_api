@@ -13,4 +13,8 @@ public class CredentialInfoSpecification : Specification<CredentialInfo>
    {
       Query.Where(item => !item.Removed && item.EntityType == nameof(Host) && item.EntityId == host.Id);
    }
+   public CredentialInfoSpecification(Server server)
+   {
+      Query.Where(item => !item.Removed && item.EntityType == nameof(Server) && item.EntityId == server.Id);
+   }
 }

@@ -1,20 +1,7 @@
 using ApplicationCore.Services;
 using Microsoft.AspNetCore.Mvc;
-using ApplicationCore.Helpers;
-using AutoMapper;
-using ApplicationCore.Models;
-using ApplicationCore.Views;
 using Infrastructure.Helpers;
-using ApplicationCore.Settings;
-using Microsoft.Extensions.Options;
-using Web.Models;
-using ApplicationCore.Services.Files;
-using Azure.Core;
-using Ardalis.Specification;
-using ApplicationCore.Exceptions;
-using ApplicationCore.Authorization;
 using Infrastructure.Services;
-using Microsoft.Build.Execution;
 using ApplicationCore.Models.IT;
 
 namespace Web.Controllers.Admin;

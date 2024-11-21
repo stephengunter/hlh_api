@@ -7,10 +7,9 @@ namespace ApplicationCore.Views.IT;
 public class CredentialInfoViewModel : EntityBaseView, IBaseRecordView
 {
    public string Username { get; set; } = String.Empty;
-   public string Password { get; set; } = string.Empty;
-
    public string Title { get; set; } = String.Empty;
    public string Key { get; set; } = String.Empty;
+   public string Ps { get; set; } = String.Empty;
    public bool Removed { get; set; }
    public int Order { get; set; }
    public bool Active { get; set; }

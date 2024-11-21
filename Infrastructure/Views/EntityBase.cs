@@ -1,8 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Infrastructure.Interfaces;
-
-namespace Infrastructure.Entities;
+﻿namespace Infrastructure.Views;
 public abstract class EntityBaseView
 {
    public int Id { get; set; }

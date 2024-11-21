@@ -44,7 +44,6 @@
   <ItemGroup>
     <Folder Include="DtoMapper\IT\" />
     <Folder Include="DtoMapper\Config\" />
-    <Folder Include="Models\IT\" />
   </ItemGroup>
 
   <PropertyGroup>

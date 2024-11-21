@@ -1,6 +1,4 @@
-using Infrastructure.Entities;
-using System;
-using System.ComponentModel.DataAnnotations.Schema;
+using Infrastructure.Views;
 
 namespace ApplicationCore.Views.Fetches;
 public class FetchesRecordView : EntityBaseView

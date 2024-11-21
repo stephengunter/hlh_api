@@ -2,6 +2,8 @@ using ApplicationCore.Models.Fetches;
 using ApplicationCore.Views;
 using ApplicationCore.Views.Criminals;
 using ApplicationCore.Views.Fetches;
+using ApplicationCore.Views.IT;
+using Infrastructure.Views;
 using System.Drawing;
 using System.Numerics;
 
@@ -9,41 +11,45 @@ namespace Web.Models.IT;
 
 public class DatabaseLabels
 {
-   public string Title => "名稱";
-   public string Key => "Key";
-   public string Provider => "Provider";
+   public string Type => "類型";
+   public string Title => "標題";
+   public string Name => "Name";
    public string Ps => "備註";
-   public string Host => "主機";
+   public string Server => "Server";
 }
 public class DatabasesIndexModel
 {
-   public DatabasesIndexModel(DatabasesFetchRequest request, ICollection<string> providers)
+   public DatabasesIndexModel(DatabasesFetchRequest request, ICollection<ServerViewModel> servers)
    {
       Request = request;
-      Providers = providers;
+      Servers = servers;
    }
    public DatabaseLabels Labels => new DatabaseLabels();
    public DatabasesFetchRequest Request { get; set; }
-   public ICollection<string> Providers { get; set; }
+   public ICollection<ServerViewModel> Servers { get; set; }
 }
 
 public class DatabasesFetchRequest
 {
-   public DatabasesFetchRequest(int page, int pageSize)
+   public DatabasesFetchRequest()
    {
-      Page = page;
-      PageSize = pageSize;
+      
    }
-   
-   public int Page { get; set; }
-   public int PageSize { get; set; }
+   public int ServerId { get; set; }
 }
-public class DatabaseAddForm
+public abstract class DatabaseBaseForm
 {
    public string Title { get; set; } = String.Empty;
-   public string Key { get; set; } = String.Empty;
-   public string Provider { get; set; } = string.Empty;
+   public string Name { get; set; } = String.Empty;
    public string Ps { get; set; } = string.Empty;
-   public int HostId { get; set; }
+   public int ServerId { get; set; }
+
+}
+public class DatabaseAddForm : DatabaseBaseForm
+{
+
+}
+public class DatabaseEditForm : DatabaseBaseForm
+{
 
 }

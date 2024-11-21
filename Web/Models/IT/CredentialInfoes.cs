@@ -5,7 +5,8 @@ public class CredentialInfoLabels
    public string Title => "¦WºÙ";
    public string Key => "Key";
    public string Username => "Username";
-   public string Password => "±K½X";
+   public string Password => "±K½X"; 
+   public string Ps => "³Æµù";
 }
 
 public class CredentialInfosFetchRequest
@@ -29,6 +30,7 @@ public abstract class CredentialInfoBaseForm
 
    public string Title { get; set; } = String.Empty;
    public string Key { get; set; } = String.Empty;
+   public string Ps { get; set; } = String.Empty;
 }
 public class CredentialInfoAddForm : CredentialInfoBaseForm
 {
@@ -36,5 +38,11 @@ public class CredentialInfoAddForm : CredentialInfoBaseForm
 public class CredentialInfoEditForm : CredentialInfoBaseForm
 {
    public int Id { get; set; }
-   public bool Removed { get; set; }
+   public bool CanRemove { get; set; }
+}
+public class CredentialInfoEditPasswordForm
+{
+   public int Id { get; set; }
+   public string Username { get; set; } = string.Empty;
+   public string Password { get; set; } = string.Empty;
 }

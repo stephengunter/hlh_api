@@ -7,12 +7,9 @@ namespace ApplicationCore.Views.IT;
 public class DatabaseViewModel : EntityBaseView, IBaseRecordView
 {
    public string Title { get; set; } = String.Empty;
-   public string Key { get; set; } = String.Empty;
-   public string Provider { get; set; } = string.Empty;
-   public int HostId { get; set; }
-   
-
-   public string CredentialInfoId { get; set; } = string.Empty;
+   public string Name { get; set; } = String.Empty;
+   public string Ps { get; set; } = string.Empty;
+   public int ServerId { get; set; }
    public bool Removed { get; set; }
    public int Order { get; set; }
    public bool Active { get; set; }
