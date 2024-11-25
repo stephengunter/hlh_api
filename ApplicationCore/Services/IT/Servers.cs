@@ -14,6 +14,7 @@ public interface IServerService
    Task RemoveAsync(Server entity, string userId);
 }
 
+
 public class ServerService : IServerService
 {
 	private readonly IDefaultRepository<Server> _serversRepository;

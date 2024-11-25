@@ -11,6 +11,7 @@ using ApplicationCore.Consts;
 using Web.Models.IT;
 using Infrastructure.Views;
 using Microsoft.Build.Execution;
+using System.Collections.Generic;
 
 namespace Web.Controllers.Admin.IT;
 
@@ -32,27 +33,24 @@ public class DatabasesController : BaseAdminITController
       var request = new DatabasesFetchRequest();
 
       var servers = await FetchServersAsync();
-
-      return new DatabasesIndexModel(request, servers);
+      return new DatabasesIndexModel(request, servers.MapViewModelList(_mapper));
    }
-   async Task<ICollection<ServerViewModel>> FetchServersAsync()
+   async Task<ICollection<Server>> FetchServersAsync()
    {
       string type = ServerType.Db;
       string include = nameof(Server.Host);
       var list = await _serverService.FetchAsync(include);
 
       list = list.Where(x => type.EqualTo(x.Type)).ToList();
-      if (list.HasItems())
-      {
-         list = list.GetOrdered().ToList();
-      }
-      return list.MapViewModelList(_mapper);
+      if (list.HasItems()) list = list.GetOrdered();
+      return list.ToList(); 
    }
    [HttpGet]
-   public async Task<ActionResult<ICollection<DatabaseViewModel>>> Index(int serverId = 0)
+   public async Task<ActionResult<ICollection<DatabaseViewModel>>> Index(int? serverId)
    {
-      var list = await _databaseService.FetchAsync();
-      if (serverId > 0) list = list.Where(x => x.ServerId == serverId);
+      string include = nameof(Database.Server);
+      var list = await _databaseService.FetchAsync(include);
+      if (serverId.HasValue && serverId.Value > 0) list = list.Where(x => x.ServerId == serverId.Value);
 
       list = list.GetOrdered().ToList();
       return list.MapViewModelList(_mapper);
@@ -77,16 +75,25 @@ public class DatabasesController : BaseAdminITController
 
       return Ok(entity.MapViewModel(_mapper));
    }
+   [HttpGet("{id}")]
+   public async Task<ActionResult<DatabaseViewModel>> Details(int id)
+   {
+      string include = $"{nameof(Database.Server)},{nameof(Database.BackupPlans)}";
+      var entity = await _databaseService.GetByIdAsync(id, include);
+      if (entity == null) return NotFound();
 
+      return entity.MapViewModel(_mapper);
+   }
    [HttpGet("edit/{id}")]
-   public async Task<ActionResult> Edit(int id)
+   public async Task<ActionResult<DatabaseEditRequest>> Edit(int id)
    {
       var entity = await _databaseService.GetByIdAsync(id);
       if (entity == null) return NotFound();
 
-      var model = entity.MapViewModel(_mapper);
-
-      return Ok(model);
+      var form = new DatabaseEditForm();
+      entity.SetValuesTo(form);
+      var servers = await FetchServersAsync();
+      return new DatabaseEditRequest(form, servers.MapViewModelList(_mapper));
    }
 
    [HttpPut("{id}")]

@@ -42,7 +42,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DtoMapper\IT\" />
     <Folder Include="DtoMapper\Config\" />
   </ItemGroup>
 

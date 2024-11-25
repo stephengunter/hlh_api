@@ -24,7 +24,8 @@ public class DatabasesIndexModel
       Request = request;
       Servers = servers;
    }
-   public DatabaseLabels Labels => new DatabaseLabels();
+   public DatabaseLabels Labels => new DatabaseLabels(); 
+   public DbBackupPlanLabels BackupPlanLabels => new DbBackupPlanLabels();
    public DatabasesFetchRequest Request { get; set; }
    public ICollection<ServerViewModel> Servers { get; set; }
 }
@@ -35,7 +36,7 @@ public class DatabasesFetchRequest
    {
       
    }
-   public int ServerId { get; set; }
+   public int? ServerId { get; set; }
 }
 public abstract class DatabaseBaseForm
 {
@@ -52,4 +53,14 @@ public class DatabaseAddForm : DatabaseBaseForm
 public class DatabaseEditForm : DatabaseBaseForm
 {
 
+}
+public class DatabaseEditRequest
+{
+   public DatabaseEditRequest(DatabaseEditForm form, ICollection<ServerViewModel> servers)
+   {
+      Form = form;
+      Servers = servers;
+   }
+   public DatabaseEditForm Form { get; set; }
+   public ICollection<ServerViewModel> Servers { get; set; }
 }

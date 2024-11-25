@@ -2,7 +2,6 @@
 using ApplicationCore.Models.IT;
 using Ardalis.Specification;
 using Infrastructure.Helpers;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ApplicationCore.Specifications;
 public class ServerSpecification : Specification<Server>
