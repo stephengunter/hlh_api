@@ -27,7 +27,7 @@ public class HostService : IHostService
 
 
    public async Task<Host?> GetByIdAsync(int id)
-      => await _hostsRepository.GetByIdAsync(id);
+      => await _hostsRepository.FirstOrDefaultAsync(new HostSpecification(id));
 
    public async Task<Host> CreateAsync(Host entity, string userId)
    {

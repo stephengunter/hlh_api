@@ -11,6 +11,7 @@ public class ServerViewModel : EntityBaseView, IBaseRecordView
    public HostViewModel? Host { get; set; }
    public string Type { get; set; } = String.Empty;
    public string Provider { get; set; } = string.Empty;
+   public string Root { get; set; } = string.Empty;
    public string Title { get; set; } = String.Empty;
    public string Key { get; set; } = String.Empty;
    public string Ps { get; set; } = string.Empty;

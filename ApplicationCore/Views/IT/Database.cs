@@ -12,7 +12,7 @@ public class DatabaseViewModel : EntityBaseView, IBaseRecordView
    public int ServerId { get; set; }
    public ServerViewModel? Server { get; set; }
 
-   public ICollection<DbBackupPlanViewModel> BackupPlans = new List<DbBackupPlanViewModel>();
+   public ICollection<DbBackupPlanViewModel> BackupPlans { get; set; } = new List<DbBackupPlanViewModel>();
    public bool Removed { get; set; }
    public int Order { get; set; }
    public bool Active { get; set; }

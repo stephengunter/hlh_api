@@ -50,11 +50,17 @@ public abstract class DbBackupPlanBaseForm
    public int StartTime { get; set; }
    public int MinutesInterval { get; set; }
    public int DatabaseId { get; set; }
+   public bool Active { get; set; }
+
+   public bool CanRemove { get; set; }
 
 }
 public class DbBackupPlanAddForm : DbBackupPlanBaseForm
 {
-
+   public DbBackupPlanAddForm()
+   {
+      StartTime = -1;
+   }
 }
 public class DbBackupPlanEditForm : DbBackupPlanBaseForm
 {

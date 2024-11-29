@@ -11,6 +11,10 @@ public static class DatabasesHelpers
    public static DatabaseViewModel MapViewModel(this Database entity, IMapper mapper)
    {
       var model = mapper.Map<DatabaseViewModel>(entity);
+      if (entity.BackupPlans.HasItems())
+      {
+         model.BackupPlans = entity.BackupPlans.Select(item => item.MapViewModel(mapper)).ToList();
+      } 
       return model;
    }
 

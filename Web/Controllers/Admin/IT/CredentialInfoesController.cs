@@ -130,39 +130,11 @@ public class CredentialInfoesController : BaseAdminITController
 
       if (model.EntityType.EqualTo(nameof(ApplicationCore.Models.IT.Host)))
       {
-         var host = await _hostService.GetByIdAsync(model.EntityId);
-         if (host == null)
-         {
-            ModelState.AddModelError(nameof(model.EntityId), ValidationMessages.NotExist($"EntityId: {model.EntityId}"));
-            return;
-         }
-         var list = await _credentialInfoService.FetchAsync(host);
-         if (list.HasItems())
-         {
-            var exist = list.FirstOrDefault(x => x.Username == model.Username);
-            if (exist != null && exist.Id != id)
-            {
-               ModelState.AddModelError(nameof(model.Username), ValidationMessages.Duplicate(labels.Username));
-            }
-         }
+         await CheckHostAsync(model, id);
       }
       else if (model.EntityType.EqualTo(nameof(ApplicationCore.Models.IT.Server)))
       {
-         var server = await _hostService.GetByIdAsync(model.EntityId);
-         if (server == null)
-         {
-            ModelState.AddModelError(nameof(model.EntityId), ValidationMessages.NotExist($"EntityId: {model.EntityId}"));
-            return;
-         }
-         var list = await _credentialInfoService.FetchAsync(server);
-         if (list.HasItems())
-         {
-            var exist = list.FirstOrDefault(x => x.Username == model.Username);
-            if (exist != null && exist.Id != id)
-            {
-               ModelState.AddModelError(nameof(model.Username), ValidationMessages.Duplicate(labels.Username));
-            }
-         }
+         await CheckServerAsync(model, id);
       }
       else
       {
@@ -171,4 +143,42 @@ public class CredentialInfoesController : BaseAdminITController
 
    }
 
+   async Task CheckHostAsync(CredentialInfoBaseForm model, int id)
+   {
+      var labels = new CredentialInfoLabels();
+      var host = await _hostService.GetByIdAsync(model.EntityId);
+      if (host == null)
+      {
+         ModelState.AddModelError(nameof(model.EntityId), ValidationMessages.NotExist($"EntityId: {model.EntityId}"));
+         return;
+      }
+      var list = await _credentialInfoService.FetchAsync(host);
+      if (list.HasItems())
+      {
+         var exist = list.FirstOrDefault(x => x.Username == model.Username);
+         if (exist != null && exist.Id != id)
+         {
+            ModelState.AddModelError(nameof(model.Username), ValidationMessages.Duplicate(labels.Username));
+         }
+      }
+   }
+   async Task CheckServerAsync(CredentialInfoBaseForm model, int id)
+   {
+      var labels = new CredentialInfoLabels();
+      var server = await _serverService.GetByIdAsync(model.EntityId);
+      if (server == null)
+      {
+         ModelState.AddModelError(nameof(model.EntityId), ValidationMessages.NotExist($"EntityId: {model.EntityId}"));
+         return;
+      }
+      var list = await _credentialInfoService.FetchAsync(server);
+      if (list.HasItems())
+      {
+         var exist = list.FirstOrDefault(x => x.Username == model.Username);
+         if (exist != null && exist.Id != id)
+         {
+            ModelState.AddModelError(nameof(model.Username), ValidationMessages.Duplicate(labels.Username));
+         }
+      }
+   }
 }

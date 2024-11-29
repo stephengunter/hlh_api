@@ -2,6 +2,7 @@ using ApplicationCore.Models.Fetches;
 using ApplicationCore.Views;
 using ApplicationCore.Views.Criminals;
 using ApplicationCore.Views.Fetches;
+using System;
 using System.Drawing;
 using System.Numerics;
 
@@ -30,12 +31,13 @@ public class HostsIndexModel
 
 public class HostsFetchRequest
 {
-   public HostsFetchRequest(int page, int pageSize)
+   public HostsFetchRequest(bool active, int page, int pageSize)
    {
+      Active = active;
       Page = page;
       PageSize = pageSize;
    }
-   
+   public bool Active { get; set; }
    public int Page { get; set; }
    public int PageSize { get; set; }
 }
@@ -46,6 +48,7 @@ public abstract class BaseHostForm
    public string Title { get; set; } = String.Empty;
    public string Key { get; set; } = String.Empty;
    public string Ps { get; set; } = string.Empty;
+   public bool Active { get; set; }
 
 }
 public class HostAddForm : BaseHostForm
@@ -54,5 +57,27 @@ public class HostAddForm : BaseHostForm
 }
 public class HostEditForm : BaseHostForm
 {
-   public int Id { get; set; }
+   public bool CanRemove { get; set; }
+}
+
+public abstract class HostBaseRequest
+{ 
+   
+}
+public class HostAddRequest : HostBaseRequest
+{
+   public HostAddRequest(HostAddForm form)
+   {
+      Form = form;
+   }
+   public HostAddForm Form { get; set; }
+}
+
+public class HostEditRequest : HostBaseRequest
+{
+   public HostEditRequest(HostEditForm form)
+   {
+      Form = form;
+   }
+   public HostEditForm Form { get; set; }
 }

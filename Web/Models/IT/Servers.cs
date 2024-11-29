@@ -1,13 +1,6 @@
 using ApplicationCore.Consts;
-using ApplicationCore.Models.Fetches;
-using ApplicationCore.Views;
-using ApplicationCore.Views.Criminals;
-using ApplicationCore.Views.Fetches;
 using ApplicationCore.Views.IT;
 using Infrastructure.Helpers;
-using Infrastructure.Views;
-using System.Drawing;
-using System.Numerics;
 
 namespace Web.Models.IT;
 
@@ -17,24 +10,27 @@ public class ServerLabels
    public string Title => "名稱";
    public string Key => "Key";
    public string Provider => "Provider";
+   public string Root => "根目錄";
    public string Ps => "備註";
    public string Host => "主機";
+}
+public class ServerProviders
+{
+   public ICollection<string> Web => ObjectsHelpers.GetStaticKeys<WebProvider>();
+   public ICollection<string> Db => ObjectsHelpers.GetStaticKeys<DbProvider>();
+   public ICollection<string> Ftp => ObjectsHelpers.GetStaticKeys<FtpProvider>();
 }
 public class ServersIndexModel
 {
    public ServersIndexModel(ServersFetchRequest request)
    {
       Request = request;
-      DbProviders = ObjectsHelpers.GetStaticKeys<DbProvider>();
-      WebProviders = ObjectsHelpers.GetStaticKeys<WebProvider>();
-      Types = ObjectsHelpers.GetStaticKeys<ServerType>();
+      Providers = new ServerProviders();
    }
    public ServerLabels Labels => new ServerLabels();
    public CredentialInfoLabels CredentialInfoLabels => new CredentialInfoLabels();
    public ServersFetchRequest Request { get; set; }
-   public ICollection<string> DbProviders { get; set; }   
-   public ICollection<string> WebProviders { get; set; }
-   public ICollection<string> Types { get; set; }
+   public ServerProviders Providers { get; set; }
 }
 
 public class ServersFetchRequest
@@ -71,7 +67,8 @@ public abstract class ServerBaseForm
    public string Type { get; set; } = String.Empty;
    public string Title { get; set; } = String.Empty;
    public string Key { get; set; } = String.Empty;
-   public string Provider { get; set; } = string.Empty;
+   public string Provider { get; set; } = string.Empty; 
+   public string Root { get; set; } = string.Empty;
    public string Ps { get; set; } = string.Empty;
 }
 public class ServerAddForm : ServerBaseForm

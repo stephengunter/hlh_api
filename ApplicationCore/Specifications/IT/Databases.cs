@@ -6,30 +6,21 @@ using Infrastructure.Helpers;
 namespace ApplicationCore.Specifications;
 public class DatabaseSpecification : Specification<Database>
 {
-   public DatabaseSpecification(string include = "")
+   public DatabaseSpecification(ICollection<string>? includes = null)
    {
-      foreach (var item in FetchIncludes(include))
+      if (includes!.HasItems())
       {
-         Query.Include(item);
+         foreach (var item in includes!) Query.Include(item);
       }
       Query.Where(item => !item.Removed);
    }
-   public DatabaseSpecification(int id, string include = "")
+   public DatabaseSpecification(int id, ICollection<string>? includes = null)
    {
-      foreach (var item in FetchIncludes(include))
+      if (includes!.HasItems())
       {
-         Query.Include(item);
+         foreach (var item in includes!) Query.Include(item);
       }
       Query.Where(item => !item.Removed && item.Id == id);
    }
-   static ICollection<string> FetchIncludes(string include)
-   {
-      var result = new List<string>();
-      foreach (var item in include.SplitToList())
-      {
-         if (item.EqualTo(nameof(Database.Server))) result.Add(nameof(Database.Server));
-      }
-      return result;
-
-   }
+   
 }

@@ -9,4 +9,8 @@ public class HostSpecification : Specification<Host>
    {
       Query.Where(item => !item.Removed);
    }
+   public HostSpecification(int id)
+   {
+      Query.Where(item => !item.Removed && item.Id == id);
+   }
 }

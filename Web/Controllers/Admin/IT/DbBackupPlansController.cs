@@ -37,8 +37,8 @@ public class DbBackupPlansController : BaseAdminITController
    }
    async Task<ICollection<Database>> FetchDatabasesAsync()
    {
-      string include = nameof(Database.Server);
-      var list = await _databaseService.FetchAsync(include);
+      var includes = new List<string>() { nameof(Database.Server) };
+      var list = await _databaseService.FetchAsync(includes);
 
       if (list.HasItems()) list = list.GetOrdered();
       return list.ToList(); 
@@ -54,7 +54,7 @@ public class DbBackupPlansController : BaseAdminITController
 
 
    [HttpGet("create")]
-   public ActionResult<DbBackupPlanAddRequest> Create() => new DbBackupPlanAddRequest(new DbBackupPlanAddForm());
+   public ActionResult<DbBackupPlanAddRequest> Create() => new DbBackupPlanAddRequest(new DbBackupPlanAddForm() { Active = true });
 
 
    [HttpPost]
@@ -65,6 +65,8 @@ public class DbBackupPlansController : BaseAdminITController
 
       var entity = new DbBackupPlan();
       model.SetValuesTo(entity);
+      if (model.Active) entity.Order = 0;
+      else entity.Order = -1;
 
       entity = await _backupPlanService.CreateAsync(entity, User.Id());
 
@@ -76,8 +78,12 @@ public class DbBackupPlansController : BaseAdminITController
       var entity = await _backupPlanService.GetByIdAsync(id);
       if (entity == null) return NotFound();
 
+      var view = entity.MapViewModel(_mapper);
+
       var form = new DbBackupPlanEditForm();
-      entity.SetValuesTo(form);
+      view.SetValuesTo(form);
+
+      form.CanRemove = !entity.Active;
 
       return new DbBackupPlanEditRequest(form);
    }
@@ -92,6 +98,8 @@ public class DbBackupPlansController : BaseAdminITController
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
       model.SetValuesTo(entity);
+      if (model.Active) entity.Order = 0;
+      else entity.Order = -1;
 
       await _backupPlanService.UpdateAsync(entity, User.Id());
 

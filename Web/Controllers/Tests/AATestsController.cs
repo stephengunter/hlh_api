@@ -31,8 +31,8 @@ public class AATestsController : BaseTestController
    [HttpGet]
    public async Task<ActionResult> Index()
    {
-      
-      return Ok(nameof(Server.Host));
+      string include = $"{nameof(Database.Server)}.{nameof(Server.Host)}";
+      return Ok(include);
    }
    List<Department> ReadDepartmentsFromCsv(string filePath)
    {

@@ -3,6 +3,7 @@ using ApplicationCore.Views.IT;
 using AutoMapper;
 using Infrastructure.Paging;
 using Infrastructure.Helpers;
+using ApplicationCore.Models;
 
 namespace ApplicationCore.Helpers;
 public static class DbBackupPlansHelpers
@@ -39,6 +40,6 @@ public static class DbBackupPlansHelpers
       return entity;
    }
 
-   public static IEnumerable<DbBackupPlan> GetOrdered(this IEnumerable<DbBackupPlan> calendars)
-     => calendars.OrderBy(item => item.Order);
+   public static IEnumerable<DbBackupPlan> GetOrdered(this IEnumerable<DbBackupPlan> list)
+      => list.OrderByDescending(item => item.Active).ThenBy(item => item.Order);
 }

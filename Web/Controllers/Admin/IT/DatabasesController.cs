@@ -6,12 +6,8 @@ using AutoMapper;
 using ApplicationCore.Models.IT;
 using ApplicationCore.Authorization;
 using Infrastructure.Helpers;
-using Infrastructure.Paging;
 using ApplicationCore.Consts;
 using Web.Models.IT;
-using Infrastructure.Views;
-using Microsoft.Build.Execution;
-using System.Collections.Generic;
 
 namespace Web.Controllers.Admin.IT;
 
@@ -48,8 +44,8 @@ public class DatabasesController : BaseAdminITController
    [HttpGet]
    public async Task<ActionResult<ICollection<DatabaseViewModel>>> Index(int? serverId)
    {
-      string include = nameof(Database.Server);
-      var list = await _databaseService.FetchAsync(include);
+      var includes = new List<string>() { $"{nameof(Database.Server)}.{nameof(Server.Host)}" };
+      var list = await _databaseService.FetchAsync(includes);
       if (serverId.HasValue && serverId.Value > 0) list = list.Where(x => x.ServerId == serverId.Value);
 
       list = list.GetOrdered().ToList();
@@ -78,10 +74,13 @@ public class DatabasesController : BaseAdminITController
    [HttpGet("{id}")]
    public async Task<ActionResult<DatabaseViewModel>> Details(int id)
    {
-      string include = $"{nameof(Database.Server)},{nameof(Database.BackupPlans)}";
-      var entity = await _databaseService.GetByIdAsync(id, include);
+      var includes = new List<string>() { $"{nameof(Database.Server)}.{nameof(Server.Host)}" };
+
+      var entity = await _databaseService.GetByIdAsync(id, includes);
       if (entity == null) return NotFound();
 
+      entity.BackupPlans = entity.BackupPlans.GetOrdered().ToList();
+     
       return entity.MapViewModel(_mapper);
    }
    [HttpGet("edit/{id}")]

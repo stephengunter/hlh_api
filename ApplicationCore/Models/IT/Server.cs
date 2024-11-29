@@ -14,6 +14,7 @@ public class Server : EntityBase, IBaseRecord, IRemovable, ISortable
    public virtual Host? Host { get; set; }
    public string Type { get; set; } = string.Empty;
    public string Provider { get; set; } = string.Empty;
+   public string Root { get; set; } = string.Empty;
    public string Title { get; set; } = string.Empty;
    public string Key { get; set; } = string.Empty;
    public string Ps { get; set; } = string.Empty;

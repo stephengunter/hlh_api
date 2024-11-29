@@ -47,9 +47,6 @@ public class ServersController : BaseAdminITController
 
          list = list.Where(x => type.EqualTo(x.Type)).ToList();
       }
-      
-
-      //if(string.IsNullOrEmpty)
 
       if (list.HasItems())
       {
@@ -156,7 +153,7 @@ public class ServersController : BaseAdminITController
       {
 
       }
-      else if (type.EqualTo(ServerType.Db))
+      else if (type.EqualTo(ServerType.Ftp))
       {
 
       }

@@ -27,9 +27,10 @@ public class HostsController : BaseAdminITController
    [HttpGet("init")]
    public async Task<ActionResult<HostsIndexModel>> Init()
    {
+      bool active = true;
       int page = 1;
       int pageSize = 10;
-      var request = new HostsFetchRequest(page, pageSize);
+      var request = new HostsFetchRequest(active, page, pageSize);
       var providers = new List<string>() { DbProvider.SQLServer, DbProvider.PostgreSql };
 
       return new HostsIndexModel(request, providers);
@@ -50,7 +51,7 @@ public class HostsController : BaseAdminITController
 
 
    [HttpGet("create")]
-   public ActionResult<HostAddForm> Create() => new HostAddForm();
+   public ActionResult<HostAddRequest> Create() => new HostAddRequest(new HostAddForm() { Active = true });
 
 
    [HttpPost]
@@ -61,6 +62,8 @@ public class HostsController : BaseAdminITController
 
       var entity = new ApplicationCore.Models.IT.Host();
       model.SetValuesTo(entity);
+      if (model.Active) entity.Order = 0;
+      else entity.Order = -1;
 
       entity = await _hostService.CreateAsync(entity, User.Id());
 
@@ -78,15 +81,17 @@ public class HostsController : BaseAdminITController
       return entity.MapViewModel(_mapper);
    }
    [HttpGet("edit/{id}")]
-   public async Task<ActionResult<HostEditForm>> Edit(int id)
+   public async Task<ActionResult<HostEditRequest>> Edit(int id)
    {
       var entity = await _hostService.GetByIdAsync(id);
       if (entity == null) return NotFound();
 
-      var model = new HostEditForm();
-      entity.SetValuesTo(model);
+      var form = new HostEditForm();
+      entity.SetValuesTo(form);
 
-      return model;
+      form.CanRemove = !entity.Active;
+
+      return new HostEditRequest(form);
    }
 
    [HttpPut("{id}")]
@@ -99,6 +104,8 @@ public class HostsController : BaseAdminITController
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
       model.SetValuesTo(entity);
+      if (model.Active) entity.Order = 0;
+      else entity.Order = -1;
 
       await _hostService.UpdateAsync(entity, User.Id());
 
