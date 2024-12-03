@@ -4,6 +4,7 @@ using ApplicationCore.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApplicationCore.Migrations
 {
     [DbContext(typeof(DefaultContext))]
-    partial class DefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20241202090402_DbBackupPlan-TargetHost")]
+    partial class DbBackupPlanTargetHost
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -930,12 +933,12 @@ namespace ApplicationCore.Migrations
                     b.Property<int>("StartTime")
                         .HasColumnType("int");
 
+                    b.Property<int?>("TargetHostId")
+                        .HasColumnType("int");
+
                     b.Property<string>("TargetPath")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("TargetServerId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -952,48 +955,9 @@ namespace ApplicationCore.Migrations
 
                     b.HasIndex("DatabaseId");
 
-                    b.HasIndex("TargetServerId");
+                    b.HasIndex("TargetHostId");
 
-                    b.ToTable("IT.DbBackupPlans");
-                });
-
-            modelBuilder.Entity("ApplicationCore.Models.IT.DbBackupTask", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("Done")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Error")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("PlanId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Ps")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("StartAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("TargetPath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("TargetServerId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PlanId");
-
-                    b.ToTable("IT.DbBackupTasks");
+                    b.ToTable("IT.DbBackupPlan");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.IT.Host", b =>
@@ -2094,24 +2058,13 @@ namespace ApplicationCore.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ApplicationCore.Models.IT.Server", "TargetServer")
+                    b.HasOne("ApplicationCore.Models.IT.Host", "TargetHost")
                         .WithMany()
-                        .HasForeignKey("TargetServerId");
+                        .HasForeignKey("TargetHostId");
 
                     b.Navigation("Database");
 
-                    b.Navigation("TargetServer");
-                });
-
-            modelBuilder.Entity("ApplicationCore.Models.IT.DbBackupTask", b =>
-                {
-                    b.HasOne("ApplicationCore.Models.IT.DbBackupPlan", "Plan")
-                        .WithMany()
-                        .HasForeignKey("PlanId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Plan");
+                    b.Navigation("TargetHost");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.IT.Server", b =>

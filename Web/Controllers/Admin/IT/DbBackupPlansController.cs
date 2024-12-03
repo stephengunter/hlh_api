@@ -19,14 +19,18 @@ public class DbBackupPlansController : BaseAdminITController
 {
    private readonly IDbBackupPlanService _backupPlanService;
    private readonly IDatabaseService _databaseService;
+   private readonly IServerService _serverService;
    private readonly IMapper _mapper;
-     
-   public DbBackupPlansController(IDbBackupPlanService backupPlanService, IDatabaseService databaseService, IMapper mapper)
+
+   public DbBackupPlansController(IDbBackupPlanService backupPlanService, IDatabaseService databaseService,
+      IServerService serverService, IMapper mapper)
    {
       _backupPlanService = backupPlanService;
       _databaseService = databaseService;
+      _serverService = serverService;
       _mapper = mapper;
    }
+
    [HttpGet("init")]
    public async Task<ActionResult<DbBackupPlansIndexModel>> Init()
    {
@@ -43,10 +47,21 @@ public class DbBackupPlansController : BaseAdminITController
       if (list.HasItems()) list = list.GetOrdered();
       return list.ToList(); 
    }
+   async Task<ICollection<Server>> FetchFtpServersAsync()
+   {
+      string include = nameof(Server.Host);
+      var list = await _serverService.FetchAsync(include);
+
+      string type = ServerType.Ftp;
+      list = list.Where(x => x.Type.EqualTo(type)).ToList();
+      if (list.HasItems()) list = list.GetOrdered();
+      return list.ToList();
+   }
    [HttpGet]
    public async Task<ActionResult<ICollection<DbBackupPlanViewModel>>> Index(int dbId)
    {
-      var list = await _backupPlanService.FetchAsync(new Database() { Id = dbId });
+      var includes = new List<string>() { $"{nameof(DbBackupPlan.TargetServer)}.{nameof(ApplicationCore.Models.IT.Host)}" };
+      var list = await _backupPlanService.FetchAsync(new Database() { Id = dbId }, includes);
 
       list = list.GetOrdered().ToList();
       return list.MapViewModelList(_mapper);
@@ -54,7 +69,12 @@ public class DbBackupPlansController : BaseAdminITController
 
 
    [HttpGet("create")]
-   public ActionResult<DbBackupPlanAddRequest> Create() => new DbBackupPlanAddRequest(new DbBackupPlanAddForm() { Active = true });
+   public async Task<ActionResult<DbBackupPlanAddRequest>> Create()
+   {
+      var servers = await FetchFtpServersAsync();
+      return new DbBackupPlanAddRequest(new DbBackupPlanAddForm() { Active = true }, servers.MapViewModelList(_mapper));
+   }
+  
 
 
    [HttpPost]
@@ -85,7 +105,8 @@ public class DbBackupPlansController : BaseAdminITController
 
       form.CanRemove = !entity.Active;
 
-      return new DbBackupPlanEditRequest(form);
+      var servers = await FetchFtpServersAsync();
+      return new DbBackupPlanEditRequest(form, servers.MapViewModelList(_mapper));
    }
 
    [HttpPut("{id}")]

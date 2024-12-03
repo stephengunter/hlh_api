@@ -7,7 +7,7 @@ namespace ApplicationCore.Services;
 
 public interface IDbBackupPlanService
 {
-   Task<IEnumerable<DbBackupPlan>> FetchAsync(Database db);
+   Task<IEnumerable<DbBackupPlan>> FetchAsync(Database db, ICollection<string>? includes = null);
    Task<DbBackupPlan?> GetByIdAsync(int id);
    Task<DbBackupPlan> CreateAsync(DbBackupPlan entity, string userId);
    Task UpdateAsync(DbBackupPlan entity, string userId);
@@ -22,8 +22,8 @@ public class DbBackupPlanService : IDbBackupPlanService
 	{
       _databaseRepository = databaseRepository;
 	}
-   public async Task<IEnumerable<DbBackupPlan>> FetchAsync(Database db)
-       => await _databaseRepository.ListAsync(new DbBackupPlanSpecification(db));
+   public async Task<IEnumerable<DbBackupPlan>> FetchAsync(Database db, ICollection<string>? includes = null)
+       => await _databaseRepository.ListAsync(new DbBackupPlanSpecification(db, includes));
 
 
    public async Task<DbBackupPlan?> GetByIdAsync(int id)

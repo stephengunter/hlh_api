@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
 namespace ApplicationCore.Models.IT;
-[Table("IT.DbBackupPlan")]
+[Table("IT.DbBackupPlans")]
 public class DbBackupPlan : EntityBase, IBaseRecord, IRemovable, ISortable
 {
    public string Title { get; set; } = String.Empty;
@@ -14,8 +14,13 @@ public class DbBackupPlan : EntityBase, IBaseRecord, IRemovable, ISortable
    public int MinutesInterval { get; set; }
    public int DatabaseId { get; set; }
 
+   public int? TargetServerId { get; set; }
+   public string TargetPath { get; set; } = string.Empty;
+
+
    [Required]
    public virtual Database? Database { get; set; }
+   public virtual Server? TargetServer { get; set; }
    public bool Removed { get; set; }
    public int Order { get; set; }
    public bool Active => ISortableHelpers.IsActive(this);

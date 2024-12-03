@@ -11,6 +11,10 @@ public class DbBackupPlanViewModel : EntityBaseView, IBaseRecordView
    public int MinutesInterval { get; set; }
    public int DatabaseId { get; set; }
    public virtual DatabaseViewModel? Database { get; set; }
+   public virtual ServerViewModel? TargetServer { get; set; }
+   public int? TargetServerId { get; set; }
+   public string TargetPath { get; set; } = string.Empty;
+
    public bool Removed { get; set; }
    public int Order { get; set; }
    public bool Active { get; set; }

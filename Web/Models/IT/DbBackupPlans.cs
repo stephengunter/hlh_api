@@ -6,6 +6,7 @@ using ApplicationCore.Views.Criminals;
 using ApplicationCore.Views.Fetches;
 using ApplicationCore.Views.IT;
 using Infrastructure.Views;
+using Microsoft.AspNetCore.Hosting.Server;
 using System.Drawing;
 using System.Numerics;
 
@@ -21,6 +22,8 @@ public class DbBackupPlanLabels
    public string Database => "資料庫";
    public string TypeFull => "完整備份";
    public string TypeDiff => "差異備份";
+   public string TargetServerId => "Ftp Server";
+   public string TargetPath => "目標路徑";
 }
 public class DbBackupPlansIndexModel
 {
@@ -50,6 +53,8 @@ public abstract class DbBackupPlanBaseForm
    public int StartTime { get; set; }
    public int MinutesInterval { get; set; }
    public int DatabaseId { get; set; }
+   public int? TargetServerId { get; set; }
+   public string TargetPath { get; set; } = string.Empty;
    public bool Active { get; set; }
 
    public bool CanRemove { get; set; }
@@ -80,17 +85,21 @@ public abstract class DbBackupPlanBaseRequest
 
 public class DbBackupPlanAddRequest : DbBackupPlanBaseRequest
 {
-   public DbBackupPlanAddRequest(DbBackupPlanAddForm form)
+   public DbBackupPlanAddRequest(DbBackupPlanAddForm form, ICollection<ServerViewModel> servers)
    {
       Form = form;
+      Servers = servers;
    }
+   public ICollection<ServerViewModel> Servers { get; set; }
    public DbBackupPlanAddForm Form { get; set; }
 }
 public class DbBackupPlanEditRequest : DbBackupPlanBaseRequest
 {
-   public DbBackupPlanEditRequest(DbBackupPlanEditForm form)
+   public DbBackupPlanEditRequest(DbBackupPlanEditForm form, ICollection<ServerViewModel> servers)
    {
       Form = form;
+      Servers = servers;
    }
+   public ICollection<ServerViewModel> Servers { get; set; }
    public DbBackupPlanEditForm Form { get; set; }
 }

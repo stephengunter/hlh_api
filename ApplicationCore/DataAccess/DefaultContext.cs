@@ -66,7 +66,8 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
    public DbSet<SystemApp> SystemApps => Set<SystemApp>();
    public DbSet<CredentialInfo> CredentialInfoes => Set<CredentialInfo>();
    public DbSet<Database> Databases => Set<Database>();
-   public DbSet<DbBackupPlan> BackupPlans => Set<DbBackupPlan>();
+   public DbSet<DbBackupPlan> DbBackupPlans => Set<DbBackupPlan>();
+   public DbSet<DbBackupTask> DbBackupTasks => Set<DbBackupTask>();
    #endregion
 
    #region Keyin
