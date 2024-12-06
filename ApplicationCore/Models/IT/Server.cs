@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Infrastructure.Helpers;
 using Infrastructure.Entities;
 using System.ComponentModel.DataAnnotations;
+using ApplicationCore.Attributes;
 
 namespace ApplicationCore.Models.IT;
 
@@ -12,11 +13,14 @@ public class Server : EntityBase, IBaseRecord, IRemovable, ISortable
 
    [Required]
    public virtual Host? Host { get; set; }
+
+   [Editor("Type", Enable = true)]
    public string Type { get; set; } = string.Empty;
    public string Provider { get; set; } = string.Empty;
    public string Root { get; set; } = string.Empty;
    public string Title { get; set; } = string.Empty;
    public string Key { get; set; } = string.Empty;
+   [Editor("³Æµù", Enable = true)]
    public string Ps { get; set; } = string.Empty;
    public bool Removed { get; set; }
    public int Order { get; set; }
