@@ -4,6 +4,7 @@ using ApplicationCore.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApplicationCore.Migrations
 {
     [DbContext(typeof(DefaultContext))]
-    partial class DefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20241217020718_SystemApp-Centralized")]
+    partial class SystemAppCentralized
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1136,9 +1139,6 @@ namespace ApplicationCore.Migrations
                     b.Property<int>("Order")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ParentId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Ps")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -1161,8 +1161,6 @@ namespace ApplicationCore.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ParentId");
 
                     b.ToTable("IT.SystemApps");
                 });
@@ -1801,38 +1799,6 @@ namespace ApplicationCore.Migrations
                     b.ToTable("TelNames");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.TypeCategory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Key")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Order")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ParentId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("Removed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentId");
-
-                    b.ToTable("TypeCategories");
-                });
-
             modelBuilder.Entity("ApplicationCore.Models.User", b =>
                 {
                     b.Property<string>("Id")
@@ -2183,15 +2149,6 @@ namespace ApplicationCore.Migrations
                     b.Navigation("Host");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.IT.SystemApp", b =>
-                {
-                    b.HasOne("ApplicationCore.Models.IT.SystemApp", "Parent")
-                        .WithMany("SubItems")
-                        .HasForeignKey("ParentId");
-
-                    b.Navigation("Parent");
-                });
-
             modelBuilder.Entity("ApplicationCore.Models.IT.SystemAppDatabase", b =>
                 {
                     b.HasOne("ApplicationCore.Models.IT.Database", "Database")
@@ -2306,15 +2263,6 @@ namespace ApplicationCore.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.TypeCategory", b =>
-                {
-                    b.HasOne("ApplicationCore.Models.TypeCategory", "Parent")
-                        .WithMany("SubItems")
-                        .HasForeignKey("ParentId");
-
-                    b.Navigation("Parent");
-                });
-
             modelBuilder.Entity("ApplicationCore.Models.UserRole", b =>
                 {
                     b.HasOne("ApplicationCore.Models.Role", "Role")
@@ -2415,8 +2363,6 @@ namespace ApplicationCore.Migrations
 
             modelBuilder.Entity("ApplicationCore.Models.IT.SystemApp", b =>
                 {
-                    b.Navigation("SubItems");
-
                     b.Navigation("SystemAppDatabases");
                 });
 
@@ -2453,11 +2399,6 @@ namespace ApplicationCore.Migrations
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Tasks", b =>
-                {
-                    b.Navigation("SubItems");
-                });
-
-            modelBuilder.Entity("ApplicationCore.Models.TypeCategory", b =>
                 {
                     b.Navigation("SubItems");
                 });

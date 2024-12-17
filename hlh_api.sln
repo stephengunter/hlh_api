@@ -13,9 +13,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Console", "Console\Console.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleClone", "ConsoleClone\ConsoleClone.csproj", "{AA8B0C2A-7D43-48AF-BDC6-AC311E828914}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleDbBackup", "ConsoleDbBackup\ConsoleDbBackup.csproj", "{1816903B-6E78-4DB4-8747-2EAACE9E4FE1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleDbBackup", "ConsoleDbBackup\ConsoleDbBackup.csproj", "{1816903B-6E78-4DB4-8747-2EAACE9E4FE1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsApp_DbBackup", "WinFormsApp_DbBackup\WinFormsApp_DbBackup.csproj", "{5BDFEE4D-3213-47F8-953C-A9AEBEC47CE3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinFormsApp_DbBackup", "WinFormsApp_DbBackup\WinFormsApp_DbBackup.csproj", "{5BDFEE4D-3213-47F8-953C-A9AEBEC47CE3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormCleanFiles", "WinFormCleanFiles\WinFormCleanFiles.csproj", "{D4CFFA17-7AC1-43D1-8946-22AA0816BD4E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{5BDFEE4D-3213-47F8-953C-A9AEBEC47CE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5BDFEE4D-3213-47F8-953C-A9AEBEC47CE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5BDFEE4D-3213-47F8-953C-A9AEBEC47CE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4CFFA17-7AC1-43D1-8946-22AA0816BD4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4CFFA17-7AC1-43D1-8946-22AA0816BD4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4CFFA17-7AC1-43D1-8946-22AA0816BD4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4CFFA17-7AC1-43D1-8946-22AA0816BD4E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,7 +1,23 @@
-﻿namespace Infrastructure.Helpers;
+﻿using Infrastructure.Views;
+
+namespace Infrastructure.Helpers;
 public static class EnumHelpers
 {
-	public static List<T> ToList<T>() => Enum.GetValues(typeof(T)).Cast<T>().ToList();
+   public static List<BaseOption<int>> EnumToBaseOptions<TEnum>() where TEnum : Enum
+   {
+      var options = new List<BaseOption<int>>();
+
+      foreach (var enumValue in Enum.GetValues(typeof(TEnum)))
+      {
+         var intValue = (int)enumValue;
+         var name = enumValue.ToString();
+
+         options.Add(new BaseOption<int>(intValue, name));
+      }
+
+      return options;
+   }
+   public static List<T> ToList<T>() => Enum.GetValues(typeof(T)).Cast<T>().ToList();
 
 	public static T ToEnum<T>(this string inString, bool ignoreCase = true) where T : struct
 		=> (T)ParseEnum<T>(inString, ignoreCase);

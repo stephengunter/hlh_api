@@ -2,6 +2,7 @@ using Infrastructure.Helpers;
 using Infrastructure.Entities;
 using System.ComponentModel.DataAnnotations.Schema;
 using Infrastructure.Views;
+using ApplicationCore.Models.IT;
 
 
 namespace ApplicationCore.Views.IT;
@@ -9,8 +10,15 @@ public class SystemAppViewModel : EntityBaseView, IBaseRecordView
 {
    public string Title { get; set; } = string.Empty;
    public string Key { get; set; } = string.Empty;
-   public string CredentialInfoId { get; set; } = string.Empty;
-   public string? HostId { get; set; }
+   public string Type { get; set; } = string.Empty;
+   public bool Centralized { get; set; }
+   public SystemAppViewModel? Parent { get; set; }
+   public int? ParentId { get; set; }
+   public bool IsRootItem { get; set; }
+   public ICollection<SystemAppViewModel>? SubItems { get; set; }
+   public ICollection<int>? SubIds { get; set; }
+   public int? ServerId { get; set; }
+   public ServerViewModel? Server { get; set; }
    public bool Removed { get; set; }
    public int Order { get; set; }
    public bool Active { get; set; }

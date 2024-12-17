@@ -17,6 +17,8 @@ public class Database : EntityBase, IBaseRecord, IRemovable, ISortable
    public virtual Server? Server { get; set; }
 
    public virtual ICollection<DbBackupPlan> BackupPlans { get; set; } = new List<DbBackupPlan>();
+
+   public virtual ICollection<SystemAppDatabase>? SystemAppDatabases { get; set; }
    public bool Removed { get; set; }
    public int Order { get; set; }
    public bool Active => ISortableHelpers.IsActive(this);

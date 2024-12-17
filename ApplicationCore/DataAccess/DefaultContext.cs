@@ -36,6 +36,7 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
          }
       }
    }
+   public DbSet<TypeCategory> TypeCategories => Set<TypeCategory>();
    public DbSet<Branch> Branches => Set<Branch>();
    public DbSet<TelName> TelNames => Set<TelName>();
    public DbSet<ModifyRecord> ModifyRecords => Set<ModifyRecord>();
@@ -68,6 +69,7 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
    public DbSet<Database> Databases => Set<Database>();
    public DbSet<DbBackupPlan> DbBackupPlans => Set<DbBackupPlan>();
    public DbSet<DbBackupTask> DbBackupTasks => Set<DbBackupTask>();
+   public DbSet<SystemAppDatabase> SystemAppDatabases => Set<SystemAppDatabase>();
    #endregion
 
    #region Keyin
@@ -96,13 +98,14 @@ public class DefaultContext : IdentityDbContext<User, Role, string,
    public DbSet<TagPost> TagPosts => Set<TagPost>();
    #endregion
 
-   public DbSet<Tasks> Tasks => Set<Tasks>();
 
+   #region Events	
+   public DbSet<Tasks> Tasks => Set<Tasks>();
    public DbSet<Event> Events => Set<Event>();
    public DbSet<LocationEvent> LocationEvents => Set<LocationEvent>();
    public DbSet<Calendar> Calendars => Set<Calendar>();
    public DbSet<EventCalendar> EventCalendars => Set<EventCalendar>();
-
+   #endregion
    public override int SaveChanges() => SaveChangesAsync().GetAwaiter().GetResult();
 
 }

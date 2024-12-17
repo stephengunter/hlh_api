@@ -4,6 +4,7 @@ using ApplicationCore.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApplicationCore.Migrations
 {
     [DbContext(typeof(DefaultContext))]
-    partial class DefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20241213023102_SystemApp-Server")]
+    partial class SystemAppServer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1113,18 +1116,12 @@ namespace ApplicationCore.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("Centralized")
-                        .HasColumnType("bit");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Importance")
-                        .HasColumnType("int");
 
                     b.Property<string>("Key")
                         .IsRequired()
@@ -1136,9 +1133,6 @@ namespace ApplicationCore.Migrations
                     b.Property<int>("Order")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ParentId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Ps")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -1146,14 +1140,10 @@ namespace ApplicationCore.Migrations
                     b.Property<bool>("Removed")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("ServerId")
+                    b.Property<int>("ServerId")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -1162,24 +1152,9 @@ namespace ApplicationCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ParentId");
+                    b.HasIndex("ServerId");
 
                     b.ToTable("IT.SystemApps");
-                });
-
-            modelBuilder.Entity("ApplicationCore.Models.IT.SystemAppDatabase", b =>
-                {
-                    b.Property<int>("SystemAppId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DatabaseId")
-                        .HasColumnType("int");
-
-                    b.HasKey("SystemAppId", "DatabaseId");
-
-                    b.HasIndex("DatabaseId");
-
-                    b.ToTable("SystemAppDatabases");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Item", b =>
@@ -1801,38 +1776,6 @@ namespace ApplicationCore.Migrations
                     b.ToTable("TelNames");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.TypeCategory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Key")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Order")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ParentId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("Removed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentId");
-
-                    b.ToTable("TypeCategories");
-                });
-
             modelBuilder.Entity("ApplicationCore.Models.User", b =>
                 {
                     b.Property<string>("Id")
@@ -2185,30 +2128,13 @@ namespace ApplicationCore.Migrations
 
             modelBuilder.Entity("ApplicationCore.Models.IT.SystemApp", b =>
                 {
-                    b.HasOne("ApplicationCore.Models.IT.SystemApp", "Parent")
-                        .WithMany("SubItems")
-                        .HasForeignKey("ParentId");
-
-                    b.Navigation("Parent");
-                });
-
-            modelBuilder.Entity("ApplicationCore.Models.IT.SystemAppDatabase", b =>
-                {
-                    b.HasOne("ApplicationCore.Models.IT.Database", "Database")
-                        .WithMany("SystemAppDatabases")
-                        .HasForeignKey("DatabaseId")
+                    b.HasOne("ApplicationCore.Models.IT.Server", "Server")
+                        .WithMany()
+                        .HasForeignKey("ServerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ApplicationCore.Models.IT.SystemApp", "SystemApp")
-                        .WithMany("SystemAppDatabases")
-                        .HasForeignKey("SystemAppId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Database");
-
-                    b.Navigation("SystemApp");
+                    b.Navigation("Server");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Job", b =>
@@ -2306,15 +2232,6 @@ namespace ApplicationCore.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("ApplicationCore.Models.TypeCategory", b =>
-                {
-                    b.HasOne("ApplicationCore.Models.TypeCategory", "Parent")
-                        .WithMany("SubItems")
-                        .HasForeignKey("ParentId");
-
-                    b.Navigation("Parent");
-                });
-
             modelBuilder.Entity("ApplicationCore.Models.UserRole", b =>
                 {
                     b.HasOne("ApplicationCore.Models.Role", "Role")
@@ -2404,20 +2321,11 @@ namespace ApplicationCore.Migrations
             modelBuilder.Entity("ApplicationCore.Models.IT.Database", b =>
                 {
                     b.Navigation("BackupPlans");
-
-                    b.Navigation("SystemAppDatabases");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.IT.Host", b =>
                 {
                     b.Navigation("Servers");
-                });
-
-            modelBuilder.Entity("ApplicationCore.Models.IT.SystemApp", b =>
-                {
-                    b.Navigation("SubItems");
-
-                    b.Navigation("SystemAppDatabases");
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Job", b =>
@@ -2453,11 +2361,6 @@ namespace ApplicationCore.Migrations
                 });
 
             modelBuilder.Entity("ApplicationCore.Models.Tasks", b =>
-                {
-                    b.Navigation("SubItems");
-                });
-
-            modelBuilder.Entity("ApplicationCore.Models.TypeCategory", b =>
                 {
                     b.Navigation("SubItems");
                 });

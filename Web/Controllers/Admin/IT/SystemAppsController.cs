@@ -8,17 +8,22 @@ using ApplicationCore.Authorization;
 using Infrastructure.Helpers;
 using Infrastructure.Paging;
 using Web.Models;
+using ApplicationCore.Consts;
+using Microsoft.Build.Execution;
+using Web.Models.IT;
 
 namespace Web.Controllers.Admin.IT;
 
 public class SystemAppsController : BaseAdminITController
 {
-   private readonly ISystemAppService _systemAppService;
+   private readonly ISystemAppService _systemAppService; 
+   private readonly IServerService _serverService;
    private readonly IMapper _mapper;
      
-   public SystemAppsController(ISystemAppService systemAppService, IMapper mapper)
+   public SystemAppsController(ISystemAppService systemAppService, IServerService serverService, IMapper mapper)
    {
       _systemAppService = systemAppService;
+      _serverService = serverService;
       _mapper = mapper;
    }
    [HttpGet("init")]
@@ -50,24 +55,24 @@ public class SystemAppsController : BaseAdminITController
 
 
    [HttpGet("create")]
-   public ActionResult<SystemAppViewModel> Create() => new SystemAppViewModel();
+   public async Task<ActionResult<SystemAppAddRequest>> Create()
+   {
+      var form = new SystemAppAddForm() { };
+      
+      var servers = await _serverService.FetchAsync(include: "Host");
+      return new SystemAppAddRequest(form, servers.MapViewModelList(_mapper));
+   }
 
 
    [HttpPost]
-   public async Task<ActionResult<SystemAppViewModel>> Store([FromBody] SystemAppViewModel model)
+   public async Task<ActionResult<SystemAppViewModel>> Store([FromBody] SystemAppAddForm form)
    {
-      ValidateRequest(model);
+      await ValidateRequestAsync(form, 0);
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
-      //var existEntity = _tagsService.FindByTitleAsync(model.Title);
-      //if (existEntity is not null)
-      //{
-      //   ModelState.AddModelError("title", "名稱重複了");
-      //   return BadRequest(ModelState);
-      //}
-
-      var entity = model.MapEntity(_mapper, User.Id());
-      entity.Order = model.Active ? 0 : -1;
+      var entity = new SystemApp();
+      form.SetValuesTo(entity);
+      entity.SetCreated(User.Id());
 
       entity = await _systemAppService.CreateAsync(entity, User.Id());
 
@@ -75,33 +80,28 @@ public class SystemAppsController : BaseAdminITController
    }
 
    [HttpGet("edit/{id}")]
-   public async Task<ActionResult> Edit(int id)
+   public async Task<ActionResult<SystemAppEditRequest>> Edit(int id)
    {
       var entity = await _systemAppService.GetByIdAsync(id);
       if (entity == null) return NotFound();
 
-      var model = entity.MapViewModel(_mapper);
-
-      return Ok(model);
+      var form = new SystemAppEditForm();
+      entity.SetValuesTo(form);
+      var servers = await _serverService.FetchAsync();
+      return new SystemAppEditRequest(form, servers.MapViewModelList(_mapper));
    }
 
    [HttpPut("{id}")]
-   public async Task<ActionResult> Update(int id, [FromBody] SystemAppViewModel model)
+   public async Task<ActionResult> Update(int id, [FromBody] SystemAppEditForm form)
    {
       var entity = await _systemAppService.GetByIdAsync(id);
       if (entity == null) return NotFound();
 
-      ValidateRequest(model);
+      await ValidateRequestAsync(form, id);
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
-      //var existEntity = _tagsService.FindByTitleAsync(model.Title);
-      //if (existEntity is not null && existEntity.Id != id)
-      //{
-      //   ModelState.AddModelError("title", "名稱重複了");
-      //   return BadRequest(ModelState);
-      //}
-
-      entity = model.MapEntity(_mapper, User.Id(), entity);
+      form.SetValuesTo(entity);
+      entity.SetUpdated(User.Id());
 
       await _systemAppService.UpdateAsync(entity, User.Id());
 
@@ -118,10 +118,17 @@ public class SystemAppsController : BaseAdminITController
 
       return NoContent();
    }
-
-   void ValidateRequest(SystemAppViewModel model)
+   async Task ValidateRequestAsync(SystemAppBaseForm form, int id)
    {
-      if (String.IsNullOrEmpty(model.Title)) ModelState.AddModelError("title", "必須填寫名稱");
+      var labels = new SystemAppLabels();
+     
+      if (!ModelState.IsValid) return;
+
+      var server = await _serverService.GetByIdAsync(form.ServerId);
+      if (server == null)
+      {
+         ModelState.AddModelError(nameof(form.ServerId), ValidationMessages.NotExist($"{labels.Server} id = {id}"));
+      }
    }
 
 

@@ -5,6 +5,10 @@ using ApplicationCore.Models;
 using ApplicationCore.Consts;
 using Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
+using ApplicationCore.Settings;
+using ApplicationCore.Models.IT;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Infrastructure.Views;
 
 namespace ApplicationCore.DataAccess;
 
@@ -37,7 +41,7 @@ public static class SeedData
 
 		Console.WriteLine("Seeding database...");
 
-		var context = serviceProvider.GetRequiredService<DefaultContext>();
+      var context = serviceProvider.GetRequiredService<DefaultContext>();
 	   context.Database.EnsureCreated();
 
       using (var roleManager = serviceProvider.GetRequiredService<RoleManager<Role>>())
@@ -61,6 +65,7 @@ public static class SeedData
 				await CreateUserIfNotExist(userManager, user, new List<string>() { DevRoleName });
 			}
 		}
+      
       await SeedCategories(context);
       await SeedCalendars(context);
       await SeedDepartments(context);
@@ -126,7 +131,35 @@ public static class SeedData
 
 		}
 	}
+   //static async Task SeedTypeCategories(DefaultContext context)
+   //{
+   //   var typeCategories = new List<TypeCategory>()
+   //   {
+   //      new TypeCategory() { Key = nameof(SystemApp), Title = "Web" },
+   //      new TypeCategory() { Key = nameof(SystemApp), Title = "PC 應用程式" },
+   //      new TypeCategory() { Key = nameof(SystemApp), Title = "手機App" }
+   //   };
 
+   //   foreach (var item in typeCategories) await AddTypeCategoryIfNotExist(context, item);
+   //   context.SaveChanges();
+
+   //   await SeedEventCategories(context);
+   //}
+   //static async Task AddTypeCategoryIfNotExist(DefaultContext context, TypeCategory category)
+   //{
+   //   var dbSet = context.TypeCategories;
+   //   if (dbSet.Count() == 0)
+   //   {
+   //      dbSet.Add(category);
+   //      return;
+   //   }
+   //   var exist = await dbSet.FirstOrDefaultAsync(x => x.Key == category.Key && x.ParentId == category.ParentId);
+   //   if (exist == null) dbSet.Add(category);
+   //   else
+   //   {
+   //      exist.Title = category.Title;
+   //   }
+   //}
    static async Task SeedCategories(DefaultContext context)
    {
       var rootCategories = new List<Category>
@@ -139,6 +172,7 @@ public static class SeedData
 
       await SeedEventCategories(context);
    }
+   
    static async Task SeedEventCategories(DefaultContext context)
    {
       var root = context.Categories.FirstOrDefault(c => c.Key == PostTypes.Event && c.PostType == PostTypes.Event);

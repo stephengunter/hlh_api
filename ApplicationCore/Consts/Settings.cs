@@ -16,6 +16,7 @@ public class SettingsKeys
    public static string Judicial = "Judicial";
    public static string Jud3 = "Jud3";
    public static string Event = "Event";
+   public static string TypeCategories = "TypeCategories";
 
    //Files
    public static string JudgebookFile = "JudgebookFile";

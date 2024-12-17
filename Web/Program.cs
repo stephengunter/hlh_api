@@ -42,7 +42,6 @@ try
 
    #region Add Configurations
    builder.Services.Configure<LdapSettings>(Configuration.GetSection(SettingsKeys.Ldap));
-   //builder.Services.Configure<DbSettings>(Configuration.GetSection(SettingsKeys.Db));
    builder.Services.Configure<AppSettings>(Configuration.GetSection(SettingsKeys.App));
    builder.Services.Configure<AdminSettings>(Configuration.GetSection(SettingsKeys.Admin));
    builder.Services.Configure<AttachmentSettings>(Configuration.GetSection(SettingsKeys.Attachment));
@@ -51,7 +50,7 @@ try
    builder.Services.Configure<MailSettings>(Configuration.GetSection(SettingsKeys.Mail));
    builder.Services.Configure<JudSettings>(Configuration.GetSection(SettingsKeys.Judicial));
    builder.Services.Configure<Jud3Settings>(Configuration.GetSection(SettingsKeys.Jud3));
-   builder.Services.Configure<List<DbSettings>>(Configuration.GetSection("DbSettings"));
+   //builder.Services.Configure<List<DbSettings>>(Configuration.GetSection("DbSettings"));
    #endregion
 
    string connectionString = Configuration.GetConnectionString("Default")!;

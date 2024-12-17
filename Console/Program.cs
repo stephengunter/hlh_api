@@ -31,6 +31,7 @@ class Program
 
    internal static void AddFile(string name)
    {
+      return;
       var root = Directory.GetParent(Directory.GetCurrentDirectory());
 
       var applicationCore = Path.Combine(root!.FullName, "ApplicationCore");
