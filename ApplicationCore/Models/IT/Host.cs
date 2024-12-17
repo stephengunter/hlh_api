@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Infrastructure.Helpers;
 using Infrastructure.Entities;
+using ApplicationCore.Attributes;
 
 namespace ApplicationCore.Models.IT;
 
@@ -8,8 +9,10 @@ namespace ApplicationCore.Models.IT;
 public class Host : EntityBase, IBaseRecord, IRemovable, ISortable
 {
    public string IP { get; set; } = String.Empty;
+   [Editor("¦WºÙ", Enable = true)]
    public string Title { get; set; } = String.Empty;
    public string Key { get; set; } = String.Empty;
+   [Editor("³Æµù", Enable = true)]
    public string Ps { get; set; } = string.Empty;
    public bool Removed { get; set; }
    public int Order { get; set; }

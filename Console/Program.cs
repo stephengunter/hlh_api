@@ -33,6 +33,10 @@ class Program
    {
       return;
       var root = Directory.GetParent(Directory.GetCurrentDirectory());
+      var parts = name.Split(".");
+      foreach ( var part in parts ) { Console.WriteLine(part); }
+      Console.ReadLine();
+
 
       var applicationCore = Path.Combine(root!.FullName, "ApplicationCore");
       if (!Directory.Exists(applicationCore)) throw new Exception("ApplicationCore Not Found.");
@@ -43,15 +47,16 @@ class Program
       var templates = Path.Combine(Directory.GetCurrentDirectory(), "templates");
       if (!Directory.Exists(templates)) throw new Exception("templates Not Found.");
 
-      name = name.ToLower();
-      AddModel(templates, name, applicationCore);
-      AddViewModel(templates, name, applicationCore);
-      AddDtoMapper(templates, name, applicationCore);
-      AddSpecifications(templates, name, applicationCore);
-      AddServices(templates, name, applicationCore);
-      AddHelpers(templates, name, applicationCore);
+      //name = name.ToLower();
 
-      AddControllers(templates, name, web);
+      //AddModel(templates, name, applicationCore);
+      //AddViewModel(templates, name, applicationCore);
+      //AddDtoMapper(templates, name, applicationCore);
+      //AddSpecifications(templates, name, applicationCore);
+      //AddServices(templates, name, applicationCore);
+      //AddHelpers(templates, name, applicationCore);
+
+      //AddControllers(templates, name, web);
    }
 
    static void AddModel(string templatesPath, string name, string targetPath)
