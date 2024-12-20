@@ -19,6 +19,9 @@ public class SystemAppViewModel : EntityBaseView, IBaseRecordView
    public ICollection<int>? SubIds { get; set; }
    public int? ServerId { get; set; }
    public ServerViewModel? Server { get; set; }
+   public string Importance { get; set; } = string.Empty;
+   public string Url { get; set; } = string.Empty;
+   public string Ps { get; set; } = string.Empty;
    public bool Removed { get; set; }
    public int Order { get; set; }
    public bool Active { get; set; }

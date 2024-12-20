@@ -30,26 +30,32 @@ public class SystemAppsController : BaseAdminITController
    public async Task<ActionResult<SystemAppsIndexModel>> Init()
    {
       bool active = true;
+      int centralized = -1;
       int page = 1;
       int pageSize = 25;
+
       string? keyword = string.Empty;
 
-      var request = new SystemAppFetchRequest(active, page, pageSize, keyword);
+      var request = new SystemAppFetchRequest(active, centralized, page, pageSize, keyword);
 
       return new SystemAppsIndexModel(request);
    }
 
    [HttpGet]
-   public async Task<ActionResult<PagedList<SystemApp, SystemAppViewModel>>> Index(bool active, int page = 1, int pageSize = 10)
+   public async Task<ActionResult<PagedList<SystemApp, SystemAppViewModel>>> Index(bool active, int centralized, int page = 1, int pageSize = 10)
    {
       var list = await _systemAppService.FetchAsync();
 
       if (list.HasItems())
       {
+         if (centralized == 0) list = list.Where(x => !x.Centralized);
+         else if (centralized == 1) list = list.Where(x => x.Centralized);
+
          list = list.Where(x => x.Active == active);
 
          list = list.GetOrdered().ToList();
       }
+      list.MapViewModelList(_mapper);
       return list.GetPagedList(_mapper, page, pageSize);
    }
 
@@ -76,7 +82,7 @@ public class SystemAppsController : BaseAdminITController
 
       entity = await _systemAppService.CreateAsync(entity, User.Id());
 
-      return Ok(entity.MapViewModel(_mapper));
+      return entity.MapViewModel(_mapper);
    }
 
    [HttpGet("edit/{id}")]
@@ -124,11 +130,11 @@ public class SystemAppsController : BaseAdminITController
      
       if (!ModelState.IsValid) return;
 
-      var server = await _serverService.GetByIdAsync(form.ServerId);
-      if (server == null)
-      {
-         ModelState.AddModelError(nameof(form.ServerId), ValidationMessages.NotExist($"{labels.Server} id = {id}"));
-      }
+      //var server = await _serverService.GetByIdAsync(form.ServerId);
+      //if (server == null)
+      //{
+      //   ModelState.AddModelError(nameof(form.ServerId), ValidationMessages.NotExist($"{labels.Server} id = {id}"));
+      //}
    }
 
 

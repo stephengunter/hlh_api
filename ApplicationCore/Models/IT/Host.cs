@@ -12,6 +12,7 @@ public class Host : EntityBase, IBaseRecord, IRemovable, ISortable
    [Editor("¦WºÙ", Enable = true)]
    public string Title { get; set; } = String.Empty;
    public string Key { get; set; } = String.Empty;
+
    [Editor("³Æµù", Enable = true)]
    public string Ps { get; set; } = string.Empty;
    public bool Removed { get; set; }
