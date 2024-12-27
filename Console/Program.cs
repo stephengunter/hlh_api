@@ -1,157 +1,265 @@
-﻿using Humanizer;
-using System;
-using System.CommandLine;
+﻿using Microsoft.Data.SqlClient;
+using OfficeOpenXml;
+using System.Text;
+using static QuestPDF.Helpers.Colors;
 
 namespace ConsoleDev;
-
-
 class Program
 {
-   static string TEMPLATE_NAME = "article";
-
    static int Main(string[] args)
    {
-      var rootCommand = new RootCommand("");
-      var nameOption = new Option<string>(
-        name: "--name",
-        description: "name of model"
-      );
-      var readCommand = new Command("add", "add model") { nameOption };
+      return 0;
+   }
+   static int MovePC()
+   {
+      string filePath = @"C:/temp/1227/舊電腦_已入庫_1226.csv";
+      var records = ReadPcCsvFile(filePath);
+      records.Sort();
 
-      rootCommand.AddCommand(readCommand);
-      readCommand.SetHandler((name) =>
+      // Define your SQL Server connection string
+      string connectionString = "Server=172.17.129.51;Database=HLHWebDB2;User Id=sa;Password=hlh2022$$;TrustServerCertificate=True";
+
+      try
       {
-         AddFile(name);
-      },
-         nameOption
-      );
+         int rows = 0;
+         string num = "";
 
-      return rootCommand.InvokeAsync(args).Result;
+         string ps = "";
+         // Connect to the SQL Server
+         using (SqlConnection connection = new SqlConnection(connectionString))
+         {
+            connection.Open();
+            for (int i = 0; i < records.Count; i++)
+            {
+               int id = records[i];
+               num = $"PP{id}";
+               string selectQuery = "SELECT [memo_a] FROM [hlh_device] WHERE [de_no] = @no";
+
+               using (SqlCommand command = new SqlCommand(selectQuery, connection))
+               {
+                  // Add parameter to the query
+                  command.Parameters.AddWithValue("@no", num); // Replace with your desired `de_no` value
+
+                  // Execute the query and read the result
+                  object result = command.ExecuteScalar();
+
+                  string a = "2024/12月 更換新電腦";
+                  string b = "2024/12/24 收回資訊室庫房";
+                  string memoA = "";
+                  if (result != null)
+                  {
+                     memoA = result.ToString();
+                     ps = $"{memoA}\n";
+                  }
+                  ps = ps + $"{a}\n" + $"{b}";
+               }
+               string updateQuery = "UPDATE [hlh_device] SET [username] = @NewUser, [state] = @NewState, "
+                   + "[room] = @NewRoom, [work_m] = @NewWork, [memo_a] = @Ps "
+                  + "WHERE [de_no] = @no";
+               using (SqlCommand command = new SqlCommand(updateQuery, connection))
+               {
+                  // Add parameters to avoid SQL injection
+                  command.Parameters.AddWithValue("@NewUser", ""); // Replace with your value
+                  command.Parameters.AddWithValue("@NewState", "庫存(勘用品)"); // Replace with your value
+                  command.Parameters.AddWithValue("@NewRoom", "資訊室庫房"); // Replace with your value
+                  command.Parameters.AddWithValue("@NewWork", ""); // Replace with your value
+                  command.Parameters.AddWithValue("@Ps", ps); // Replace with your value
+
+                  command.Parameters.AddWithValue("@no", num);
+
+                  // Execute the command
+                  int rowsAffected = command.ExecuteNonQuery();
+                  if (rowsAffected > 0) rows++;
+               }
+            }
+
+
+         }
+        
+         Console.WriteLine($"{rows} row(s) updated.");
+         Console.ReadLine();
+         return 0; // Success
+      }
+      catch (Exception ex)
+      {
+         Console.WriteLine($"An error occurred: {ex.Message}");
+         return 1; // Failure
+      }
+      return 0;
    }
-
-   internal static void AddFile(string name)
+   static int MoveLcd(string[] args)
    {
-      return;
-      var root = Directory.GetParent(Directory.GetCurrentDirectory());
-      var parts = name.Split(".");
-      foreach ( var part in parts ) { Console.WriteLine(part); }
-      Console.ReadLine();
+      string filePath = @"C:/temp/1224/lcd.csv";
+      var records = ReadLcdCsvFile(filePath);
+      records.Sort();
 
+      // Define your SQL Server connection string
+      string connectionString = "Server=172.17.129.51;Database=HLHWebDB2;User Id=sa;Password=hlh2022$$;TrustServerCertificate=True";
 
-      var applicationCore = Path.Combine(root!.FullName, "ApplicationCore");
-      if (!Directory.Exists(applicationCore)) throw new Exception("ApplicationCore Not Found.");
+      try
+      {
+         int rows = 0;
+         string num = "";
+       
+         string ps = "";
+         // Connect to the SQL Server
+         using (SqlConnection connection = new SqlConnection(connectionString))
+         {
+            connection.Open();
+            for (int i = 0; i < records.Count; i++) 
+            {
+               int id = records[i];
+               num = $"L{id}";
+               string selectQuery = "SELECT [memo_a] FROM [hlh_device] WHERE [de_no] = @no";
 
-      var web = Path.Combine(root.FullName, "Web");
-      if (!Directory.Exists(applicationCore)) throw new Exception("Web Not Found.");
+               using (SqlCommand command = new SqlCommand(selectQuery, connection))
+               {
+                  // Add parameter to the query
+                  command.Parameters.AddWithValue("@no", num); // Replace with your desired `de_no` value
 
-      var templates = Path.Combine(Directory.GetCurrentDirectory(), "templates");
-      if (!Directory.Exists(templates)) throw new Exception("templates Not Found.");
+                  // Execute the query and read the result
+                  object result = command.ExecuteScalar();
 
-      //name = name.ToLower();
+                  string a = "2024/12月 更換新電腦";
+                  string b = "2024/12/24 收回資訊室庫房";
+                  string memoA = "";
+                  if (result != null)
+                  {
+                     memoA = result.ToString();
+                     ps = $"{memoA}\n";
+                  }
+                  ps = ps + $"{a}\n" + $"{b}";  
+               }
+               string updateQuery = "UPDATE [hlh_device] SET [username] = @NewUser, [state] = @NewState, "
+                   + "[room] = @NewRoom, [work_m] = @NewWork, [memo_a] = @Ps "
+                  + "WHERE [de_no] = @no";
+               using (SqlCommand command = new SqlCommand(updateQuery, connection))
+               {
+                  // Add parameters to avoid SQL injection
+                  command.Parameters.AddWithValue("@NewUser", ""); // Replace with your value
+                  command.Parameters.AddWithValue("@NewState", "庫存(勘用品)"); // Replace with your value
+                  command.Parameters.AddWithValue("@NewRoom", "資訊室庫房"); // Replace with your value
+                  command.Parameters.AddWithValue("@NewWork", ""); // Replace with your value
+                  command.Parameters.AddWithValue("@Ps", ps); // Replace with your value
 
-      //AddModel(templates, name, applicationCore);
-      //AddViewModel(templates, name, applicationCore);
-      //AddDtoMapper(templates, name, applicationCore);
-      //AddSpecifications(templates, name, applicationCore);
-      //AddServices(templates, name, applicationCore);
-      //AddHelpers(templates, name, applicationCore);
+                  command.Parameters.AddWithValue("@no", num);
 
-      //AddControllers(templates, name, web);
+                  // Execute the command
+                  int rowsAffected = command.ExecuteNonQuery();
+                  if(rowsAffected > 0) rows++;
+               }
+            }
+            
+
+         }
+         Console.WriteLine($"{rows} row(s) updated.");
+         Console.ReadLine();
+         return 0; // Success
+      }
+      catch (Exception ex)
+      {
+         Console.WriteLine($"An error occurred: {ex.Message}");
+         return 1; // Failure
+      }
+      return 0;
    }
 
-   static void AddModel(string templatesPath, string name, string targetPath)
+   static void Read()
    {
-      string folder = "Models";
-      string path = Path.Combine(templatesPath, folder, $"{TEMPLATE_NAME.Titleize()}.txt");
-      string result = ReplaceTemplate(File.ReadAllText(path), name);
+      string filePath = @"C:/temp/1224/lcd.csv";
+      string outputFilePath = @"C:/temp/1224/lcd_recult.xlsx";
 
-      string fileName = $"{name.Titleize()}.cs";
-      path = Path.Combine(targetPath, folder, fileName);
-      File.WriteAllText(path, result);
+      // Enable EPPlus license context for non-commercial use
+      ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+      var records = ReadLcdCsvFile(filePath);
+      records.Sort();
 
-      Console.WriteLine($"Model {fileName} Added");
+      using (var excelPackage = new ExcelPackage())
+      {
+         var worksheet = excelPackage.Workbook.Worksheets.Add("lcds");
+
+         // Add headers
+         worksheet.Cells[1, 1].Value = "ID";
+         worksheet.Cells[1, 2].Value = "Name";
+         worksheet.Cells[1, 3].Value = "Email";
+
+         // Add some user data
+         var lcds = new List<LCD>();
+         for (int i = 0; i < records.Count; i++)
+         {
+            lcds.Add(new LCD { Num = $"L{records[i]}" });
+         }
+
+         int row = 2; // Start from the second row for data
+         foreach (var lcd in lcds)
+         {
+            worksheet.Cells[row, 1].Value = lcd.Num;
+            worksheet.Cells[row, 2].Value = "test";
+            worksheet.Cells[row, 3].Value = "test";
+            row++;
+         }
+
+         // Apply some basic formatting
+         worksheet.Cells[1, 1, 1, 3].Style.Font.Bold = true; // Make headers bold
+         worksheet.Cells.AutoFitColumns(); // Adjust column width to fit content
+
+         // Save the Excel package to a file
+         using (var stream = new FileStream(outputFilePath, FileMode.Create, FileAccess.Write))
+         {
+            excelPackage.SaveAs(stream);
+         }
+
+         Console.WriteLine($"Excel file '{outputFilePath}' created successfully!");
+      }
+
    }
-   static void AddViewModel(string templatesPath, string name, string targetPath)
+   static List<int> ReadPcCsvFile(string filePath)
    {
-      string folder = "Views";
-      string path = Path.Combine(templatesPath, folder, $"{TEMPLATE_NAME.Titleize()}.txt");
-      string result = ReplaceTemplate(File.ReadAllText(path), name);
+      var records = new List<int>();
+      using (var reader = new StreamReader(filePath, Encoding.UTF8))
+      {
+         while (!reader.EndOfStream)
+         {
+            var line = reader.ReadLine();
 
-      string fileName = $"{name.Titleize()}.cs";
-      path = Path.Combine(targetPath, folder, fileName);
-      File.WriteAllText(path, result);
+            var values = line!.Split(',');
+            if (values.Length == 2) records.Add(int.Parse(values[1]));
+         }
+      }
 
-      Console.WriteLine($"ViewModel {fileName} Added");
+      return records;
    }
-   static void AddDtoMapper(string templatesPath, string name, string targetPath)
+   static List<int> ReadLcdCsvFile(string filePath)
    {
-      string folder = "DtoMapper";
-      string path = Path.Combine(templatesPath, folder, $"{TEMPLATE_NAME.Titleize()}.txt");
-      string result = ReplaceTemplate(File.ReadAllText(path), name);
+      var records = new List<int>();
+      using (var reader = new StreamReader(filePath, Encoding.UTF8))
+      {
+         while (!reader.EndOfStream)
+         {
+            var line = reader.ReadLine();
 
-      string fileName = $"{name.Titleize()}.cs";
-      path = Path.Combine(targetPath, folder, fileName);
-      File.WriteAllText(path, result);
+            var values = line!.Split(',');
 
-      Console.WriteLine($"DtoMapper {fileName} Added");
+            for (int i = 0; i < values.Length; i++)
+            {
+               if (values[i].Trim() == "Y")
+               {
+                  if (i > 0 && int.TryParse(values[i - 1].Trim(), out int number)) // Check the previous cell
+                  {
+                     records.Add(number); // Add the number to the list
+                  }
+               }
+            }
+         }
+      }
+
+      return records;
    }
-   static void AddSpecifications(string templatesPath, string name, string targetPath)
-   {
-      string folder = "Specifications";
-      string path = Path.Combine(templatesPath, folder, $"{TEMPLATE_NAME.Pluralize().Titleize()}.txt");
-      string result = ReplaceTemplate(File.ReadAllText(path), name);
+}
 
-      string fileName = $"{name.Pluralize().Titleize()}.cs";
-      path = Path.Combine(targetPath, folder, fileName);
-      File.WriteAllText(path, result);
 
-      Console.WriteLine($"Specifications {fileName} Added");
-   }
-   static void AddServices(string templatesPath, string name, string targetPath)
-   {
-      string folder = "Services";
-      string path = Path.Combine(templatesPath, folder, $"{TEMPLATE_NAME.Pluralize().Titleize()}.txt");
-      string result = ReplaceTemplate(File.ReadAllText(path), name);
-
-      string fileName = $"{name.Pluralize().Titleize()}.cs";
-      path = Path.Combine(targetPath, folder, fileName);
-      File.WriteAllText(path, result);
-
-      Console.WriteLine($"Services {fileName} Added");
-   }
-   static void AddHelpers(string templatesPath, string name, string targetPath)
-   {
-      string folder = "Helpers/Models";
-      string path = Path.Combine(templatesPath, folder, $"{TEMPLATE_NAME.Pluralize().Titleize()}.txt");
-      string result = ReplaceTemplate(File.ReadAllText(path), name);
-
-      string fileName = $"{name.Pluralize().Titleize()}.cs";
-      path = Path.Combine(targetPath, folder, fileName);
-      File.WriteAllText(path, result);
-
-      Console.WriteLine($"Helpers {fileName} Added");
-   }
-   static void AddControllers(string templatesPath, string name, string targetPath)
-   {
-      string folder = "Controllers/Admin";
-      string path = Path.Combine(templatesPath, folder, $"{TEMPLATE_NAME.Pluralize().Titleize()}Controller.txt");
-      string result = ReplaceTemplate(File.ReadAllText(path), name);
-
-      string fileName = $"{name.Pluralize().Titleize()}Controller.cs";
-      path = Path.Combine(targetPath, folder, fileName);
-      File.WriteAllText(path, result);
-
-      Console.WriteLine($"Controller {fileName} Added");
-   }
-
-   static string ReplaceTemplate(string content, string name)
-   {
-      return content.Replace(TEMPLATE_NAME, name) //article, name
-                        .Replace(TEMPLATE_NAME.Titleize(), name.Titleize())  //Article, Name
-                        .Replace(TEMPLATE_NAME.Pluralize(), name.Pluralize())  //articles, names
-                        .Replace(TEMPLATE_NAME.Pluralize().Titleize(), name.Pluralize().Titleize())  //Articles, Names
-                        .Replace(TEMPLATE_NAME.ToUpper(), name.ToUpper()) //ARTICLE, NAME         
-                        .Replace(TEMPLATE_NAME.Pluralize().ToUpper(), name.Pluralize().ToUpper()); //ARTICLES, NAMES
-   }
-
+public class LCD
+{
+   public string Num { get; set; } = string.Empty;
+   public string Ps { get; set; } = string.Empty;
 }

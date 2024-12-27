@@ -84,6 +84,15 @@ public class SystemAppsController : BaseAdminITController
 
       return entity.MapViewModel(_mapper);
    }
+   [HttpGet("{id}")]
+   public async Task<ActionResult<SystemAppViewModel>> Details(int id)
+   {
+      //string include = nameof(Server.Host);
+      var entity = await _systemAppService.GetByIdAsync(id);
+      if (entity == null) return NotFound();
+
+      return entity.MapViewModel(_mapper);
+   }
 
    [HttpGet("edit/{id}")]
    public async Task<ActionResult<SystemAppEditRequest>> Edit(int id)

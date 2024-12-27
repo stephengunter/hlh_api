@@ -2,6 +2,7 @@ using ApplicationCore.Consts;
 using ApplicationCore.Views.IT;
 using Infrastructure.Helpers;
 using Infrastructure.Views;
+using Web.Models.IT;
 
 namespace Web.Models;
 public class SystemAppFetchRequest
@@ -38,7 +39,6 @@ public class SystemAppsIndexModel
    public SystemAppsIndexModel(SystemAppFetchRequest request)
    {
       Request = request;
-      Labels = new SystemAppLabels();
       CentralizedOptions = new List<BaseOption<int>>
       {
          new BaseOption<int>(-1, "¥þ³¡"),
@@ -57,7 +57,8 @@ public class SystemAppsIndexModel
    public ICollection<BaseOption<int>> ImportanceOptions { get; set; }
    public ICollection<BaseOption<string>> TypeOptions { get; set; }
    public SystemAppFetchRequest Request { get; set; }
-   public SystemAppLabels Labels { get; set; }
+   public SystemAppLabels Labels => new SystemAppLabels();
+   public CredentialInfoLabels CredentialInfoLabels => new CredentialInfoLabels();
 
 }
 
