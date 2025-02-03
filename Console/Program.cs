@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using OfficeOpenXml;
+using System.IO.Packaging;
 using System.Text;
 using static QuestPDF.Helpers.Colors;
 
@@ -8,7 +9,89 @@ class Program
 {
    static int Main(string[] args)
    {
+      string filePath = @"C:/temp/20250110/trash_order.xlsx";
+
+      try
+      {
+         var trashlist = ReadTrash();
+         using (var excelPackage = new ExcelPackage())
+         {
+            var worksheet = excelPackage.Workbook.Worksheets.Add("trash_order");
+
+            // Add headers
+            worksheet.Cells[1, 1].Value = "ID";
+            worksheet.Cells[1, 2].Value = "Name";
+            worksheet.Cells[1, 3].Value = "Email";
+
+            int row = 2; // Start from the second row for data
+            var grouped = trashlist.GroupBy(u => u.Name);
+            foreach (var group in grouped)
+            {
+               foreach (var trash in group.OrderBy(u => u.GetNumber))
+               {
+                  worksheet.Cells[row, 1].Value = trash.Num;
+                  worksheet.Cells[row, 2].Value = trash.P_Num;
+                  worksheet.Cells[row, 3].Value = trash.Name;
+                  worksheet.Cells[row, 4].Value = trash.Brand;
+                  worksheet.Cells[row, 5].Value = trash.PS;
+                  row++;
+               }
+               
+            }
+
+            // Apply some basic formatting
+            worksheet.Cells[1, 1, 1, 3].Style.Font.Bold = true; // Make headers bold
+            worksheet.Cells.AutoFitColumns(); // Adjust column width to fit content
+
+            // Save the Excel package to a file
+            using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+            {
+               excelPackage.SaveAs(stream);
+            }
+
+            Console.WriteLine($"Excel file '{filePath}' created successfully!");
+         }
+      }
+      catch (Exception ex)
+      {
+         Console.WriteLine($"Error: {ex.Message}");
+      }
+      
       return 0;
+   }
+
+   static List<Trash> ReadTrash()
+   {
+      string filePath = @"C:/temp/20250110/trash.xlsx";
+
+      // Enable EPPlus license context for non-commercial use
+      ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+      var records = new List<Trash>();
+
+      using (var package = new ExcelPackage(new FileInfo(filePath)))
+      {
+         var workbook = package.Workbook;
+         var worksheet = workbook.Worksheets[0]; // 
+
+         // Add headers
+         var rowCount = worksheet.Dimension.Rows;
+         var colCount = worksheet.Dimension.Columns;
+
+         for (int row = 2; row <= rowCount; row++) // Start from row 2 to skip headers
+         {
+            var trash = new Trash
+            {
+               Num = worksheet.Cells[row, 1].Text,
+               P_Num = worksheet.Cells[row, 2].Text,                // Column B: Name
+               Name = worksheet.Cells[row, 3].Text,                 // Column B: Name
+               Brand = worksheet.Cells[row, 4].Text,                // Column B: Name
+               PS = worksheet.Cells[row, 5].Text,                // Column C: Email
+            };
+
+            records.Add(trash);
+         }
+      }
+      return records;
    }
    static int MovePC()
    {
@@ -255,11 +338,4 @@ class Program
 
       return records;
    }
-}
-
-
-public class LCD
-{
-   public string Num { get; set; } = string.Empty;
-   public string Ps { get; set; } = string.Empty;
 }
