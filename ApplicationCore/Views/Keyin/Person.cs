@@ -9,6 +9,8 @@ public class KeyinPersonView : EntityBaseView
 
    public bool AllPass { get; set; }
 
+   public string LeaveAtText { get; set; } = string.Empty;
+   public bool Active { get; set; }
    public int HighRun { get; set; }
 }
 

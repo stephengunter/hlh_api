@@ -2,6 +2,7 @@
 using Infrastructure.Paging;
 using ApplicationCore.Models.Keyin;
 using ApplicationCore.Views.Keyin;
+using Infrastructure.Helpers;
 
 namespace ApplicationCore.Helpers.Keyin;
 public static class KeyinPersonHelpers
@@ -9,7 +10,7 @@ public static class KeyinPersonHelpers
    public static KeyinPersonView MapViewModel(this KeyinPerson keyinPerson, IMapper mapper)
    {
       var model = mapper.Map<KeyinPersonView>(keyinPerson);
-      
+      model.LeaveAtText = keyinPerson.LeaveAt.ToDateString();
       return model;
    }
 

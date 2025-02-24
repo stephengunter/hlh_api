@@ -14,7 +14,18 @@ public class KeyinPerson : EntityBase
    public string Name { get; set; } = string.Empty;
 
    public bool AllPass { get; set; }
-
    public int HighRun { get; set; }
+
+   public DateTime? LeaveAt { get; set; }
+   public bool IsActive(int year, int month)
+   {
+      if(LeaveAt is null) return true;
+      if (LeaveAt.Value.Year > year) return true;
+      else if (LeaveAt.Value.Year < year) return false;
+      else 
+      { 
+         return LeaveAt.Value.Month > month;
+      }
+   }
 }
 

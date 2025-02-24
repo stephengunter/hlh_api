@@ -20,6 +20,8 @@ using OfficeOpenXml.Style;
 using Microsoft.Data.SqlClient;
 using ApplicationCore.Models.Cars;
 using ApplicationCore.Helpers;
+using ApplicationCore.Services.Keyin;
+using Microsoft.EntityFrameworkCore;
 
 namespace Web.Controllers.Tests;
 
@@ -28,11 +30,21 @@ public class AATestsController : BaseTestController
    private readonly UserManager<User> _userManager;
    private readonly DefaultContext _defaultContext;
    private readonly List<DbSettings> _dbSettingsList;
-   public AATestsController(IOptions<List<DbSettings>> dbSettingsOptions, DefaultContext defaultContext, UserManager<User> userManager)
+   private readonly IKeyinPersonService _personService;
+   public AATestsController(IOptions<List<DbSettings>> dbSettingsOptions, DefaultContext defaultContext, 
+      UserManager<User> userManager, IKeyinPersonService personService)
    {
       _dbSettingsList = dbSettingsOptions?.Value ?? new List<DbSettings>();
       _defaultContext = defaultContext;
       _userManager = userManager;
+      _personService = personService;
+   }
+   [HttpGet]
+   public async Task<ActionResult> Index()
+   {
+      
+
+      return Ok();
    }
    static List<string> ProcessMultiLineColumn(string filePath, int columnNumber)
    {
@@ -212,72 +224,6 @@ public class AATestsController : BaseTestController
          {
             Console.WriteLine($"An error occurred: {ex.Message}");
          }
-      }
-   }
-
-   [HttpGet]
-   public async Task<ActionResult> Index()
-   {
-      var logFilePath = @"C:\temp\0103\u_ex250103.log";
-      var logEntries = IISLogReader.ReadLogEntries(logFilePath);
-      string jsonFilePath = @"C:\temp\0103\0104.log"; // Path for the JSON output file
-
-      try
-      {
-         // Serialize log entries to JSON
-         var jsonContent = System.Text.Json.JsonSerializer.Serialize(logEntries, new System.Text.Json.JsonSerializerOptions
-         {
-            WriteIndented = true // Optional: Pretty print JSON
-         });
-         System.IO.File.WriteAllText(jsonFilePath, jsonContent);
-         // Return the file for download
-         var fileBytes = System.IO.File.ReadAllBytes(jsonFilePath);
-         var fileName = "0103logs.json";
-
-         return File(fileBytes, "application/json", fileName);
-      }
-      catch (Exception ex)
-      {
-         return StatusCode(500, new { message = "An error occurred while processing the log file.", error = ex.Message });
-      }
-
-   }
-   [HttpPost("Upload")]
-   public async Task<IActionResult> UploadJson(IFormFile file)
-   {
-      if (file == null || file.Length == 0)
-      {
-         return BadRequest(new { message = "Invalid file. Please upload a non-empty JSON file." });
-      }
-
-      try
-      {
-         // Read the JSON content from the uploaded file
-         using var stream = file.OpenReadStream();
-         using var reader = new StreamReader(stream);
-         var jsonContent = await reader.ReadToEndAsync();
-
-         // Deserialize JSON content into a list of IISLogEntry objects
-         var logEntries = System.Text.Json.JsonSerializer.Deserialize<List<IISLogEntry>>(jsonContent);
-
-         if (logEntries == null || !logEntries.Any())
-         {
-            return BadRequest(new { message = "The file does not contain valid log entries." });
-         }
-
-         var clientIps = logEntries.GetDistinctClientIPs();
-
-
-         logEntries = logEntries.Where(entry => entry.UrlPath != null && entry.UrlPath.StartsWith("/car/", StringComparison.OrdinalIgnoreCase))
-            .ToList();
-
-         logEntries = logEntries.Where(entry => clientIps.Contains(entry.ClientIP)).ToList();
-
-         return Ok(logEntries.GetDistinctClientIPs());
-      }
-      catch (Exception ex)
-      {
-         return StatusCode(500, new { message = "An error occurred while processing the file.", error = ex.Message });
       }
    }
    async Task Test()

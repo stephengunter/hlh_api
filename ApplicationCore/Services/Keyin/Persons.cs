@@ -16,6 +16,7 @@ public interface IKeyinPersonService
    Task<KeyinPerson?> GetByIdAsync(int id);
    Task<KeyinPerson> CreateAsync(KeyinPerson entity);
    Task UpdateAsync(KeyinPerson entity);
+   Task RemoveAsync(KeyinPerson entity);
 }
 
 public class KeyinPersonService : IKeyinPersonService
@@ -42,5 +43,8 @@ public class KeyinPersonService : IKeyinPersonService
       => await _personsRepository.AddAsync(entity);
 
    public async Task UpdateAsync(KeyinPerson entity)
-   => await _personsRepository.UpdateAsync(entity);
+      => await _personsRepository.UpdateAsync(entity);
+
+   public async Task RemoveAsync(KeyinPerson entity)
+     => await _personsRepository.DeleteAsync(entity);
 }

@@ -40,6 +40,8 @@ public class PersonRecordsFetchRequest
 }
 public class PersonRecordsUploadRequest
 {
+   public int Year { get; set; }
+   public int Month { get; set; }
    public IFormFile? File { get; set; }
 }
 

@@ -45,7 +45,7 @@ public class PersonsController : BaseAdminController
 
       var request = new PersonRecordsFetchRequest(year, month);
       var persons = await _personService.FetchAsync();
-
+      
       return new PersonRecordsIndexModel(years, request, persons.MapViewModelList(_mapper));
    }
    [HttpGet]
@@ -58,7 +58,9 @@ public class PersonsController : BaseAdminController
       var views = new List<PersonRecordView>();
       foreach (var record in records)
       {
-         record.Person = persons.FirstOrDefault(x => x.Id == record.PersonId);
+         var person = persons.FirstOrDefault(x => x.Id == record.PersonId);
+
+         record.Person = person;
          views.Add(record.MapViewModel(_mapper));
       }
       return views;
@@ -107,6 +109,8 @@ public class PersonsController : BaseAdminController
    [HttpPost("upload")]
    public async Task<ActionResult<ICollection<PersonRecordView>>> Upload([FromForm] PersonRecordsUploadRequest request)
    {
+      int year = request.Year;
+      int month = request.Month;
       var file = request.File;
       var errors = ValidateFile(file!);
       AddErrors(errors);
@@ -153,11 +157,16 @@ public class PersonsController : BaseAdminController
                }
                else
                {
-                  if (person.Unit != unit)
+                  if (person.IsActive(year + 1911, month))
                   {
-                     person.Unit = unit;
-                     await _personService.UpdateAsync(person);
+                     if (person.Unit != unit)
+                     {
+                        person.Unit = unit;
+                        await _personService.UpdateAsync(person);
+                     }
                   }
+                  else continue;
+                  
                  
                }
                var record = new PersonRecord()
@@ -190,6 +199,7 @@ public class PersonsController : BaseAdminController
       records = records.OrderByDescending(r => r.Score).ToList();
 
       var persons = await _personService.FetchAsync();
+      
       var views = new List<PersonRecordView>();
       foreach (var record in records)
       {
