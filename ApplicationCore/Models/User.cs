@@ -27,6 +27,10 @@ public class User : IdentityUser, IAggregateRoot, IBaseRecord
 
    [NotMapped]
    public ICollection<Role> Roles { get; set; } = new List<Role>();
+
+   [NotMapped]
+   public string FullName
+      => Profiles is null ? "" : Profiles.Name;
 }
 
 public class Role : IdentityRole, IAggregateRoot

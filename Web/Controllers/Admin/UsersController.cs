@@ -239,7 +239,7 @@ public class UsersController : BaseAdminController
             profiles = await _profilesService.CreateAsync(new Profiles
             {
                UserId = user.Id,
-               Name = aduser.Title,
+               Name = aduser.Name,
                DepartmentId = department.Id,
                CreatedAt = DateTime.Now,
                CreatedBy = User.Id()
@@ -247,7 +247,7 @@ public class UsersController : BaseAdminController
          }
          else
          {
-            profiles.Name = aduser.Title;
+            profiles.Name = aduser.Name;
             profiles.DepartmentId = department.Id;
             profiles.LastUpdated = DateTime.Now;
             profiles.UpdatedBy = User.Id();

@@ -22,30 +22,105 @@ using ApplicationCore.Models.Cars;
 using ApplicationCore.Helpers;
 using ApplicationCore.Services.Keyin;
 using Microsoft.EntityFrameworkCore;
+using ApplicationCore.Services;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using ApplicationCore.Views;
+using System.Collections.Generic;
 
 namespace Web.Controllers.Tests;
 
+public class TestU
+{ 
+   public string Name { get; set; }
+   public string PID { get; set; }
+}
+
 public class AATestsController : BaseTestController
 {
-   private readonly UserManager<User> _userManager;
+   private readonly IUsersService _usersService;
    private readonly DefaultContext _defaultContext;
    private readonly List<DbSettings> _dbSettingsList;
-   private readonly IKeyinPersonService _personService;
-   public AATestsController(IOptions<List<DbSettings>> dbSettingsOptions, DefaultContext defaultContext, 
-      UserManager<User> userManager, IKeyinPersonService personService)
+   
+   private readonly IDepartmentsService _departmentsService;
+   private readonly IMapper _mapper;
+   public AATestsController(IOptions<List<DbSettings>> dbSettingsOptions, DefaultContext defaultContext,
+      IUsersService usersService, IDepartmentsService departmentsService, IMapper mapper)
    {
       _dbSettingsList = dbSettingsOptions?.Value ?? new List<DbSettings>();
       _defaultContext = defaultContext;
-      _userManager = userManager;
-      _personService = personService;
+      _usersService = usersService;
+      _departmentsService = departmentsService;
+      _mapper = mapper;
    }
-   [HttpGet]
+
+   List<TestU> GetTUS()
+   {
+      var tus = new List<TestU>();
+      string connectionString = "Server=172.17.128.99;Database=HLH;User Id=sa;Password=hlh2000$$;TrustServerCertificate=True;";
+      using (var conn = new SqlConnection(connectionString))
+      {
+         conn.Open();
+         string query = "SELECT DISTINCT [perid], [pername] FROM [HLH].[dbo].[readlist]";
+         using (var cmd = new SqlCommand(query, conn))
+         {
+            using (var reader = cmd.ExecuteReader())
+            {
+               while (reader.Read())
+               {
+                  tus.Add(new TestU { PID = reader["perid"].ToString(), Name = reader["pername"].ToString() });
+               }
+            }
+         }
+      }
+      return tus;
+   }
+
+  [HttpGet]
    public async Task<ActionResult> Index()
    {
-      
+      string connectionString = "Server=172.17.128.99;Database=HLH;User Id=sa;Password=hlh2000$$;TrustServerCertificate=True;";
+      var tus = GetTUS();
+      var users = await _usersService.FetchAllAsync();
+      var dpts = await _departmentsService.FetchAllAsync();
+      var views = new List<UserViewModel>();
+      foreach (var dpt in dpts)
+      {
+         using (var conn = new SqlConnection(connectionString))
+         {
+            conn.Open();
+            var dpt_uers = users.Where(x => x.Profiles != null && x.Profiles.DepartmentId.HasValue && x.Profiles.DepartmentId.Value == dpt.Id);
+            foreach (var user in dpt_uers)
+            {
+               var tu = tus.FirstOrDefault(x => x.Name == user.FullName);
+               if (tu == null) continue;
+               string query = "SELECT COUNT(*) FROM HLH_View WHERE perid = @perid";
+               using (var cmd = new SqlCommand(query, conn))
+               {
+                  cmd.Parameters.AddWithValue("@perid", tu.PID);
 
+                  int count = (int)cmd.ExecuteScalar();
+                  if (count < 1) continue;
+                  string insertQuery = "UPDATE HLH_View SET passwd = @ad WHERE perid = @perid";
+
+                  using (var insertCmd = new SqlCommand(insertQuery, conn))
+                  {
+                     insertCmd.Parameters.AddWithValue("@ad", user.Name);
+                     insertCmd.Parameters.AddWithValue("@perid", tu.PID);
+
+                     int rowsAffected = insertCmd.ExecuteNonQuery();
+                     Console.WriteLine($"DEBUG: {rowsAffected} row(s) inserted.");
+                  }
+               }
+
+            }
+         }
+         
+         
+      }
       return Ok();
    }
+   
+  
    static List<string> ProcessMultiLineColumn(string filePath, int columnNumber)
    {
       // Enable EPPlus license context for non-commercial use

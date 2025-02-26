@@ -1,14 +1,18 @@
 ﻿using Infrastructure.Helpers;
 using Microsoft.Data.SqlClient;
+using Microsoft.OpenApi.Services;
 using OfficeOpenXml;
 using System.Collections.Generic;
 using System.IO.Packaging;
+using System.Reflection.PortableExecutable;
 using System.Text;
+using System.DirectoryServices;
 using static QuestPDF.Helpers.Colors;
 
 namespace ConsoleDev;
 class Program
 {
+   
    static int Main(string[] args)
    {
       var hlh_props = GetPropertiesFromFile(@"C:\Users\Administrator\Downloads\20250215_done\hlh_props.xlsx");
