@@ -14,20 +14,25 @@ using Web.Models.Keyin;
 using ApplicationCore.Models.Keyin;
 using Infrastructure.Views;
 using QuestPDF.Fluent;
+using Infrastructure.Consts;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Web.Controllers.Admin.Keyins;
 
 [Route("admin/keyins/[controller]")]
 public class BranchesController : BaseAdminController
 {
+   private readonly IWebHostEnvironment _environment;
+   private readonly AppSettings _appSettings;
    private readonly IMapper _mapper;
    private readonly IBranchesService _branchesService;
    private readonly IBranchRecordService _branchRecordService;
-
-
    
-   public BranchesController(IBranchesService branchesService, IBranchRecordService branchRecordService, IMapper mapper)
+   public BranchesController(IWebHostEnvironment environment, IOptions<AppSettings> appSettings, 
+      IBranchesService branchesService, IBranchRecordService branchRecordService, IMapper mapper)
    {
+      _environment = environment;
+      _appSettings = appSettings.Value;
       _branchesService = branchesService;
       _mapper = mapper;
       _branchRecordService = branchRecordService;
@@ -107,6 +112,30 @@ public class BranchesController : BaseAdminController
 
    }
 
+   //¤U¸ü½d¥»ExcelÀÉ
+   [HttpPost("download")]
+   public async Task<IActionResult> Download()
+   {
+      string folder = "keyins";
+      string filename = $"braches.xlsx";
+      string path = Path.Combine(TemplatePath(_environment, _appSettings), folder, filename);
+      // Check if the file exists
+      if (!System.IO.File.Exists(path))
+      {
+         return NotFound($"The template file 'braches.xlsx' was not found.");
+      }
+
+      // Open the file as a stream
+      var memory = new MemoryStream();
+      using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
+      {
+         await stream.CopyToAsync(memory);
+      }
+      memory.Position = 0;
+
+      string contentType = FileContentType.Excel;
+      return File(memory, contentType, filename);
+   }
    [HttpPost("upload")]
    public async Task<ActionResult<ICollection<BranchRecordView>>> Upload([FromForm] BranchRecordsUploadRequest request)
    {

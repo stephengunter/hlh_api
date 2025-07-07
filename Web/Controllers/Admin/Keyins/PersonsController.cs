@@ -11,18 +11,26 @@ using ApplicationCore.Models.Keyin;
 using OfficeOpenXml;
 using Infrastructure.Views;
 using QuestPDF.Fluent;
+using ApplicationCore.Settings;
+using Infrastructure.Consts;
+using Microsoft.Extensions.Options;
 
 namespace Web.Controllers.Admin;
 
 [Route("admin/keyins/[controller]")]
 public class PersonsController : BaseAdminController
 {
+   private readonly IWebHostEnvironment _environment;
+   private readonly AppSettings _appSettings;
    private readonly IMapper _mapper;
    private readonly IKeyinPersonService _personService;
    private readonly IPersonRecordService _recordsService;
-   public PersonsController(IKeyinPersonService personService,
+   public PersonsController(IWebHostEnvironment environment, IOptions<AppSettings> appSettings, 
+      IKeyinPersonService personService,
       IPersonRecordService recordsService, IMapper mapper)
    {
+      _environment = environment;
+      _appSettings = appSettings.Value;
       _personService = personService;
       _recordsService = recordsService;
       _mapper = mapper;
@@ -105,7 +113,30 @@ public class PersonsController : BaseAdminController
       return Ok();
 
    }
+   //¤U¸ü½d¥»ExcelÀÉ
+   [HttpPost("download")]
+   public async Task<IActionResult> Download()
+   {
+      string folder = "keyins";
+      string filename = $"persons.xlsx";
+      string path = Path.Combine(TemplatePath(_environment, _appSettings), folder, filename);
+      // Check if the file exists
+      if (!System.IO.File.Exists(path))
+      {
+         return NotFound($"The template file 'persons.xlsx' was not found.");
+      }
 
+      // Open the file as a stream
+      var memory = new MemoryStream();
+      using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
+      {
+         await stream.CopyToAsync(memory);
+      }
+      memory.Position = 0;
+
+      string contentType = FileContentType.Excel;
+      return File(memory, contentType, filename);
+   }
    [HttpPost("upload")]
    public async Task<ActionResult<ICollection<PersonRecordView>>> Upload([FromForm] PersonRecordsUploadRequest request)
    {
