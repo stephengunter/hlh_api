@@ -20,6 +20,7 @@ class Program
 
       try
       {
+        
          string arg = "full";
          if (args.HasItems() && args[0].Equals("diff")) arg = "diff";
          Log.Information("arg: " + arg);

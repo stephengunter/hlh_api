@@ -10,7 +10,6 @@
   <ItemGroup>
     <None Remove="appsettings.Development.json" />
     <None Remove="appsettings.json" />
-    <None Remove="appsettings.LinuxDevelopment.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,7 +19,6 @@
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="appsettings.LinuxDevelopment.json" />
   </ItemGroup>
 
    <ItemGroup>

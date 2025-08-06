@@ -53,6 +53,13 @@ public class AATestsController : BaseTestController
       _mapper = mapper;
    }
 
+   [HttpGet]
+   public async Task<ActionResult> Index()
+   {
+      var users = await _usersService.FetchAllAsync();
+      return Ok(users);
+   }
+
    List<TestU> GetTUS()
    {
       var tus = new List<TestU>();
@@ -75,8 +82,8 @@ public class AATestsController : BaseTestController
       return tus;
    }
 
-  [HttpGet]
-   public async Task<ActionResult> Index()
+  
+   async Task TUS()
    {
       string connectionString = "Server=172.17.128.99;Database=HLH;User Id=sa;Password=hlh2000$$;TrustServerCertificate=True;";
       var tus = GetTUS();
@@ -117,7 +124,7 @@ public class AATestsController : BaseTestController
          
          
       }
-      return Ok();
+      
    }
    
   
