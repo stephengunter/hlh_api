@@ -14,6 +14,7 @@ using QuestPDF.Fluent;
 using ApplicationCore.Settings;
 using Infrastructure.Consts;
 using Microsoft.Extensions.Options;
+using System.Text;
 
 namespace Web.Controllers.Admin;
 
@@ -140,8 +141,6 @@ public class PersonsController : BaseAdminController
    [HttpPost("upload")]
    public async Task<ActionResult<ICollection<PersonRecordView>>> Upload([FromForm] PersonRecordsUploadRequest request)
    {
-      int year = request.Year;
-      int month = request.Month;
       var file = request.File;
       var errors = ValidateFile(file!);
       AddErrors(errors);
@@ -183,22 +182,17 @@ public class PersonsController : BaseAdminController
                   {
                      Name = name,
                      Unit = unit,
-                     Account = account   
+                     Account = account
                   });
                }
                else
                {
-                  if (person.IsActive(year + 1911, month))
+                  if (person.Unit != unit)
                   {
-                     if (person.Unit != unit)
-                     {
-                        person.Unit = unit;
-                        await _personService.UpdateAsync(person);
-                     }
+                     person.Unit = unit;
+                     await _personService.UpdateAsync(person);
                   }
-                  else continue;
-                  
-                 
+
                }
                var record = new PersonRecord()
                {

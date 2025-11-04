@@ -67,7 +67,8 @@ namespace ApplicationCore.Views.Keyin
             table.ColumnsDefinition(columns =>
             {
                columns.ConstantColumn(50);
-               columns.ConstantColumn(180);
+               columns.ConstantColumn(100);
+               columns.ConstantColumn(80);
                columns.ConstantColumn(80);
                columns.ConstantColumn(80);
                columns.ConstantColumn(80);
@@ -81,6 +82,7 @@ namespace ApplicationCore.Views.Keyin
                header.Cell().Element(CellStyleCenter).Text(PersonRecordLabels.Score);
                header.Cell().Element(CellStyleCenter).Text(PersonRecordLabels.CorrectRate);
                header.Cell().Element(CellStyleCenter).Text(PersonRecordLabels.Diff);
+               header.Cell().Element(CellStyleCenter).Text("備註");
             });
 
             // step 3
@@ -93,6 +95,7 @@ namespace ApplicationCore.Views.Keyin
                table.Cell().Element(style).Text(item.ScortText);
                table.Cell().Element(style).Text(item.CorrectRateText);
                table.Cell().Element(style).Text(item.IncreaseRateText);
+               table.Cell().Element(style).Text(item.Record.Person!.AllPass ? $"({item.Record.Person!.AllPassText})" : "");
 
                static IContainer CellStyleHighlight(IContainer container)
                {

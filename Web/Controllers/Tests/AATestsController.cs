@@ -26,6 +26,11 @@ using ApplicationCore.Services;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using ApplicationCore.Views;
 using System.Collections.Generic;
+using ApplicationCore.Views.Keyin;
+using Infrastructure.Views;
+using QuestPDF.Fluent;
+using Azure.Core;
+using System.Text.RegularExpressions;
 
 namespace Web.Controllers.Tests;
 
@@ -38,27 +43,249 @@ public class TestU
 public class AATestsController : BaseTestController
 {
    private readonly IUsersService _usersService;
-   private readonly DefaultContext _defaultContext;
-   private readonly List<DbSettings> _dbSettingsList;
-   
+   private readonly UserManager<User> _userManager;
+
    private readonly IDepartmentsService _departmentsService;
+   private readonly CarsService _carsService;
    private readonly IMapper _mapper;
-   public AATestsController(IOptions<List<DbSettings>> dbSettingsOptions, DefaultContext defaultContext,
+   public AATestsController(UserManager<User> userManager, DefaultContext defaultContext,
       IUsersService usersService, IDepartmentsService departmentsService, IMapper mapper)
    {
-      _dbSettingsList = dbSettingsOptions?.Value ?? new List<DbSettings>();
-      _defaultContext = defaultContext;
+      _userManager = userManager;
       _usersService = usersService;
       _departmentsService = departmentsService;
+      _carsService = new CarsService();
       _mapper = mapper;
    }
-
    [HttpGet]
    public async Task<ActionResult> Index()
    {
-      var users = await _usersService.FetchAllAsync();
-      return Ok(users);
+      
+
+      return Ok();
+      //var test = await _userManager.CheckPasswordAsync(user, "hlh01");
+      //var role = await _userManager.IsInRoleAsync(user, AppRoles.IT.ToString());
+      //return Ok(test && role);
+      //var result = await _userManager.AddPasswordAsync(user, "");
+      //if (result.Succeeded) return Ok();
+
+
+      //int year = 2025;
+      //int month = 9;
+      //MonthServiceRecordReports(year, month);
+      //return Ok();
+      //return Ok(new BaseFileView(title, bytes));
+      //InsertCarUsers();
+      //UpdateRecord_A();
+      //UpdateRecord_B();
+      //RemoveDupCarUsers();
+      //RemoveNotValidCarUsers();
+
+      //return Ok(groups);
    }
+
+   //void MonthServiceRecordReports(int year, int month)
+   //{
+   //   ServiceRecordReport(year, month);
+   //   ServiceRecordDetailsReport(year, month);
+   //   DeviceRecordReport(year, month);
+   //}
+   //void DeviceRecordReport(int year, int month)
+   //{
+   //   var service = new FixesService();
+   //   var records = service.Fetch(year, month);
+
+   //   string title = $"資訊室 {year - 1911}年{month}月設備(料件)換修記錄表";
+   //   var model = new FixRecordReportModel(title, records.ToList());
+
+   //   var doc = new FixRecordDetailsDocument(model);
+
+   //   byte[] bytes = doc.GeneratePdf();
+   //   string folder = @"C:\temp";
+   //   string filePath = Path.Combine(folder, "devices_report.pdf");
+
+   //   System.IO.File.WriteAllBytes(filePath, bytes);
+   //}
+   //void ServiceRecordReport(int year, int month)
+   //{
+   //   var service = new ITServiceService();
+   //   var records = service.Fetch(year, month);
+
+   //   var kinds = records.Select(x => x.Kind).Distinct().ToList();
+   //   var groups = new List<ITServiceGroup>();
+   //   foreach (var kind in kinds)
+   //   {
+   //      var items = records.Where(x => x.Kind == kind).ToList();
+   //      groups.Add(new ITServiceGroup { Title = kind, Records = items });
+   //   }
+
+   //   string title = $"資訊室 {year - 1911}年{month}月資訊業務服務統計表";
+   //   var model = new ServiceRecordReportModel(title, groups);
+
+   //   var doc = new ServiceRecordReportDocument(model);
+
+   //   byte[] bytes = doc.GeneratePdf();
+   //   string folder = @"C:\temp";
+   //   string filePath = Path.Combine(folder, "services_summary.pdf");
+
+   //   System.IO.File.WriteAllBytes(filePath, bytes);
+   //}
+   //void ServiceRecordDetailsReport(int year, int month)
+   //{
+   //   var service = new ITServiceService();
+   //   var records = service.Fetch(year, month);
+
+   //   var depts = records.Select(x => x.Department).Distinct().ToList();
+   //   var groups = new List<ITServiceGroup>();
+   //   foreach (var dept in depts)
+   //   {
+   //      var items = records.Where(x => x.Department == dept).ToList();
+   //      groups.Add(new ITServiceGroup { Title = dept, Records = items });
+   //   }
+     
+   //   string title = $"資訊室 {year - 1911}年{month}月資訊業務服務明細表";
+   //   var model = new ServiceRecordReportModel(title, groups);
+
+   //   var doc = new ServiceRecordDetailsDocument(model);
+
+   //   byte[] bytes = doc.GeneratePdf();
+   //   string folder = @"C:\temp";
+   //   string filePath = Path.Combine(folder, "services_details.pdf");
+
+   //   System.IO.File.WriteAllBytes(filePath, bytes);
+   //}
+
+   void InsertCarUsers()
+   {
+      //read all users from file
+      string filePath = @"C:\Users\Administrator\Desktop\test\20250825\adlist.xlsx";
+      var users = _carsService.ReadUsersFromFile(filePath);
+
+      //read car users from db
+      var carUsers = _carsService.GetCarUsers();
+
+      //set userId to all users
+      foreach (var carUser in carUsers)
+      {
+         var user = users.FirstOrDefault(x => x.Name == carUser.Name);
+         if (user != null)
+         {
+            user.Id = carUser.Id;
+         }
+      }
+
+      //create or update carUsers in db
+      foreach (var user in users)
+      {
+         if (user.Id > 0) _carsService.UpdateCarUser(user);
+         else _carsService.InsertCarUser(user);
+      }
+   }
+
+   void UpdateRecord_A()
+   {
+      //read all users from file
+      string filePath = @"C:\Users\Administrator\Desktop\test\20250825\adlist.xlsx";
+      var users = _carsService.ReadUsersFromFile(filePath);
+
+      var carRecords = _carsService.GetCarRecords();
+
+      foreach (var user in users)
+      {
+         if (string.IsNullOrEmpty(user.AD)) continue;
+         var carUser = _carsService.GetCarUserByAD(user.AD);
+         var records = carRecords.Where(x => x.Name.Trim() == user.Name);
+         foreach (var record in records.ToList())
+         {
+            record.UserId = carUser != null ? carUser.Id : 0;
+            _carsService.UpdateCarRecord(record);
+         }
+      }
+   }
+   void UpdateRecord_B()
+   {
+      var carRecords = _carsService.GetCarRecords();
+      var carUsers = _carsService.GetCarUsers();
+      var names = carRecords.Select(x => x.Name).Distinct().ToList();
+
+      foreach (var name in names)
+      {
+         // 帳號
+         var accounts = carUsers.Where(x => x.Name.Trim() == name).ToList();
+         var validAccount = accounts.FirstOrDefault(x => x.IsValid());
+         if (validAccount == null) validAccount = accounts.FirstOrDefault();
+
+         var records = carRecords.Where(x => x.Name.Trim() == name).ToList();
+         foreach (var record in records.ToList())
+         {
+            record.UserId = validAccount != null ? validAccount.Id : 0;
+            _carsService.UpdateCarRecord(record);
+         }
+      }
+   }
+
+   void RemoveDupCarUsers()
+   {
+      var carRecords = _carsService.GetCarRecords();
+      var carUsers = _carsService.GetCarUsers();
+      var names = carUsers.Select(x => x.Name).Distinct().ToList();
+
+      foreach (var name in names)
+      {
+         // 帳號
+         var accounts = carUsers.Where(x => x.Name.Trim() == name).ToList();
+         var validAccount = accounts.FirstOrDefault(x => x.IsValid());
+         if (validAccount == null) validAccount = accounts.FirstOrDefault();
+
+         foreach (var account in accounts)
+         {
+            if (account.Id == validAccount.Id) continue;
+            var records = carRecords.Where(x => x.UserId == account.Id).ToList();
+            if (records.IsNullOrEmpty())
+            {
+               _carsService.DeleteCarUser(account.Id);
+            }
+         }
+      }
+   }
+   void RemoveNotValidCarUsers()
+   {
+      var carRecords = _carsService.GetCarRecords();
+      var carUsers = _carsService.GetCarUsers();
+      var names = carUsers.Select(x => x.Name).Distinct().ToList();
+
+      foreach (var carUser in carUsers)
+      {
+         if (string.IsNullOrEmpty(carUser.AD)) continue;
+         if (carUser.AD.ContainsChinese())
+         {
+            var records = carRecords.Where(x => x.UserId == carUser.Id).ToList();
+            if (records.IsNullOrEmpty())
+            {
+               _carsService.DeleteCarUser(carUser.Id);
+            }
+         }
+      }
+   }
+
+   //[HttpGet]
+   //public async Task<ActionResult> CCCIndex()
+   //{
+   //   string filePath = @"C:\Users\Administrator\Desktop\test\20250825\adlist.xlsx";
+   //   var users = _carsService.ReadUsersFromFile(filePath);
+
+   //   var carUsers = _carsService.GetCarUsers();
+   //   foreach (var carUser in carUsers)
+   //   {
+   //      var user = users.FirstOrDefault(x => x.Name == carUser.Name);
+   //      if (user != null) 
+   //      {
+   //         user.Id = carUser.Id;
+   //      }
+   //   }
+
+   //   return Ok(carUsers);
+   //}
 
    List<TestU> GetTUS()
    {

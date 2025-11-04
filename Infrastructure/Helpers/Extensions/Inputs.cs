@@ -17,6 +17,16 @@ public static class InputHelpers
       string pattern = "^[a-zA-Z0-9]*$";
       return Regex.IsMatch(input, pattern);
    }
+   public static bool ContainsChinese(this string input)
+   {
+      foreach (char c in input)
+      {
+         // CJK Unified Ideographs range: U+4E00 ¡V U+9FFF
+         if (c >= 0x4E00 && c <= 0x9FFF)
+            return true;
+      }
+      return false;
+   }
    public static bool IsValidUserName(this string input)
    {
       string pattern = "^[a-zA-Z0-9_.@]*$";

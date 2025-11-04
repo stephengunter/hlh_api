@@ -14,6 +14,8 @@ using Web.Models.Keyin;
 using ApplicationCore.Models.Keyin;
 using Infrastructure.Views;
 using QuestPDF.Fluent;
+using Microsoft.Extensions.Primitives;
+using System.Text;
 
 namespace Web.Controllers.Open.Keyins;
 
@@ -23,9 +25,6 @@ public class BranchesController : BaseOpenController
    private readonly IMapper _mapper;
    private readonly IBranchesService _branchesService;
    private readonly IBranchRecordService _branchRecordService;
-
-
-   
    public BranchesController(IBranchesService branchesService, IBranchRecordService branchRecordService, IMapper mapper)
    {
       
@@ -117,35 +116,36 @@ public class BranchesController : BaseOpenController
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
       var records = new List<BranchRecord>();
+      var names = new List<string>();
       using (var stream = new MemoryStream())
       {
          await file!.CopyToAsync(stream);
-         using (var package = new OfficeOpenXml.ExcelPackage(stream))
+         stream.Position = 0;
+         using (var reader = new StreamReader(stream, Encoding.GetEncoding(950)))
          {
-            var worksheet = package.Workbook.Worksheets.FirstOrDefault(); // Get the first worksheet
-            if (worksheet == null)
+            string? line;
+            while ((line = await reader.ReadLineAsync()) != null)
             {
-               ModelState.AddModelError("file", "無法讀取工作表");
-               return BadRequest(ModelState);
-            }
+               var parts = line.Split(',');
+               int columns = parts.Length;
+               string name = parts[1];
+               if (string.IsNullOrEmpty(name) ) continue;
+               if (name.Length < 4) continue;
 
-            var rowCount = worksheet.Dimension.Rows;
-            var colCount = worksheet.Dimension.Columns;
+               int rank = string.IsNullOrEmpty(parts[0]) ? 0 : parts[0].ToInt();
+               string branchTitle = parts[1];
 
-            for (int row = 1; row <= rowCount; row++)
-            {
-               int rank = worksheet.Cells[row, 1].Text.ToInt();
-               string branchTitle = worksheet.Cells[row, 2].Text;
-               int score = worksheet.Cells[row, 3].Text.ToInt();
-               string absentRate = worksheet.Cells[row, 4].Text;
-               if (string.IsNullOrEmpty(branchTitle)) continue;
-               if (score < 1) continue;
+               int index = columns - 3;
+               int score = parts[index].ToInt();
+
+               //缺考率
+               string absentRate = parts[index];
 
                var branch = await _branchesService.FindByTitleAsync(branchTitle);
-               if(branch == null)
+               if (branch == null)
                {
                   branch = await _branchesService.CreateAsync(new Branch
-                  { 
+                  {
                      Title = branchTitle
                   });
                }
@@ -195,20 +195,12 @@ public class BranchesController : BaseOpenController
       else
       {
          // Check file extension (for Excel files)
-         var allowedExtensions = new[] { ".xlsx", ".xls" };
+         var allowedExtensions = new[] { ".csv" };
          var extension = Path.GetExtension(file.FileName).ToLower();
 
          if (!allowedExtensions.Contains(extension))
          {
-            errors.Add("file", "只接受 Excel 檔案 (.xlsx, .xls)");
-            return errors;
-         }
-
-         // Check MIME type for Excel
-         if (file.ContentType != "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" &&
-             file.ContentType != "application/vnd.ms-excel")
-         {
-            errors.Add("file", "檔案類型必須是 Excel (.xlsx, .xls)");
+            errors.Add("file", "只接受 csv 檔案");
             return errors;
          }
 

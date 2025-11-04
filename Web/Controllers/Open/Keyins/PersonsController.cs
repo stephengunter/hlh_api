@@ -11,6 +11,7 @@ using ApplicationCore.Models.Keyin;
 using OfficeOpenXml;
 using Infrastructure.Views;
 using QuestPDF.Fluent;
+using System.Text;
 
 namespace Web.Controllers.Open.Keyins;
 
@@ -103,43 +104,47 @@ public class PersonsController : BaseOpenController
       return Ok();
 
    }
-
    [HttpPost("upload")]
    public async Task<ActionResult<ICollection<PersonRecordView>>> Upload([FromForm] PersonRecordsUploadRequest request)
    {
+      int year = request.Year;
+      int month = request.Month;
       var file = request.File;
       var errors = ValidateFile(file!);
       AddErrors(errors);
       if (!ModelState.IsValid) return BadRequest(ModelState);
 
-      ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
+      Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
       var records = new List<PersonRecord>();
       using (var stream = new MemoryStream())
       {
          await file!.CopyToAsync(stream);
-         using (var package = new ExcelPackage(stream))
+         stream.Position = 0;
+         using (var reader = new StreamReader(stream, Encoding.GetEncoding(950)))
          {
-            var worksheet = package.Workbook.Worksheets.FirstOrDefault(); // Get the first worksheet
-            if (worksheet == null)
+            string? line;
+            while ((line = await reader.ReadLineAsync()) != null)
             {
-               ModelState.AddModelError("file", "無法讀取工作表");
-               return BadRequest(ModelState);
-            }
+               var parts = line.Split(',');
+               int columns = parts.Length;
+               string unit = parts[0];
+               if (string.IsNullOrEmpty(unit)) continue;
+               unit = unit.Trim();
+               if (unit.Length > 2) continue;
+               if (unit == "平均") break;
+               if (!unit.EndsWith("股")) continue;
+               
 
-            var rowCount = worksheet.Dimension.Rows;
-            var colCount = worksheet.Dimension.Columns;
-
-            for (int row = 1; row <= rowCount; row++)
-            {
-               string unit = worksheet.Cells[row, 1].Text.Trim();
-               string account = worksheet.Cells[row, 2].Text;
+               string account = parts[1].Trim();
                if (!IsValidAccount(account)) continue;
 
-               account = account.Trim();
-               string name = worksheet.Cells[row, 3].Text.Trim();
-               int score = worksheet.Cells[row, 4].Text.ToInt();
-               double correctRate = worksheet.Cells[row, 5].Text.ToDouble();
+               string name = parts[2].Trim();
+
+               int index = columns - 4;
+               int score = parts[index].ToInt();
+
+               index = columns - 2;
+               double correctRate = parts[index].ToDouble();
 
                var person = await _personService.FindByNameAsync(name);
                if (person == null)
@@ -148,17 +153,20 @@ public class PersonsController : BaseOpenController
                   {
                      Name = name,
                      Unit = unit,
-                     Account = account   
+                     Account = account
                   });
                }
                else
                {
-                  if (person.Unit != unit)
+                  if (person.IsActive(year + 1911, month))
                   {
-                     person.Unit = unit;
-                     await _personService.UpdateAsync(person);
+                     if (person.Unit != unit)
+                     {
+                        person.Unit = unit;
+                        await _personService.UpdateAsync(person);
+                     }
                   }
-                 
+                  else continue;
                }
                var record = new PersonRecord()
                {
@@ -169,11 +177,14 @@ public class PersonsController : BaseOpenController
                   Person = person
                };
                records.Add(record);
+
             }
          }
       }
       return records.MapViewModelList(_mapper);
    }
+
+   
    bool IsValidAccount(string input)
    {
       if (string.IsNullOrEmpty(input)) return false;
@@ -205,6 +216,7 @@ public class PersonsController : BaseOpenController
       byte[] bytes = doc.GeneratePdf();
       return Ok(new BaseFileView(title, bytes));
    }
+
    Dictionary<string, string> ValidateFile(IFormFile file)
    {
       var errors = new Dictionary<string, string>();
@@ -215,26 +227,19 @@ public class PersonsController : BaseOpenController
       }
       else
       {
-         // Check file extension (for Excel files)
-         var allowedExtensions = new[] { ".xlsx", ".xls" };
+         // Check file extension
+         var allowedExtensions = new[] { ".csv" };
          var extension = Path.GetExtension(file.FileName).ToLower();
 
          if (!allowedExtensions.Contains(extension))
          {
-            errors.Add("file", "只接受 Excel 檔案 (.xlsx, .xls)");
-            return errors;
-         }
-
-         // Check MIME type for Excel
-         if (file.ContentType != "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" &&
-             file.ContentType != "application/vnd.ms-excel")
-         {
-            errors.Add("file", "檔案類型必須是 Excel (.xlsx, .xls)");
+            errors.Add("file", "只接受 csv 檔案");
             return errors;
          }
 
          return errors;
       }
    }
+
 
 }

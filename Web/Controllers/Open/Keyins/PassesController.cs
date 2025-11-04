@@ -12,6 +12,9 @@ using OfficeOpenXml;
 using Infrastructure.Views;
 using QuestPDF.Fluent;
 using Microsoft.Identity.Client;
+using Web.Models.IT;
+using ApplicationCore.Authorization;
+using ApplicationCore.Models;
 
 namespace Web.Controllers.Open.Keyins;
 
@@ -26,33 +29,26 @@ public class PassesController : BaseOpenController
       _mapper = mapper;
    }
    [HttpGet]
-   public async Task<ActionResult<ICollection<KeyinPersonView>>> Index()
+   public async Task<ActionResult<ICollection<KeyinPersonView>>> Index(int pass)
    {
-      var persons = await _personService.FetchAllPassAsync();
+      IEnumerable<KeyinPerson> persons = null;
+      if(pass > 0) persons = await _personService.FetchAllPassAsync();
+      else persons = await _personService.FetchAsync();
       return persons.MapViewModelList(_mapper);
    }
 
    [HttpPost]
-   public async Task<ActionResult> Store([FromBody] PassesPersonAddRequest request)
+   public async Task<ActionResult> Store([FromBody] KeyinPersonView form)
    {
-      foreach (var item in request.Persons)
-      {
-         var entity = await _personService.FindByNameAsync(item.Name);
+      ValidateRequest(form, 0);
+      if (!ModelState.IsValid) return BadRequest(ModelState);
 
-         if (entity != null)
-         {
-            entity.HighRun = item.HighRun;
-            entity.AllPass = true;
-            await _personService.UpdateAsync(entity);
-         }
-         else
-         {
-            entity = item.MapEntity(_mapper);
-            entity.AllPass = true;
-            entity = await _personService.CreateAsync(entity);
-         }
-      }
-      return Ok();
+      var entity = new KeyinPerson();
+      form.SetValuesTo(entity);
+
+      entity = await _personService.CreateAsync(entity);
+
+      return Ok(entity.MapViewModel(_mapper));
 
    }
 
@@ -86,6 +82,36 @@ public class PassesController : BaseOpenController
       }
       return persons;
    }
+   [HttpGet("create")]
+   public ActionResult<KeyinPersonView> Create() => new KeyinPersonView();
+
+   [HttpGet("edit/{id}")]
+   public async Task<ActionResult<KeyinPersonView>> Edit(int id)
+   {
+      var entity = await _personService.GetByIdAsync(id);
+      if (entity == null) return NotFound();
+      
+      var form = entity.MapViewModel(_mapper);
+      return form;
+   }
+   [HttpPut("{id}")]
+   public async Task<ActionResult> Update(int id, [FromBody] KeyinPersonView model)
+   {
+      var entity = await _personService.GetByIdAsync(id);
+      if (entity == null) return NotFound();
+
+      ValidateRequest(model, id);
+      if (!ModelState.IsValid) return BadRequest(ModelState);
+
+      model.SetValuesTo(entity);
+      entity.LeaveAt = model.LeaveAtText.ToDatetimeOrNull();
+      entity.AllPass = model.HighRun > 0;
+
+
+      await _personService.UpdateAsync(entity);
+
+      return NoContent();
+   }
    [HttpPost("reports")]
    public async Task<IActionResult> Reports(PersonPassesReportRequest request)
    {
@@ -100,5 +126,13 @@ public class PassesController : BaseOpenController
 
       byte[] bytes = doc.GeneratePdf();
       return Ok(new BaseFileView(title, bytes));
+   }
+   void ValidateRequest(KeyinPersonView model, int id)
+   {
+      var labels = new KeyinPersonLabels();
+      if (String.IsNullOrEmpty(model.Account)) ModelState.AddModelError(nameof(model.Account), ValidationMessages.Required(labels.Account));
+      if (String.IsNullOrEmpty(model.Name)) ModelState.AddModelError(nameof(model.Name), ValidationMessages.Required(labels.Name));
+      if (String.IsNullOrEmpty(model.Unit)) ModelState.AddModelError(nameof(model.Unit), ValidationMessages.Required(labels.Unit));
+     
    }
 }

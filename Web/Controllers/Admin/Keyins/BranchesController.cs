@@ -15,7 +15,6 @@ using ApplicationCore.Models.Keyin;
 using Infrastructure.Views;
 using QuestPDF.Fluent;
 using Infrastructure.Consts;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Web.Controllers.Admin.Keyins;
 

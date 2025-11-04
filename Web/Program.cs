@@ -15,6 +15,7 @@ using Infrastructure.Helpers;
 using QuestPDF.Infrastructure;
 using Infrastructure.Services;
 using Microsoft.IdentityModel.Tokens;
+using ApplicationCore.Services;
 
 Log.Logger = new LoggerConfiguration()
    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Information)
@@ -38,6 +39,7 @@ try
    {
       builder.RegisterModule<ApplicationCoreModule>();
    });
+
    #endregion
 
    #region Add Configurations
@@ -71,6 +73,11 @@ try
    builder.Services.AddIdentity<User, Role>(options =>
    {
       options.User.RequireUniqueEmail = false;
+      
+      options.Password.RequireUppercase = false;        // 不要求大寫字母
+      options.Password.RequireNonAlphanumeric = false;  // 不要求特殊符號
+      options.Password.RequiredLength = 3;              // 密碼最少長度
+      options.Password.RequiredUniqueChars = 1;         // 至少需有幾個不重複字元
    })
    .AddEntityFrameworkStores<DefaultContext>()
    .AddDefaultTokenProviders();
@@ -102,6 +109,9 @@ try
    }
 
    builder.Services.AddScoped<ICryptoService>(provider => new AesCryptoService(key));
+   string hlh01ConnString = Configuration.GetConnectionString("hlh01")!;
+   builder.Services.AddScoped<IServiceFixes>(provider => new ServiceHlh01Fixes(hlh01ConnString));
+   builder.Services.AddScoped<IITServiceSupport>(provider => new ITServiceSupport(hlh01ConnString));
 
    builder.Services.AddCorsPolicy(Configuration);
    builder.Services.AddJwtBearer(Configuration);
@@ -129,6 +139,7 @@ try
 
    app.UseSerilogRequestLogging();
 
+
    if (app.Environment.IsDevelopment())
    {
       if (Configuration[$"{SettingsKeys.Developing}:SeedDatabase"].ToBoolean())
@@ -155,7 +166,6 @@ try
    {
       app.UseHttpsRedirection();
    }
-
 
 
    app.UseCors("Api");

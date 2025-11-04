@@ -61,6 +61,7 @@ namespace ApplicationCore.Views.Keyin
       }
       void ComposeTable(IContainer container)
       {
+         var labael = new KeyinPersonLabels();
          container.Table(table =>
          {
             // step 1
@@ -74,9 +75,9 @@ namespace ApplicationCore.Views.Keyin
             // step 2
             table.Header(header =>
             {
-               header.Cell().Element(CellStyleCenter).Text(KeyinPersonLabels.Account);
-               header.Cell().Element(CellStyleCenter).Text(KeyinPersonLabels.Name);
-               header.Cell().Element(CellStyleCenter).Text(KeyinPersonLabels.HighRun);
+               header.Cell().Element(CellStyleCenter).Text(labael.Account);
+               header.Cell().Element(CellStyleCenter).Text(labael.Name);
+               header.Cell().Element(CellStyleCenter).Text(labael.HighRun);
             });
 
             // step 3

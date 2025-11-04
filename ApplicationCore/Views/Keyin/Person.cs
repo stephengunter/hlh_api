@@ -12,15 +12,17 @@ public class KeyinPersonView : EntityBaseView
    public string LeaveAtText { get; set; } = string.Empty;
    public bool Active { get; set; }
    public int HighRun { get; set; }
+
+   public string AllPassText => AllPass ? "免測" : "";
 }
 
 public class KeyinPersonLabels
 {
-   public static string Account = "帳號";
-   public static string Unit = "股別";
-   public static string Name = "姓名";
-   public static string HighRun = "最佳成績";
-
+   public string Account => "帳號";
+   public string Unit => "股別";
+   public string Name => "姓名";
+   public string HighRun => "最佳成績";
+   public string LeaveAtText => "離職日期";
 }
 
 
