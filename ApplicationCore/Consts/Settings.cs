@@ -5,6 +5,7 @@ public class SettingsKeys
 	public static string Auth = "Auth";
 	public static string Admin = "Admin";
    public static string Attachment = "Attachment";
+   public static string SSO = "SSO";
    public static string Ldap = "Ldap";
    public static string FileBackup = "FileBackup";
    public static string Company = "Company";

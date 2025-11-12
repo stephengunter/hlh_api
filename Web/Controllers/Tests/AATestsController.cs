@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+ï»¿using Microsoft.AspNetCore.Mvc;
 using ApplicationCore.DataAccess;
 using Microsoft.SqlServer.Dac;
 using Microsoft.Extensions.Options;
@@ -31,6 +31,10 @@ using Infrastructure.Views;
 using QuestPDF.Fluent;
 using Azure.Core;
 using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.IdentityModel.Tokens.Jwt;
+using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
+using System.Text.Json;
 
 namespace Web.Controllers.Tests;
 
@@ -48,21 +52,36 @@ public class AATestsController : BaseTestController
    private readonly IDepartmentsService _departmentsService;
    private readonly CarsService _carsService;
    private readonly IMapper _mapper;
+   private readonly ISSOService _ssoService;
    public AATestsController(UserManager<User> userManager, DefaultContext defaultContext,
-      IUsersService usersService, IDepartmentsService departmentsService, IMapper mapper)
+      IUsersService usersService, IDepartmentsService departmentsService, ISSOService ssoService, IMapper mapper)
    {
       _userManager = userManager;
       _usersService = usersService;
       _departmentsService = departmentsService;
       _carsService = new CarsService();
+      _ssoService = ssoService;
       _mapper = mapper;
    }
-   [HttpGet]
-   public async Task<ActionResult> Index()
-   {
-      
+  
 
-      return Ok();
+   [HttpGet]
+   public async Task<ActionResult> Index(string jwt)
+   {
+      string token = _ssoService.ResolveUserSSOToken(jwt);
+      bool valid = await _ssoService.ValidateUserTokenAsync(token);
+
+      if (valid)
+      {
+         //var model = await _ssoService.GetUserAuthInfoAsync(token);
+         var uuidInfo = await _ssoService.GetUserUUIDInfoAsync(token);
+         var profiles = await _ssoService.GetUserProfilesInfoAsync(token, uuidInfo!);
+         return Ok(profiles);
+      }
+
+      return Ok(valid);
+
+
       //var test = await _userManager.CheckPasswordAsync(user, "hlh01");
       //var role = await _userManager.IsInRoleAsync(user, AppRoles.IT.ToString());
       //return Ok(test && role);
@@ -95,7 +114,7 @@ public class AATestsController : BaseTestController
    //   var service = new FixesService();
    //   var records = service.Fetch(year, month);
 
-   //   string title = $"¸ê°T«Ç {year - 1911}¦~{month}¤ë³]³Æ(®Æ¥ó)´«­×°O¿ýªí";
+   //   string title = $"è³‡è¨Šå®¤ {year - 1911}å¹´{month}æœˆè¨­å‚™(æ–™ä»¶)æ›ä¿®è¨˜éŒ„è¡¨";
    //   var model = new FixRecordReportModel(title, records.ToList());
 
    //   var doc = new FixRecordDetailsDocument(model);
@@ -119,7 +138,7 @@ public class AATestsController : BaseTestController
    //      groups.Add(new ITServiceGroup { Title = kind, Records = items });
    //   }
 
-   //   string title = $"¸ê°T«Ç {year - 1911}¦~{month}¤ë¸ê°T·~°ÈªA°È²Î­pªí";
+   //   string title = $"è³‡è¨Šå®¤ {year - 1911}å¹´{month}æœˆè³‡è¨Šæ¥­å‹™æœå‹™çµ±è¨ˆè¡¨";
    //   var model = new ServiceRecordReportModel(title, groups);
 
    //   var doc = new ServiceRecordReportDocument(model);
@@ -143,7 +162,7 @@ public class AATestsController : BaseTestController
    //      groups.Add(new ITServiceGroup { Title = dept, Records = items });
    //   }
      
-   //   string title = $"¸ê°T«Ç {year - 1911}¦~{month}¤ë¸ê°T·~°ÈªA°È©ú²Óªí";
+   //   string title = $"è³‡è¨Šå®¤ {year - 1911}å¹´{month}æœˆè³‡è¨Šæ¥­å‹™æœå‹™æ˜Žç´°è¡¨";
    //   var model = new ServiceRecordReportModel(title, groups);
 
    //   var doc = new ServiceRecordDetailsDocument(model);
@@ -210,7 +229,7 @@ public class AATestsController : BaseTestController
 
       foreach (var name in names)
       {
-         // ±b¸¹
+         // å¸³è™Ÿ
          var accounts = carUsers.Where(x => x.Name.Trim() == name).ToList();
          var validAccount = accounts.FirstOrDefault(x => x.IsValid());
          if (validAccount == null) validAccount = accounts.FirstOrDefault();
@@ -232,7 +251,7 @@ public class AATestsController : BaseTestController
 
       foreach (var name in names)
       {
-         // ±b¸¹
+         // å¸³è™Ÿ
          var accounts = carUsers.Where(x => x.Name.Trim() == name).ToList();
          var validAccount = accounts.FirstOrDefault(x => x.IsValid());
          if (validAccount == null) validAccount = accounts.FirstOrDefault();
@@ -567,7 +586,7 @@ public class AATestsController : BaseTestController
                // Iterate through rows and filter by column B
                for (int row = 2; row <= worksheet.Dimension.Rows; row++)
                {
-                  if (worksheet.Cells[row, 9].Text.Trim() != "¤wµ²®×")
+                  if (worksheet.Cells[row, 9].Text.Trim() != "å·²çµæ¡ˆ")
                   {
                      for (int col = 1; col <= worksheet.Dimension.Columns; col++)
                      {

@@ -139,6 +139,7 @@ public class BranchesController : BaseOpenController
                int score = parts[index].ToInt();
 
                //�ʦҲv
+               index = columns - 2;
                string absentRate = parts[index];
 
                var branch = await _branchesService.FindByTitleAsync(branchTitle);

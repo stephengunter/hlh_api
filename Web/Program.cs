@@ -16,6 +16,7 @@ using QuestPDF.Infrastructure;
 using Infrastructure.Services;
 using Microsoft.IdentityModel.Tokens;
 using ApplicationCore.Services;
+using Microsoft.Extensions.Options;
 
 Log.Logger = new LoggerConfiguration()
    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Information)
@@ -33,6 +34,8 @@ try
          .ReadFrom.Services(services)
          .Enrich.FromLogContext());
 
+   
+
    #region Autofac
    builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
    builder.Host.ConfigureContainer<ContainerBuilder>(builder =>
@@ -42,7 +45,13 @@ try
 
    #endregion
 
+   builder.Services.AddMemoryCache();
+
    #region Add Configurations
+   builder.Services.Configure<SSOSettings>(Configuration.GetSection(SettingsKeys.SSO)); 
+   builder.Services.AddSingleton(resolver =>
+      resolver.GetRequiredService<IOptions<SSOSettings>>().Value
+   );
    builder.Services.Configure<LdapSettings>(Configuration.GetSection(SettingsKeys.Ldap));
    builder.Services.Configure<AppSettings>(Configuration.GetSection(SettingsKeys.App));
    builder.Services.Configure<AdminSettings>(Configuration.GetSection(SettingsKeys.Admin));
@@ -107,8 +116,18 @@ try
    {
       throw new Exception("app key not been set.");
    }
-
    builder.Services.AddScoped<ICryptoService>(provider => new AesCryptoService(key));
+
+   string baseUrl = Configuration[$"{SettingsKeys.SSO}:BaseUrl"]!;
+   builder.Services.AddHttpClient(SettingsKeys.SSO, client => {
+      client.BaseAddress = new Uri(baseUrl);
+   })
+   .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+   {
+      ServerCertificateCustomValidationCallback =
+         HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+   });
+
    string hlh01ConnString = Configuration.GetConnectionString("hlh01")!;
    builder.Services.AddScoped<IServiceFixes>(provider => new ServiceHlh01Fixes(hlh01ConnString));
    builder.Services.AddScoped<IITServiceSupport>(provider => new ITServiceSupport(hlh01ConnString));
